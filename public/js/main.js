@@ -1,0 +1,314 @@
+// Main JavaScript for Better School UK
+
+// API Base URL - automatically uses the same domain
+const API_BASE_URL = '/api';
+
+// Utility function to format numbers
+function formatNumber(num) {
+    if (!num) return '-';
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Utility function to get URL parameters
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    const results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+// Load header and footer components
+async function loadComponents() {
+    try {
+        // Load header
+        const headerResponse = await fetch('/components/header.html');
+        if (headerResponse.ok) {
+            const headerHTML = await headerResponse.text();
+            const headerElement = document.getElementById('header');
+            if (headerElement) {
+                headerElement.innerHTML = headerHTML;
+            }
+        }
+        
+        // Load footer
+        const footerResponse = await fetch('/components/footer.html');
+        if (footerResponse.ok) {
+            const footerHTML = await footerResponse.text();
+            const footerElement = document.getElementById('footer');
+            if (footerElement) {
+                footerElement.innerHTML = footerHTML;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading components:', error);
+    }
+}
+
+// Search functionality
+async function searchSchools(query, type = 'all') {
+    try {
+        const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}&type=${type}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error searching schools:', error);
+        return { error: 'Failed to search schools' };
+    }
+}
+
+// Get school by URN
+async function getSchool(urn) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/schools/${urn}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching school:', error);
+        return { error: 'Failed to fetch school data' };
+    }
+}
+
+// Get school performance data
+async function getSchoolPerformance(urn) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/schools/${urn}/performance`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching performance data:', error);
+        return { error: 'Failed to fetch performance data' };
+    }
+}
+
+// Get nearby schools
+async function getNearbySchools(urn, limit = 5) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/schools/${urn}/nearby?limit=${limit}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching nearby schools:', error);
+        return { error: 'Failed to fetch nearby schools' };
+    }
+}
+
+// Display search results
+function displaySearchResults(schools) {
+    const container = document.getElementById('searchResults');
+    if (!container) return;
+    
+    if (!schools || schools.length === 0) {
+        container.innerHTML = '<p>No schools found. Try a different search term.</p>';
+        return;
+    }
+    
+    const html = schools.map(school => `
+        <div class="school-card" onclick="window.location.href='/school/${school.urn}'">
+            <div class="school-card-header">
+                <div>
+                    <div class="school-card-name">${school.name}</div>
+                    <div class="school-card-type">${school.type_of_establishment} • ${school.phase_of_education}</div>
+                </div>
+                <div class="school-card-rating rating-${getRatingClass(school.overall_rating)}">
+                    ${school.overall_rating}/10
+                </div>
+            </div>
+            <div class="school-card-details">
+                <div class="detail-item">
+                    <span>📍</span>
+                    <span>${school.postcode}</span>
+                </div>
+                <div class="detail-item">
+                    <span>🎓</span>
+                    <span>Ofsted: ${getOfstedLabel(school.ofsted_rating)}</span>
+                </div>
+                <div class="detail-item">
+                    <span>👥</span>
+                    <span>${formatNumber(school.number_on_roll)} students</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
+
+// Get rating class for styling
+function getRatingClass(rating) {
+    if (!rating) return 'average';
+    if (rating >= 8) return 'excellent';
+    if (rating >= 6) return 'good';
+    if (rating >= 4) return 'satisfactory';
+    return 'poor';
+}
+
+// Get Ofsted label from rating number
+function getOfstedLabel(rating) {
+    const labels = {
+        1: 'Outstanding',
+        2: 'Good',
+        3: 'Requires Improvement',
+        4: 'Inadequate'
+    };
+    return labels[rating] || 'Not Inspected';
+}
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load header and footer
+    loadComponents();
+    
+    // Set up search form if it exists
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+        searchForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value;
+            const type = document.querySelector('.search-tab.active')?.dataset.type || 'all';
+            
+            // Show loading
+            const resultsContainer = document.getElementById('searchResults');
+            if (resultsContainer) {
+                resultsContainer.innerHTML = '<p>Searching...</p>';
+            }
+            
+            // Perform search
+            const results = await searchSchools(query, type);
+            
+            // Display results
+            if (results.schools) {
+                displaySearchResults(results.schools);
+            }
+        });
+    }
+    
+    // Handle search type tabs
+    const searchTabs = document.querySelectorAll('.search-tab');
+    searchTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            searchTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update search placeholder
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                const type = this.dataset.type;
+                switch(type) {
+                    case 'postcode':
+                        searchInput.placeholder = 'Enter postcode (e.g., SW1A 1AA)...';
+                        break;
+                    case 'name':
+                        searchInput.placeholder = 'Enter school name...';
+                        break;
+                    case 'location':
+                        searchInput.placeholder = 'Enter city or town...';
+                        break;
+                    default:
+                        searchInput.placeholder = 'Enter postcode, school name, or location...';
+                }
+            }
+        });
+    });
+    
+    // Check if we're on a school page
+    const path = window.location.pathname;
+    if (path.startsWith('/school/')) {
+        const urn = path.split('/').pop();
+        if (urn) {
+            loadSchoolData(urn);
+        }
+    }
+});
+
+// Load school data for school profile page
+async function loadSchoolData(urn) {
+    try {
+        // Load basic school data
+        const schoolData = await getSchool(urn);
+        if (schoolData.success && schoolData.school) {
+            updateSchoolProfile(schoolData.school);
+        }
+        
+        // Load performance data
+        const perfData = await getSchoolPerformance(urn);
+        if (perfData.success && perfData.performance) {
+            updatePerformanceData(perfData.performance);
+        }
+        
+        // Load nearby schools
+        const nearbyData = await getNearbySchools(urn);
+        if (nearbyData.success && nearbyData.nearby_schools) {
+            updateNearbySchools(nearbyData.nearby_schools);
+        }
+    } catch (error) {
+        console.error('Error loading school data:', error);
+    }
+}
+
+// Update school profile with data
+function updateSchoolProfile(school) {
+    // Update all the elements with school data
+    const elements = {
+        'schoolName': school.name,
+        'schoolType': school.type,
+        'schoolPhase': school.phase,
+        'schoolAddress': `${school.address.street}, ${school.address.town}, ${school.address.postcode}`,
+        'overallRating': school.overall_rating + '/10',
+        'statStudents': formatNumber(school.demographics.total_students),
+        'statFSM': school.demographics.fsm_percentage + '%',
+        'infoURN': school.urn,
+        'infoType': school.type,
+        'infoGender': school.characteristics.gender,
+        'infoAgeRange': school.characteristics.age_range,
+        'infoLA': school.address.local_authority
+    };
+    
+    for (const [id, value] of Object.entries(elements)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value || '-';
+        }
+    }
+    
+    // Update Ofsted rating with styling
+    const ofstedElement = document.getElementById('ofstedRating');
+    if (ofstedElement && school.ofsted) {
+        const ofstedLabel = getOfstedLabel(school.ofsted.overall_effectiveness);
+        ofstedElement.textContent = ofstedLabel;
+        ofstedElement.className = `ofsted-score ofsted-${ofstedLabel.toLowerCase().replace(/\s+/g, '-')}`;
+    }
+    
+    // Update page title
+    document.title = `${school.name} - Better School UK`;
+}
+
+// Update performance data display
+function updatePerformanceData(performance) {
+    // This would update the performance grid based on the school's phase
+    // Implementation depends on your specific HTML structure
+    console.log('Performance data:', performance);
+}
+
+// Update nearby schools list
+function updateNearbySchools(schools) {
+    const container = document.getElementById('nearbySchools');
+    if (!container) return;
+    
+    const html = schools.slice(0, 5).map(school => `
+        <div class="nearby-school" onclick="window.location.href='/school/${school.urn}'">
+            <div>
+                <div class="nearby-school-name">${school.name}</div>
+                <div class="nearby-school-distance">${school.type_of_establishment}</div>
+            </div>
+            <div class="nearby-school-rating">${school.overall_rating}/10</div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
+
+// Export functions for use in HTML
+window.searchSchools = searchSchools;
+window.getSchool = getSchool;
+window.formatNumber = formatNumber;
+window.getOfstedLabel = getOfstedLabel;
