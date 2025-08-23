@@ -153,10 +153,164 @@ function getOfstedLabel(rating) {
     return labels[rating] || 'Not Inspected';
 }
 
+// Get search suggestions
+async function getSearchSuggestions(query) {
+    if (!query || query.length < 2) return [];
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/search/suggestions?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        return data.suggestions || [];
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        return [];
+    }
+}
+
+// Display search suggestions
+function displaySuggestions(suggestions, inputElement) {
+    // Remove existing suggestions container
+    const existingSuggestions = document.querySelector('.search-suggestions-dropdown');
+    if (existingSuggestions) {
+        existingSuggestions.remove();
+    }
+    
+    if (!suggestions || suggestions.length === 0) return;
+    
+    // Create suggestions container
+    const suggestionsDiv = document.createElement('div');
+    suggestionsDiv.className = 'search-suggestions-dropdown';
+    suggestionsDiv.style.cssText = `
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-top: 4px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+    `;
+    
+    // Add suggestions
+    suggestions.forEach(suggestion => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.style.cssText = `
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        `;
+        
+        // Add icon based on type
+        const icon = suggestion.type === 'school' ? '🏫' : 
+                     suggestion.type === 'town' ? '📍' : 
+                     suggestion.type === 'la' ? '🏛️' : '📍';
+        
+        item.innerHTML = `
+            <span style="font-size: 1.2em;">${icon}</span>
+            <div style="flex: 1;">
+                <div style="font-weight: 500; color: #111827;">${suggestion.suggestion}</div>
+                <div style="font-size: 0.875rem; color: #6b7280; text-transform: capitalize;">${suggestion.type}</div>
+            </div>
+        `;
+        
+        // Add hover effect
+        item.addEventListener('mouseenter', () => {
+            item.style.background = '#f9fafb';
+        });
+        item.addEventListener('mouseleave', () => {
+            item.style.background = 'white';
+        });
+        
+        // Handle click
+        item.addEventListener('click', () => {
+            inputElement.value = suggestion.suggestion;
+            suggestionsDiv.remove();
+            
+            // If it's a school, go directly to the school page
+            if (suggestion.type === 'school' && suggestion.id) {
+                window.location.href = `/school/${suggestion.id}`;
+            } else {
+                // Otherwise, perform a search
+                const form = inputElement.closest('form');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+        
+        suggestionsDiv.appendChild(item);
+    });
+    
+    // Add suggestions container to the parent of the input
+    const inputParent = inputElement.parentElement;
+    inputParent.style.position = 'relative';
+    inputParent.appendChild(suggestionsDiv);
+}
+
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', function() {
     // Load header and footer
     loadComponents();
+    
+    // Set up search input with autocomplete
+    const searchInputs = document.querySelectorAll('#searchInput, #mainSearchInput');
+    searchInputs.forEach(input => {
+        if (input) {
+            let debounceTimer;
+            
+            // Add input event for autocomplete
+            input.addEventListener('input', async function(e) {
+                const query = e.target.value;
+                
+                // Clear previous timer
+                clearTimeout(debounceTimer);
+                
+                // Remove suggestions if query is too short
+                if (query.length < 2) {
+                    const existingSuggestions = document.querySelector('.search-suggestions-dropdown');
+                    if (existingSuggestions) {
+                        existingSuggestions.remove();
+                    }
+                    return;
+                }
+                
+                // Debounce the API call
+                debounceTimer = setTimeout(async () => {
+                    const suggestions = await getSearchSuggestions(query);
+                    displaySuggestions(suggestions, input);
+                }, 300); // Wait 300ms after user stops typing
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !e.target.closest('.search-suggestions-dropdown')) {
+                    const existingSuggestions = document.querySelector('.search-suggestions-dropdown');
+                    if (existingSuggestions) {
+                        existingSuggestions.remove();
+                    }
+                }
+            });
+            
+            // Hide suggestions on escape key
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const existingSuggestions = document.querySelector('.search-suggestions-dropdown');
+                    if (existingSuggestions) {
+                        existingSuggestions.remove();
+                    }
+                }
+            });
+        }
+    });
     
     // Set up search form if it exists
     const searchForm = document.getElementById('searchForm');
@@ -165,6 +319,12 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const query = document.getElementById('searchInput').value;
             const type = document.querySelector('.search-tab.active')?.dataset.type || 'all';
+            
+            // Hide suggestions
+            const existingSuggestions = document.querySelector('.search-suggestions-dropdown');
+            if (existingSuggestions) {
+                existingSuggestions.remove();
+            }
             
             // Show loading
             const resultsContainer = document.getElementById('searchResults');
