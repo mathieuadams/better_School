@@ -105,6 +105,30 @@ app.get('/search', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'search.html'));
 });
 
+// City pages - UK major cities
+const ukCities = [
+  'london', 'birmingham', 'glasgow', 'liverpool', 'bristol', 'manchester',
+  'sheffield', 'leeds', 'edinburgh', 'leicester', 'coventry', 'bradford',
+  'cardiff', 'belfast', 'nottingham', 'kingston-upon-hull', 'newcastle',
+  'stoke-on-trent', 'southampton', 'portsmouth', 'derby', 'plymouth',
+  'wolverhampton', 'swansea', 'milton-keynes', 'northampton', 'york',
+  'oxford', 'cambridge', 'norwich', 'brighton', 'bath', 'canterbury',
+  'exeter', 'chester', 'durham', 'salisbury', 'lancaster', 'worcester', 'lincoln'
+];
+
+// Route for city pages
+ukCities.forEach(city => {
+  app.get(`/${city}`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'city.html'));
+  });
+  
+  // Route for school within a city
+  app.get(`/${city}/:schoolSlug`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'school.html'));
+  });
+});
+
+// Fallback route for school by URN
 app.get('/school/:urn', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'school.html'));
 });

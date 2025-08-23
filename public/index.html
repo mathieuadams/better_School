@@ -21,7 +21,7 @@
         /* Homepage specific styles */
         .hero-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 3rem 0 4rem;
+            padding: 4rem 0 5rem;
             color: white;
         }
         
@@ -32,7 +32,7 @@
         }
         
         .hero-title {
-            font-size: 2.75rem;
+            font-size: 3rem;
             font-weight: 700;
             margin-bottom: 1rem;
             line-height: 1.2;
@@ -41,42 +41,24 @@
         .hero-subtitle {
             font-size: 1.25rem;
             opacity: 0.95;
-            margin-bottom: 2.5rem;
+            margin-bottom: 3rem;
         }
         
         .search-container {
             background: white;
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 2rem;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
         }
         
-        .search-type-selector {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .search-type-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 0.75rem 1rem;
-            background: #f3f4f6;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-        
-        .search-type-btn.active {
-            background: #dbeafe;
-            border-color: #2563eb;
-            color: #1e40af;
+        .search-label {
+            color: #374151;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: block;
         }
         
         .search-main {
@@ -121,6 +103,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         
         .search-btn:hover {
@@ -129,15 +112,10 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
         
-        .quick-links {
-            margin-top: 1.5rem;
+        .search-hint {
+            margin-top: 0.75rem;
             font-size: 0.875rem;
             color: #6b7280;
-        }
-        
-        .quick-links a {
-            color: #2563eb;
-            margin: 0 0.5rem;
         }
         
         /* Info Section */
@@ -229,77 +207,63 @@
             color: #6b7280;
         }
         
-        /* Popular Schools */
-        .popular-section {
+        /* Cities Section */
+        .cities-section {
             padding: 4rem 0;
             background: #f9fafb;
         }
         
-        .school-list {
-            margin-top: 2rem;
+        .cities-header {
+            text-align: center;
+            margin-bottom: 3rem;
         }
         
-        .school-item {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-            cursor: pointer;
+        .cities-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
         }
         
-        .school-item:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateX(4px);
-        }
-        
-        .school-info h3 {
-            font-size: 1.125rem;
-            margin-bottom: 0.25rem;
-            color: #1f2937;
-        }
-        
-        .school-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.875rem;
+        .cities-subtitle {
             color: #6b7280;
         }
         
-        .school-rating {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
         }
         
-        .rating-badge {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: white;
+        .city-link {
+            padding: 0.75rem 1rem;
+            color: #374151;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: block;
+            border-radius: 6px;
         }
         
-        .rating-excellent { background: #10b981; }
-        .rating-good { background: #3b82f6; }
-        .rating-average { background: #f59e0b; }
-        
-        .ofsted-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .city-link:hover {
+            background: white;
+            color: #2563eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
-        .ofsted-outstanding { background: #dcfce7; color: #166534; }
-        .ofsted-good { background: #dbeafe; color: #1e40af; }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .search-main {
+                flex-direction: column;
+            }
+            
+            .cities-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
     </style>
 </head>
 <body>
@@ -315,20 +279,7 @@
                 
                 <!-- Search Container -->
                 <div class="search-container">
-                    <div class="search-type-selector">
-                        <button class="search-type-btn active" onclick="setSearchType('all')">
-                            All Search
-                        </button>
-                        <button class="search-type-btn" onclick="setSearchType('postcode')">
-                            By Postcode
-                        </button>
-                        <button class="search-type-btn" onclick="setSearchType('school')">
-                            By School Name
-                        </button>
-                        <button class="search-type-btn" onclick="setSearchType('location')">
-                            By City/Town
-                        </button>
-                    </div>
+                    <label class="search-label">Find a great school</label>
                     
                     <form class="search-main" onsubmit="performSearch(event)">
                         <div class="search-input-group">
@@ -339,8 +290,9 @@
                                 type="text" 
                                 class="search-input" 
                                 id="mainSearchInput"
-                                placeholder="Enter postcode, school name, or location..."
+                                placeholder="Enter school name, postcode, or city..."
                                 required
+                                autocomplete="off"
                             >
                         </div>
                         <button type="submit" class="search-btn">
@@ -348,12 +300,8 @@
                         </button>
                     </form>
                     
-                    <div class="quick-links">
-                        Popular searches:
-                        <a href="/search?location=London">London</a>
-                        <a href="/search?location=Manchester">Manchester</a>
-                        <a href="/search?location=Birmingham">Birmingham</a>
-                        <a href="/search?ofsted=1">Outstanding Schools</a>
+                    <div class="search-hint">
+                        Try: "Westminster Academy" or "SW1A 1AA" or "London"
                     </div>
                 </div>
             </div>
@@ -414,94 +362,91 @@
             <h2 style="text-align: center; margin-bottom: 1rem;">Browse Schools by the Numbers</h2>
             
             <div class="browse-grid">
-                <a href="/search" class="browse-card">
+                <div class="browse-card" onclick="window.location.href='/search?type=all'">
                     <div class="browse-number">30,000+</div>
                     <div class="browse-label">Total Schools</div>
-                </a>
+                </div>
                 
-                <a href="/search?phase=Primary" class="browse-card">
+                <div class="browse-card" onclick="window.location.href='/search?phase=Primary'">
                     <div class="browse-number">16,800+</div>
                     <div class="browse-label">Primary Schools</div>
-                </a>
+                </div>
                 
-                <a href="/search?phase=Secondary" class="browse-card">
+                <div class="browse-card" onclick="window.location.href='/search?phase=Secondary'">
                     <div class="browse-number">3,400+</div>
                     <div class="browse-label">Secondary Schools</div>
-                </a>
+                </div>
                 
-                <a href="/search?ofsted=1" class="browse-card">
+                <div class="browse-card" onclick="window.location.href='/search?ofsted=1'">
                     <div class="browse-number">5,000+</div>
                     <div class="browse-label">Outstanding</div>
-                </a>
+                </div>
                 
-                <a href="/search?type=Academy" class="browse-card">
+                <div class="browse-card" onclick="window.location.href='/search?type=Academy'">
                     <div class="browse-number">9,000+</div>
                     <div class="browse-label">Academies</div>
-                </a>
+                </div>
                 
-                <a href="/search?type=Independent" class="browse-card">
+                <div class="browse-card" onclick="window.location.href='/search?type=Independent'">
                     <div class="browse-number">2,400+</div>
                     <div class="browse-label">Independent</div>
-                </a>
+                </div>
             </div>
         </div>
     </section>
     
-    <!-- Popular Schools Section -->
-    <section class="popular-section">
+    <!-- UK Cities Section -->
+    <section class="cities-section">
         <div class="container">
-            <h2 style="margin-bottom: 1rem;">Popular Schools Near You</h2>
-            
-            <div class="school-list" id="popularSchools">
-                <!-- Sample schools - replace with dynamic content -->
-                <div class="school-item" onclick="window.location.href='/school/100000'">
-                    <div class="school-info">
-                        <h3>Westminster Academy</h3>
-                        <div class="school-meta">
-                            <span>📍 London SW1</span>
-                            <span>👥 1,200 students</span>
-                            <span>📚 Secondary</span>
-                        </div>
-                    </div>
-                    <div class="school-rating">
-                        <div class="rating-badge rating-excellent">9/10</div>
-                        <div class="ofsted-badge ofsted-outstanding">Outstanding</div>
-                    </div>
-                </div>
-                
-                <div class="school-item" onclick="window.location.href='/school/100001'">
-                    <div class="school-info">
-                        <h3>St Mary's Catholic Primary School</h3>
-                        <div class="school-meta">
-                            <span>📍 London SW1</span>
-                            <span>👥 420 students</span>
-                            <span>📚 Primary</span>
-                        </div>
-                    </div>
-                    <div class="school-rating">
-                        <div class="rating-badge rating-good">8/10</div>
-                        <div class="ofsted-badge ofsted-good">Good</div>
-                    </div>
-                </div>
-                
-                <div class="school-item" onclick="window.location.href='/school/100002'">
-                    <div class="school-info">
-                        <h3>Churchill Community College</h3>
-                        <div class="school-meta">
-                            <span>📍 London SW2</span>
-                            <span>👥 980 students</span>
-                            <span>📚 Secondary</span>
-                        </div>
-                    </div>
-                    <div class="school-rating">
-                        <div class="rating-badge rating-good">7/10</div>
-                        <div class="ofsted-badge ofsted-good">Good</div>
-                    </div>
-                </div>
+            <div class="cities-header">
+                <h2 class="cities-title">Find great schools in your community</h2>
+                <p class="cities-subtitle">Browse schools in the UK's largest cities</p>
             </div>
             
-            <div style="text-align: center; margin-top: 2rem;">
-                <a href="/search" class="btn btn-primary">View All Schools</a>
+            <div class="cities-grid">
+                <!-- 20 Largest UK Cities by Population -->
+                <a href="/london" class="city-link">London</a>
+                <a href="/birmingham" class="city-link">Birmingham</a>
+                <a href="/glasgow" class="city-link">Glasgow</a>
+                <a href="/liverpool" class="city-link">Liverpool</a>
+                <a href="/bristol" class="city-link">Bristol</a>
+                <a href="/manchester" class="city-link">Manchester</a>
+                <a href="/sheffield" class="city-link">Sheffield</a>
+                <a href="/leeds" class="city-link">Leeds</a>
+                <a href="/edinburgh" class="city-link">Edinburgh</a>
+                <a href="/leicester" class="city-link">Leicester</a>
+                <a href="/coventry" class="city-link">Coventry</a>
+                <a href="/bradford" class="city-link">Bradford</a>
+                <a href="/cardiff" class="city-link">Cardiff</a>
+                <a href="/belfast" class="city-link">Belfast</a>
+                <a href="/nottingham" class="city-link">Nottingham</a>
+                <a href="/kingston-upon-hull" class="city-link">Kingston upon Hull</a>
+                <a href="/newcastle" class="city-link">Newcastle</a>
+                <a href="/stoke-on-trent" class="city-link">Stoke-on-Trent</a>
+                <a href="/southampton" class="city-link">Southampton</a>
+                <a href="/portsmouth" class="city-link">Portsmouth</a>
+                
+                <!-- Additional Major Cities -->
+                <a href="/derby" class="city-link">Derby</a>
+                <a href="/plymouth" class="city-link">Plymouth</a>
+                <a href="/wolverhampton" class="city-link">Wolverhampton</a>
+                <a href="/swansea" class="city-link">Swansea</a>
+                <a href="/milton-keynes" class="city-link">Milton Keynes</a>
+                <a href="/northampton" class="city-link">Northampton</a>
+                <a href="/york" class="city-link">York</a>
+                <a href="/oxford" class="city-link">Oxford</a>
+                <a href="/cambridge" class="city-link">Cambridge</a>
+                <a href="/norwich" class="city-link">Norwich</a>
+                <a href="/brighton" class="city-link">Brighton</a>
+                <a href="/bath" class="city-link">Bath</a>
+                <a href="/canterbury" class="city-link">Canterbury</a>
+                <a href="/exeter" class="city-link">Exeter</a>
+                <a href="/chester" class="city-link">Chester</a>
+                <a href="/durham" class="city-link">Durham</a>
+                <a href="/salisbury" class="city-link">Salisbury</a>
+                <a href="/lancaster" class="city-link">Lancaster</a>
+                <a href="/worcester" class="city-link">Worcester</a>
+                <a href="/lincoln" class="city-link">Lincoln</a>
             </div>
         </div>
     </section>
@@ -510,67 +455,32 @@
     <div id="footer"></div>
     
     <!-- Scripts -->
+    <script src="/js/main.js"></script>
     <script>
-        // Load header and footer
-        fetch('/components/header.html')
-            .then(response => response.text())
-            .then(data => document.getElementById('header').innerHTML = data);
-            
-        fetch('/components/footer.html')
-            .then(response => response.text())
-            .then(data => document.getElementById('footer').innerHTML = data);
-        
-        // Search functionality
-        let searchType = 'all';
-        
-        function setSearchType(type) {
-            searchType = type;
-            document.querySelectorAll('.search-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Update placeholder
-            const input = document.getElementById('mainSearchInput');
-            switch(type) {
-                case 'postcode':
-                    input.placeholder = 'Enter postcode (e.g., SW1A 1AA)...';
-                    break;
-                case 'school':
-                    input.placeholder = 'Enter school name...';
-                    break;
-                case 'location':
-                    input.placeholder = 'Enter city or town...';
-                    break;
-                default:
-                    input.placeholder = 'Enter postcode, school name, or location...';
-            }
-        }
-        
+        // Simple search function for the single search bar
         function performSearch(event) {
             event.preventDefault();
-            const query = document.getElementById('mainSearchInput').value;
+            const query = document.getElementById('mainSearchInput').value.trim();
+            
             if (query) {
+                // Determine search type based on input pattern
+                let searchType = 'all';
+                
+                // Check if it's a postcode (basic UK postcode pattern)
+                const postcodePattern = /^[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}$/i;
+                if (postcodePattern.test(query)) {
+                    searchType = 'postcode';
+                }
+                
+                // Redirect to search page with query
                 window.location.href = `/search?q=${encodeURIComponent(query)}&type=${searchType}`;
             }
         }
         
-        // Load popular schools based on user location
-        async function loadPopularSchools() {
-            try {
-                const response = await fetch('/api/search?limit=5&sort=rating');
-                const data = await response.json();
-                // Update popular schools section with real data
-            } catch (error) {
-                console.error('Error loading popular schools:', error);
-            }
-        }
-        
-        // Initialize on page load
+        // Initialize autocomplete on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // You can add geolocation or other initialization here
+            // The main.js file will handle autocomplete setup
         });
     </script>
-    <script src="/js/main.js"></script>
 </body>
 </html>
