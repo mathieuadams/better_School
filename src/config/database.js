@@ -15,12 +15,12 @@ if (dbInfo) {
   console.log(`📊 Connecting to database: ${dbInfo[1]} on ${dbInfo[0].split('.')[0]}...`);
 }
 
-// Configure connection pool
+// Configure connection pool with proper SSL settings for Render
 const poolConfig = {
   connectionString: DATABASE_URL,
-  ssl: process.env.DB_SSL === 'true' ? {
-    rejectUnauthorized: false // Required for Render PostgreSQL
-  } : false,
+  ssl: {
+    rejectUnauthorized: false  // Required for Render PostgreSQL
+  },
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // How long a client is allowed to remain idle
   connectionTimeoutMillis: 10000, // How long to wait for connection
@@ -58,6 +58,7 @@ const testConnection = async () => {
          WHERE table_schema = 'public' 
          AND table_name LIKE 'uk_%') as table_count
       FROM uk_schools
+      LIMIT 1
     `);
     
     console.log(`📚 Database stats:`);
@@ -74,6 +75,8 @@ const testConnection = async () => {
       console.error('Could not connect to database. Check your DATABASE_URL.');
     } else if (err.code === '28P01') {
       console.error('Authentication failed. Check your database credentials.');
+    } else if (err.message.includes('SSL')) {
+      console.error('SSL connection issue. Make sure SSL is properly configured.');
     }
     
     throw err;
