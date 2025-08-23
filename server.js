@@ -23,7 +23,8 @@ app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false, // Disable for now to allow inline scripts
 }));
 
 // CORS configuration
@@ -52,6 +53,12 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/components', express.static(path.join(__dirname, 'public/components')));
+
 // Health check endpoint (Render uses this)
 app.get('/health', async (req, res) => {
   try {
@@ -72,8 +79,8 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Welcome route
-app.get('/', (req, res) => {
+// API Welcome route
+app.get('/api', (req, res) => {
   res.json({
     message: 'Welcome to Better School UK API',
     version: '1.0.0',
@@ -89,12 +96,39 @@ app.get('/', (req, res) => {
 app.use('/api/schools', schoolRoutes);
 app.use('/api/search', searchRoutes);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ 
-    error: 'Route not found',
-    path: req.path 
-  });
+// Serve HTML pages
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/search', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'search.html'));
+});
+
+app.get('/school/:urn', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'school.html'));
+});
+
+app.get('/compare', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'compare.html'));
+});
+
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'about.html'));
+});
+
+// Catch-all route for SPA routing (if needed)
+app.get('*', (req, res) => {
+  // Check if it's an API route that wasn't found
+  if (req.path.startsWith('/api')) {
+    res.status(404).json({ 
+      error: 'API endpoint not found',
+      path: req.path 
+    });
+  } else {
+    // For non-API routes, serve the index page
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
 });
 
 // Error handling middleware
@@ -121,6 +155,7 @@ const startServer = async () => {
       console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/health`);
       console.log(`📚 API Base: http://localhost:${PORT}/api`);
+      console.log(`🌐 Website: http://localhost:${PORT}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
