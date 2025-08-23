@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Better School UK - Find and compare schools across the UK with comprehensive ratings, Ofsted reports, and performance data">
+    <title>Better School UK - School Ratings & Reviews for UK Schools</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <style>
+        /* Homepage specific styles */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 0 4rem;
+            color: white;
+        }
+        
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .hero-title {
+            font-size: 2.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin-bottom: 2.5rem;
+        }
+        
+        .search-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-type-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-type-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.75rem 1rem;
+            background: #f3f4f6;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .search-type-btn.active {
+            background: #dbeafe;
+            border-color: #2563eb;
+            color: #1e40af;
+        }
+        
+        .search-main {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .search-input-group {
+            flex: 1;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        
+        .search-btn {
+            padding: 1rem 2rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .search-btn:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        .quick-links {
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .quick-links a {
+            color: #2563eb;
+            margin: 0 0.5rem;
+        }
+        
+        /* Info Section */
+        .info-section {
+            padding: 4rem 0;
+            background: #f9fafb;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        
+        .info-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+        
+        .info-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .info-desc {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        /* Browse Section */
+        .browse-section {
+            padding: 4rem 0;
+        }
+        
+        .browse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .browse-card {
+            padding: 1.5rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .browse-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .browse-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 0.25rem;
+        }
+        
+        .browse-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        /* Popular Schools */
+        .popular-section {
+            padding: 4rem 0;
+            background: #f9fafb;
+        }
+        
+        .school-list {
+            margin-top: 2rem;
+        }
+        
+        .school-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .school-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(4px);
+        }
+        
+        .school-info h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+            color: #1f2937;
+        }
+        
+        .school-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .school-rating {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .rating-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: white;
+        }
+        
+        .rating-excellent { background: #10b981; }
+        .rating-good { background: #3b82f6; }
+        .rating-average { background: #f59e0b; }
+        
+        .ofsted-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .ofsted-outstanding { background: #dcfce7; color: #166534; }
+        .ofsted-good { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Find the Right School for Your Child</h1>
+                <p class="hero-subtitle">Search among 30,000+ UK schools to find the perfect match</p>
+                
+                <!-- Search Container -->
+                <div class="search-container">
+                    <div class="search-type-selector">
+                        <button class="search-type-btn active" onclick="setSearchType('all')">
+                            All Search
+                        </button>
+                        <button class="search-type-btn" onclick="setSearchType('postcode')">
+                            By Postcode
+                        </button>
+                        <button class="search-type-btn" onclick="setSearchType('school')">
+                            By School Name
+                        </button>
+                        <button class="search-type-btn" onclick="setSearchType('location')">
+                            By City/Town
+                        </button>
+                    </div>
+                    
+                    <form class="search-main" onsubmit="performSearch(event)">
+                        <div class="search-input-group">
+                            <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                            </svg>
+                            <input 
+                                type="text" 
+                                class="search-input" 
+                                id="mainSearchInput"
+                                placeholder="Enter postcode, school name, or location..."
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="search-btn">
+                            Search
+                        </button>
+                    </form>
+                    
+                    <div class="quick-links">
+                        Popular searches:
+                        <a href="/search?location=London">London</a>
+                        <a href="/search?location=Manchester">Manchester</a>
+                        <a href="/search?location=Birmingham">Birmingham</a>
+                        <a href="/search?ofsted=1">Outstanding Schools</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Info Section -->
+    <section class="info-section">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 1rem;">How Better School UK Helps You</h2>
+            <p style="text-align: center; color: #6b7280; max-width: 600px; margin: 0 auto;">
+                We provide comprehensive school information to help you make the best educational choices for your children
+            </p>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">📊</div>
+                    <h3 class="info-title">School Ratings</h3>
+                    <p class="info-desc">Our 1-10 rating system combines Ofsted ratings with academic performance data to give you a complete picture</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">📈</div>
+                    <h3 class="info-title">Performance Data</h3>
+                    <p class="info-desc">Access detailed KS2, KS4, and KS5 results including Progress 8, Attainment 8, and A-level performance</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">🎯</div>
+                    <h3 class="info-title">Ofsted Reports</h3>
+                    <p class="info-desc">Latest inspection ratings with detailed breakdowns across all quality measures</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">👥</div>
+                    <h3 class="info-title">Demographics</h3>
+                    <p class="info-desc">Understand school composition including FSM, EAL, SEN statistics and student population</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">📍</div>
+                    <h3 class="info-title">Local Schools</h3>
+                    <p class="info-desc">Find and compare schools in your area with our postcode and location search</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">💡</div>
+                    <h3 class="info-title">Smart Compare</h3>
+                    <p class="info-desc">Compare multiple schools side-by-side to find the best fit for your child</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Browse by Numbers -->
+    <section class="browse-section">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 1rem;">Browse Schools by the Numbers</h2>
+            
+            <div class="browse-grid">
+                <a href="/search" class="browse-card">
+                    <div class="browse-number">30,000+</div>
+                    <div class="browse-label">Total Schools</div>
+                </a>
+                
+                <a href="/search?phase=Primary" class="browse-card">
+                    <div class="browse-number">16,800+</div>
+                    <div class="browse-label">Primary Schools</div>
+                </a>
+                
+                <a href="/search?phase=Secondary" class="browse-card">
+                    <div class="browse-number">3,400+</div>
+                    <div class="browse-label">Secondary Schools</div>
+                </a>
+                
+                <a href="/search?ofsted=1" class="browse-card">
+                    <div class="browse-number">5,000+</div>
+                    <div class="browse-label">Outstanding</div>
+                </a>
+                
+                <a href="/search?type=Academy" class="browse-card">
+                    <div class="browse-number">9,000+</div>
+                    <div class="browse-label">Academies</div>
+                </a>
+                
+                <a href="/search?type=Independent" class="browse-card">
+                    <div class="browse-number">2,400+</div>
+                    <div class="browse-label">Independent</div>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Popular Schools Section -->
+    <section class="popular-section">
+        <div class="container">
+            <h2 style="margin-bottom: 1rem;">Popular Schools Near You</h2>
+            
+            <div class="school-list" id="popularSchools">
+                <!-- Sample schools - replace with dynamic content -->
+                <div class="school-item" onclick="window.location.href='/school/100000'">
+                    <div class="school-info">
+                        <h3>Westminster Academy</h3>
+                        <div class="school-meta">
+                            <span>📍 London SW1</span>
+                            <span>👥 1,200 students</span>
+                            <span>📚 Secondary</span>
+                        </div>
+                    </div>
+                    <div class="school-rating">
+                        <div class="rating-badge rating-excellent">9/10</div>
+                        <div class="ofsted-badge ofsted-outstanding">Outstanding</div>
+                    </div>
+                </div>
+                
+                <div class="school-item" onclick="window.location.href='/school/100001'">
+                    <div class="school-info">
+                        <h3>St Mary's Catholic Primary School</h3>
+                        <div class="school-meta">
+                            <span>📍 London SW1</span>
+                            <span>👥 420 students</span>
+                            <span>📚 Primary</span>
+                        </div>
+                    </div>
+                    <div class="school-rating">
+                        <div class="rating-badge rating-good">8/10</div>
+                        <div class="ofsted-badge ofsted-good">Good</div>
+                    </div>
+                </div>
+                
+                <div class="school-item" onclick="window.location.href='/school/100002'">
+                    <div class="school-info">
+                        <h3>Churchill Community College</h3>
+                        <div class="school-meta">
+                            <span>📍 London SW2</span>
+                            <span>👥 980 students</span>
+                            <span>📚 Secondary</span>
+                        </div>
+                    </div>
+                    <div class="school-rating">
+                        <div class="rating-badge rating-good">7/10</div>
+                        <div class="ofsted-badge ofsted-good">Good</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="/search" class="btn btn-primary">View All Schools</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <div id="footer"></div>
+    
+    <!-- Scripts -->
+    <script>
+        // Load header and footer
+        fetch('/components/header.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('header').innerHTML = data);
+            
+        fetch('/components/footer.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('footer').innerHTML = data);
+        
+        // Search functionality
+        let searchType = 'all';
+        
+        function setSearchType(type) {
+            searchType = type;
+            document.querySelectorAll('.search-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update placeholder
+            const input = document.getElementById('mainSearchInput');
+            switch(type) {
+                case 'postcode':
+                    input.placeholder = 'Enter postcode (e.g., SW1A 1AA)...';
+                    break;
+                case 'school':
+                    input.placeholder = 'Enter school name...';
+                    break;
+                case 'location':
+                    input.placeholder = 'Enter city or town...';
+                    break;
+                default:
+                    input.placeholder = 'Enter postcode, school name, or location...';
+            }
+        }
+        
+        function performSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('mainSearchInput').value;
+            if (query) {
+                window.location.href = `/search?q=${encodeURIComponent(query)}&type=${searchType}`;
+            }
+        }
+        
+        // Load popular schools based on user location
+        async function loadPopularSchools() {
+            try {
+                const response = await fetch('/api/search?limit=5&sort=rating');
+                const data = await response.json();
+                // Update popular schools section with real data
+            } catch (error) {
+                console.error('Error loading popular schools:', error);
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // You can add geolocation or other initialization here
+        });
+    </script>
+</body>
+</html>

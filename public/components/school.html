@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="School Profile - Better School UK">
+    <title id="pageTitle">School Profile - Better School UK</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <style>
+        /* School Profile Specific Styles */
+        .profile-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 2rem 0;
+        }
+        
+        .profile-header-content {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .school-title-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        
+        .school-type-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .school-address-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .rating-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .main-rating {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .main-rating-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .main-rating-label {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            opacity: 0.9;
+        }
+        
+        .ofsted-rating {
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+        
+        .ofsted-score {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .ofsted-outstanding { color: #10b981; }
+        .ofsted-good { color: #3b82f6; }
+        .ofsted-requires-improvement { color: #f59e0b; }
+        .ofsted-inadequate { color: #ef4444; }
+        
+        /* Key Stats Bar */
+        .key-stats-bar {
+            background: #f9fafb;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .key-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+        }
+        
+        .key-stat {
+            text-align: center;
+        }
+        
+        .key-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+        
+        .key-stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Content Layout */
+        .profile-content {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .main-content {
+            background: white;
+        }
+        
+        .sidebar {
+            background: white;
+        }
+        
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        /* Performance Grid */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .performance-item {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .performance-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .performance-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        
+        .performance-context {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        /* Info List */
+        .info-list {
+            space-y: 1rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .info-value {
+            color: #111827;
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-align: right;
+        }
+        
+        /* Sidebar Sections */
+        .sidebar-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            color: #374151;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            color: #2563eb;
+        }
+        
+        .action-btn.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .action-btn.primary:hover {
+            background: #2563eb;
+        }
+        
+        /* Progress Bars */
+        .progress-container {
+            margin-top: 1rem;
+        }
+        
+        .progress-item {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-label {
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        .progress-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .progress-fill.excellent { background: #10b981; }
+        .progress-fill.good { background: #3b82f6; }
+        .progress-fill.average { background: #f59e0b; }
+        .progress-fill.poor { background: #ef4444; }
+        
+        /* Nearby Schools */
+        .nearby-school {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nearby-school:hover {
+            background: #f9fafb;
+            margin: 0 -0.5rem;
+            padding: 0.75rem 0.5rem;
+        }
+        
+        .nearby-school:last-child {
+            border-bottom: none;
+        }
+        
+        .nearby-school-name {
+            font-size: 0.875rem;
+            color: #111827;
+            font-weight: 500;
+        }
+        
+        .nearby-school-distance {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .nearby-school-rating {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-header-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .key-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+    
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb-list">
+                    <li class="breadcrumb-item">
+                        <a href="/">Home</a>
+                    </li>
+                    <li class="breadcrumb-separator">/</li>
+                    <li class="breadcrumb-item">
+                        <a href="/search" id="searchCrumb">Search</a>
+                    </li>
+                    <li class="breadcrumb-separator">/</li>
+                    <li class="breadcrumb-item">
+                        <a href="#" id="laCrumb">Local Authority</a>
+                    </li>
+                    <li class="breadcrumb-separator">/</li>
+                    <li class="breadcrumb-item active" id="schoolCrumb">School Name</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Profile Header -->
+    <section class="profile-header">
+        <div class="container">
+            <div class="profile-header-content">
+                <div class="school-title-section">
+                    <h1 id="schoolName">Loading...</h1>
+                    <div class="school-type-info">
+                        <span id="schoolType">-</span>
+                        <span>•</span>
+                        <span id="schoolPhase">-</span>
+                        <span>•</span>
+                        <span id="ageRange">Ages -</span>
+                    </div>
+                    <div class="school-address-info">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span id="schoolAddress">-</span>
+                    </div>
+                </div>
+                
+                <div class="rating-section">
+                    <div class="main-rating">
+                        <div class="main-rating-score" id="overallRating">-</div>
+                        <div class="main-rating-label">Overall Rating</div>
+                    </div>
+                    <div class="ofsted-rating">
+                        <div class="ofsted-score" id="ofstedRating">-</div>
+                        <div style="font-size: 0.75rem; color: #6b7280;">Ofsted</div>
+                        <div style="font-size: 0.75rem; color: #9ca3af;" id="ofstedDate">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Key Stats Bar -->
+    <section class="key-stats-bar">
+        <div class="container">
+            <div class="key-stats-grid">
+                <div class="key-stat">
+                    <div class="key-stat-value" id="statStudents">-</div>
+                    <div class="key-stat-label">Students</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-value" id="statFSM">-</div>
+                    <div class="key-stat-label">Free School Meals</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-value" id="statProgress">-</div>
+                    <div class="key-stat-label">Progress Score</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-value" id="statAttainment">-</div>
+                    <div class="key-stat-label">Attainment</div>
+                </div>
+                <div class="key-stat">
+                    <div class="key-stat-value" id="statAttendance">-</div>
+                    <div class="key-stat-label">Attendance</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <section class="container" style="margin-top: 2rem;">
+        <div class="profile-content">
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Academic Performance Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">Academic Performance</h2>
+                        <span style="font-size: 0.875rem; color: #6b7280;">2023/2024</span>
+                    </div>
+                    
+                    <div class="performance-grid" id="performanceGrid">
+                        <!-- Will be populated based on school phase -->
+                    </div>
+                    
+                    <div class="progress-container" id="progressBars">
+                        <!-- Progress bars will be added here -->
+                    </div>
+                </div>
+                
+                <!-- School Information Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">School Information</h2>
+                    </div>
+                    
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">School Type</span>
+                            <span class="info-value" id="infoType">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Gender</span>
+                            <span class="info-value" id="infoGender">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Age Range</span>
+                            <span class="info-value" id="infoAgeRange">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Religious Character</span>
+                            <span class="info-value" id="infoReligious">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Admissions Policy</span>
+                            <span class="info-value" id="infoAdmissions">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Local Authority</span>
+                            <span class="info-value" id="infoLA">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">URN</span>
+                            <span class="info-value" id="infoURN">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Student Demographics Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">Student Demographics</h2>
+                    </div>
+                    
+                    <div class="performance-grid">
+                        <div class="performance-item">
+                            <div class="performance-label">Total Students</div>
+                            <div class="performance-value" id="demoTotal">-</div>
+                            <div class="performance-context" id="demoGenderSplit">-</div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-label">Free School Meals</div>
+                            <div class="performance-value" id="demoFSM">-</div>
+                            <div class="performance-context">National avg: 23%</div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-label">English Additional Language</div>
+                            <div class="performance-value" id="demoEAL">-</div>
+                            <div class="performance-context">National avg: 21%</div>
+                        </div>
+                        <div class="performance-item">
+                            <div class="performance-label">SEN Support</div>
+                            <div class="performance-value" id="demoSEN">-</div>
+                            <div class="performance-context">Including EHCP</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ofsted Inspection Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">Ofsted Inspection</h2>
+                        <span style="font-size: 0.875rem; color: #6b7280;" id="inspectionDate">-</span>
+                    </div>
+                    
+                    <div class="performance-grid" id="ofstedGrid">
+                        <!-- Will be populated with Ofsted categories -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Actions -->
+                <div class="sidebar-section">
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="saveSchool()">
+                            ⭐ Save School
+                        </button>
+                        <button class="action-btn" onclick="compareSchool()">
+                            📊 Compare
+                        </button>
+                        <button class="action-btn" onclick="shareSchool()">
+                            🔗 Share
+                        </button>
+                        <button class="action-btn" onclick="printProfile()">
+                            🖨️ Print
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Contact Information -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Contact Information</h3>
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">Phone</span>
+                            <span class="info-value" id="schoolPhone">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email</span>
+                            <span class="info-value" id="schoolEmail">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Website</span>
+                            <span class="info-value"><a href="#" id="schoolWebsite">Visit</a></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nearby Schools -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Nearby Schools</h3>
+                    <div id="nearbySchools">
+                        <!-- Will be populated with nearby schools -->
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <a href="#" style="font-size: 0.875rem; color: #3b82f6;">View all nearby schools →</a>
+                    </div>
+                </div>
+                
+                <!-- Quick Facts -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Quick Facts</h3>
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="info-label">Capacity</span>
+                            <span class="info-value" id="schoolCapacity">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Oversubscribed</span>
+                            <span class="info-value" id="schoolOversubscribed">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Sixth Form</span>
+                            <span class="info-value" id="schoolSixthForm">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <div id="footer" style="margin-top: 4rem;"></div>
+    
+    <!-- Scripts -->
+    <script>
+        // Load header and footer
+        fetch('/components/header.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('header').innerHTML = data);
+            
+        fetch('/components/footer.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('footer').innerHTML = data);
+        
+        // Get URN from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urn = urlParams.get('urn') || window.location.pathname.split('/').pop();
+        
+        // Load school data
+        async function loadSchoolData() {
+            try {
+                // Fetch school basic info
+                const response = await fetch(`/api/schools/${urn}`);
+                const data = await response.json();
+                
+                if (data.success && data.school) {
+                    updateSchoolInfo(data.school);
+                }
+                
+                // Fetch performance data
+                const perfResponse = await fetch(`/api/schools/${urn}/performance`);
+                const perfData = await perfResponse.json();
+                
+                if (perfData.success && perfData.performance) {
+                    updatePerformanceData(perfData.performance);
+                }
+                
+                // Fetch nearby schools
+                const nearbyResponse = await fetch(`/api/schools/${urn}/nearby?limit=5`);
+                const nearbyData = await nearbyResponse.json();
+                
+                if (nearbyData.success && nearbyData.nearby_schools) {
+                    updateNearbySchools(nearbyData.nearby_schools);
+                }
+                
+            } catch (error) {
+                console.error('Error loading school data:', error);
+            }
+        }
+        
+        function updateSchoolInfo(school) {
+            // Update header
+            document.getElementById('schoolName').textContent = school.name;
+            document.getElementById('schoolType').textContent = school.type;
+            document.getElementById('schoolPhase').textContent = school.phase;
+            document.getElementById('ageRange').textContent = `Ages ${school.characteristics.age_range}`;
+            document.getElementById('schoolAddress').textContent = `${school.address.street}, ${school.address.town}, ${school.address.postcode}`;
+            
+            // Update ratings
+            document.getElementById('overallRating').textContent = school.overall_rating + '/10';
+            const ofstedLabel = school.ofsted.overall_label;
+            document.getElementById('ofstedRating').textContent = ofstedLabel;
+            document.getElementById('ofstedRating').className = `ofsted-score ofsted-${ofstedLabel.toLowerCase().replace(' ', '-')}`;
+            document.getElementById('ofstedDate').textContent = school.ofsted.inspection_date ? 
+                new Date(school.ofsted.inspection_date).toLocaleDateString() : 'Not available';
+            
+            // Update key stats
+            document.getElementById('statStudents').textContent = school.demographics.total_students || '-';
+            document.getElementById('statFSM').textContent = (school.demographics.fsm_percentage || 0) + '%';
+            document.getElementById('statAttendance').textContent = 
+                school.attendance.overall_absence_rate ? 
+                (100 - school.attendance.overall_absence_rate).toFixed(1) + '%' : '-';
+            
+            // Update breadcrumb
+            document.getElementById('laCrumb').textContent = school.address.local_authority;
+            document.getElementById('laCrumb').href = `/search?location=${encodeURIComponent(school.address.local_authority)}`;
+            document.getElementById('schoolCrumb').textContent = school.name;
+            
+            // Update page title
+            document.getElementById('pageTitle').textContent = `${school.name} - Better School UK`;
+            
+            // Update school information section
+            document.getElementById('infoType').textContent = school.type;
+            document.getElementById('infoGender').textContent = school.characteristics.gender;
+            document.getElementById('infoAgeRange').textContent = school.characteristics.age_range;
+            document.getElementById('infoReligious').textContent = school.characteristics.religious_character || 'None';
+            document.getElementById('infoAdmissions').textContent = school.characteristics.admissions_policy || 'Standard';
+            document.getElementById('infoLA').textContent = school.address.local_authority;
+            document.getElementById('infoURN').textContent = school.urn;
+            
+            // Update demographics
+            document.getElementById('demoTotal').textContent = school.demographics.total_students;
+            document.getElementById('demoGenderSplit').textContent = 
+                `${school.demographics.boys || 0} boys, ${school.demographics.girls || 0} girls`;
+            document.getElementById('demoFSM').textContent = (school.demographics.fsm_percentage || 0) + '%';
+            document.getElementById('demoEAL').textContent = (school.demographics.eal_percentage || 0) + '%';
+            document.getElementById('demoSEN').textContent = 
+                ((school.demographics.sen_support_percentage || 0) + (school.demographics.sen_ehcp_percentage || 0)) + '%';
+            
+            // Update Ofsted grid
+            updateOfstedGrid(school.ofsted);
+        }
+        
+        function updatePerformanceData(performance) {
+            const perfGrid = document.getElementById('performanceGrid');
+            perfGrid.innerHTML = '';
+            
+            if (performance.ks2) {
+                // KS2 Performance
+                document.getElementById('statProgress').textContent = 
+                    performance.ks2.reading_progress ? '+' + performance.ks2.reading_progress : '-';
+                document.getElementById('statAttainment').textContent = 
+                    (performance.ks2.rwm_expected_percentage || 0) + '%';
+                
+                perfGrid.innerHTML += `
+                    <div class="performance-item">
+                        <div class="performance-label">Reading Progress</div>
+                        <div class="performance-value">${performance.ks2.reading_progress || '-'}</div>
+                        <div class="performance-context">KS2 Progress</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-label">Writing Progress</div>
+                        <div class="performance-value">${performance.ks2.writing_progress || '-'}</div>
+                        <div class="performance-context">KS2 Progress</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-label">Maths Progress</div>
+                        <div class="performance-value">${performance.ks2.maths_progress || '-'}</div>
+                        <div class="performance-context">KS2 Progress</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-label">Expected Standard</div>
+                        <div class="performance-value">${performance.ks2.rwm_expected_percentage || '-'}%</div>
+                        <div class="performance-context">Reading, Writing, Maths</div>
+                    </div>
+                `;
+            }
+            
+            if (performance.ks4) {
+                // KS4 Performance
+                document.getElementById('statProgress').textContent = 
+                    performance.ks4.progress_8_score || '-';
+                document.getElementById('statAttainment').textContent = 
+                    performance.ks4.attainment_8_score || '-';
+                
+                perfGrid.innerHTML += `
+                    <div class="performance-item">
+                        <div class="performance-label">Progress 8</div>
+                        <div class="performance-value">${performance.ks4.progress_8_score || '-'}</div>
+                        <div class="performance-context">${performance.ks4.progress_8_band || ''}</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-label">Attainment 8</div>
+                        <div class="performance-value">${performance.ks4.attainment_8_score || '-'}</div>
+                        <div class="performance-context">National avg: 46.7</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-label">Grade 5+ English & Maths</div>
+                        <div class="performance-value">${performance.ks4.basics_9_5_percentage || '-'}%</div>
+                        <div class="performance-context">Strong pass</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-label">EBacc Entry</div>
+                        <div class="performance-value">${performance.ks4.ebacc_entry_percentage || '-'}%</div>
+                        <div class="performance-context">National avg: 40%</div>
+                    </div>
+                `;
+            }
+            
+            if (performance.ks5) {
+                // KS5 Performance
+                perfGrid.innerHTML += `
+                    <div class="performance-item">
+                        <div class="performance-label">A Level Grade</div>
+                        <div class="performance-value">${performance.ks5.a_level_average_grade || '-'}</div>
+                        <div class="performance-context">Average grade</div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-label">A Level Points</div>
+                        <div class="performance-value">${performance.ks5.a_level_points_per_entry || '-'}</div>
+                        <div class="performance-context">Per entry</div>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateOfstedGrid(ofsted) {
+            const grid = document.getElementById('ofstedGrid');
+            const categories = [
+                { key: 'quality_of_education', label: 'Quality of Education' },
+                { key: 'behaviour_and_attitudes', label: 'Behaviour & Attitudes' },
+                { key: 'personal_development', label: 'Personal Development' },
+                { key: 'leadership_and_management', label: 'Leadership & Management' }
+            ];
+            
+            grid.innerHTML = categories.map(cat => {
+                const value = ofsted[cat.key];
+                const label = getOfstedLabel(value);
+                return `
+                    <div class="performance-item">
+                        <div class="performance-label">${cat.label}</div>
+                        <div class="performance-value">${label}</div>
+                        <div class="performance-context">Ofsted rating</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('inspectionDate').textContent = 
+                ofsted.inspection_date ? 
+                `Last inspected: ${new Date(ofsted.inspection_date).toLocaleDateString()}` : '';
+        }
+        
+        function updateNearbySchools(schools) {
+            const container = document.getElementById('nearbySchools');
+            container.innerHTML = schools.slice(0, 5).map(school => `
+                <div class="nearby-school" onclick="window.location.href='/school/${school.urn}'">
+                    <div>
+                        <div class="nearby-school-name">${school.name}</div>
+                        <div class="nearby-school-distance">${school.type_of_establishment}</div>
+                    </div>
+                    <div class="nearby-school-rating">${school.overall_rating}/10</div>
+                </div>
+            `).join('');
+        }
+        
+        function getOfstedLabel(rating) {
+            const labels = {
+                1: 'Outstanding',
+                2: 'Good',
+                3: 'Requires Improvement',
+                4: 'Inadequate'
+            };
+            return labels[rating] || 'Not rated';
+        }
+        
+        // Action functions
+        function saveSchool() {
+            alert('Save school functionality coming soon!');
+        }
+        
+        function compareSchool() {
+            alert('Compare school functionality coming soon!');
+        }
+        
+        function shareSchool() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    url: window.location.href
+                });
+            } else {
+                alert('Share functionality coming soon!');
+            }
+        }
+        
+        function printProfile() {
+            window.print();
+        }
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (urn) {
+                loadSchoolData();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!-- Header Component - Better School UK -->
+<!-- Include this in your pages using server-side includes or JavaScript -->
+
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-content">
+            <!-- Logo -->
+            <a href="/" class="logo">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">Better School UK</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="nav-menu">
+                <a href="/" class="nav-link" id="nav-home">Home</a>
+                <a href="/search" class="nav-link" id="nav-search">Search Schools</a>
+                <a href="/compare" class="nav-link" id="nav-compare">Compare</a>
+                <a href="/saved" class="nav-link" id="nav-saved">Saved Schools</a>
+                <a href="/resources" class="nav-link" id="nav-resources">Resources</a>
+                <a href="/about" class="nav-link" id="nav-about">About</a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/search" class="mobile-nav-link">Search Schools</a>
+    <a href="/compare" class="mobile-nav-link">Compare</a>
+    <a href="/saved" class="mobile-nav-link">Saved Schools</a>
+    <a href="/resources" class="mobile-nav-link">Resources</a>
+    <a href="/about" class="mobile-nav-link">About</a>
+</div>
+
+<!-- Header JavaScript -->
+<script>
+    // Set active nav link based on current page
+    (function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Special case for home
+        if (currentPath === '/' || currentPath === '/index.html') {
+            document.getElementById('nav-home')?.classList.add('active');
+        }
+    })();
+    
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        
+        mobileMenu.classList.toggle('active');
+        menuBtn.classList.toggle('active');
+        
+        // Animate hamburger to X
+        if (menuBtn.classList.contains('active')) {
+            menuBtn.children[0].style.transform = 'rotate(45deg) translateY(6px)';
+            menuBtn.children[1].style.opacity = '0';
+            menuBtn.children[2].style.transform = 'rotate(-45deg) translateY(-6px)';
+        } else {
+            menuBtn.children[0].style.transform = '';
+            menuBtn.children[1].style.opacity = '';
+            menuBtn.children[2].style.transform = '';
+        }
+    }
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        
+        if (!mobileMenu.contains(event.target) && !menuBtn.contains(event.target)) {
+            mobileMenu.classList.remove('active');
+            menuBtn.classList.remove('active');
+            menuBtn.children[0].style.transform = '';
+            menuBtn.children[1].style.opacity = '';
+            menuBtn.children[2].style.transform = '';
+        }
+    });
+</script>
