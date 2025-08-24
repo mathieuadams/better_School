@@ -10,361 +10,77 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-o9N1j7kGStb4v5F7CdCwLkR2Fz6s3Z9Y+3FfRJQXY+o="
-        crossorigin=""
-    />
-    <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-o8U3Z6S9n+R4dH8G6jH1JZwb3g2xL2zYF2dQGcR3/kE="
-        crossorigin=""
-    ></script>
-    <!-- Main CSS -->
-    <link rel="stylesheet" href="/css/styles.css">
-    
-    <style>
-          /* Neighborhood section */
-        .neighborhood {
-            display: grid;
-            grid-template-columns: 1.2fr 2fr;
-            gap: 1rem;
-        }
-        .contact-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 1rem 1.25rem;
-            background: #fff;
-        }
-        .contact-row { display:flex; align-items:center; gap:.5rem; margin:.35rem 0; color:#374151 }
-        .contact-row a { color:#2563eb; text-decoration:none }
-        .contact-row a:hover { text-decoration:underline }
-        .contact-label { color:#6b7280; font-size:.875rem; }
-        #schoolMap { height: 300px; border-radius: 8px; border: 1px solid #e5e7eb; }
-        @media (max-width: 900px){ .neighborhood { grid-template-columns: 1fr; } }
-        /* School Profile Specific Styles */
-        .profile-header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 2rem 0;
-        }
-        
-        .profile-header-content {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 2rem;
-            align-items: start;
-        }
-        
-        .school-title-section h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 0.5rem;
-        }
-        
-        .school-type-info {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-        }
-        
-        .school-address-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        
-        .rating-section {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        .main-rating {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            min-width: 100px;
-        }
-        
-        .main-rating-score {
-            font-size: 2.5rem;
-            font-weight: 700;
-            line-height: 1;
-        }
-        
-        .main-rating-label {
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            opacity: 0.9;
-        }
-        
-        .ofsted-rating {
-            text-align: center;
-            padding: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            min-width: 120px;
-        }
-        
-        .ofsted-score {
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        
-        .ofsted-outstanding { color: #10b981; }
-        .ofsted-good { color: #3b82f6; }
-        .ofsted-requires-improvement { color: #f59e0b; }
-        .ofsted-inadequate { color: #ef4444; }
-        
-        /* Key Stats Bar */
-        .key-stats-bar {
-            background: #f9fafb;
-            padding: 1.5rem 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .key-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 2rem;
-        }
-        
-        .key-stat {
-            text-align: center;
-        }
-        
-        .key-stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 0.25rem;
-        }
-        
-        .key-stat-label {
-            font-size: 0.75rem;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Content Layout */
-        .profile-content {
-            display: grid;
-            grid-template-columns: 3fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .main-content {
-            background: white;
-        }
-        
-        .sidebar {
-            background: white;
-        }
-        
-        /* Section Cards */
-        .section-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #111827;
-        }
-        
-        /* Performance Grid */
-        .performance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .performance-item {
-            padding: 1rem;
-            background: #f9fafb;
-            border-radius: 8px;
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .performance-label {
-            font-size: 0.75rem;
-            color: #6b7280;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-        
-        .performance-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-        }
-        
-        .performance-context {
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-top: 0.25rem;
-        }
-        
-        /* Info List */
-        .info-list {
-            space-y: 1rem;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        
-        .info-label {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        
-        .info-value {
-            color: #111827;
-            font-weight: 500;
-            font-size: 0.875rem;
-            text-align: right;
-        }
-        
-        /* Sidebar Sections */
-        .sidebar-section {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .sidebar-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #111827;
-        }
-        
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .action-btn {
-            padding: 0.75rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background: white;
-            color: #374151;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .action-btn:hover {
-            background: #f9fafb;
-            border-color: #3b82f6;
-            color: #2563eb;
-        }
-        
-        .action-btn.primary {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-        
-        .action-btn.primary:hover {
-            background: #2563eb;
-        }
-        
-        /* Nearby Schools */
-        .nearby-school {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f3f4f6;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .nearby-school:hover {
-            background: #f9fafb;
-            margin: 0 -0.5rem;
-            padding: 0.75rem 0.5rem;
-        }
-        
-        .nearby-school:last-child {
-            border-bottom: none;
-        }
-        
-        .nearby-school-name {
-            font-size: 0.875rem;
-            color: #111827;
-            font-weight: 500;
-        }
-        
-        .nearby-school-distance {
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-        
-        .nearby-school-rating {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #3b82f6;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .profile-header-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .profile-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .key-stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-o9N1j7kGStb4v5F7CdCwLkR2Fz6s3Z9Y+3FfRJQXY+o="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o8U3Z6S9n+R4dH8G6jH1JZwb3g2xL2zYF2dQGcR3/kE="
+    crossorigin=""
+  ></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <style>
+    /* Neighborhood section */
+    .neighborhood { display:grid; grid-template-columns: 1.2fr 2fr; gap:1rem; }
+    .contact-card { border:1px solid #e5e7eb; border-radius:8px; padding:1rem 1.25rem; background:#fff; }
+    .contact-row { display:flex; align-items:center; gap:.5rem; margin:.35rem 0; color:#374151 }
+    .contact-row a { color:#2563eb; text-decoration:none }
+    .contact-row a:hover { text-decoration:underline }
+    .contact-label { color:#6b7280; font-size:.875rem; }
+    #schoolMap { height: 300px; border-radius: 8px; border: 1px solid #e5e7eb; }
+    @media (max-width: 900px){ .neighborhood { grid-template-columns: 1fr; } }
+
+    /* Profile general */
+    .profile-header { background:#fff; border-bottom:1px solid #e5e7eb; padding:2rem 0; }
+    .profile-header-content { display:grid; grid-template-columns:1fr auto; gap:2rem; align-items:start; }
+    .school-title-section h1 { font-size:2rem; font-weight:700; color:#111827; margin-bottom:.5rem; }
+    .school-type-info { display:flex; gap:1rem; align-items:center; color:#6b7280; font-size:.875rem; margin-bottom:1rem; }
+    .school-address-info { display:flex; align-items:center; gap:.5rem; color:#6b7280; font-size:.875rem; }
+
+    .rating-section { display:flex; gap:1rem; align-items:center; }
+    .main-rating { background: linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; padding:1.5rem; border-radius:12px; text-align:center; min-width:100px; }
+    .main-rating-score { font-size:2.5rem; font-weight:700; line-height:1; }
+    .main-rating-label { font-size:.75rem; margin-top:.25rem; opacity:.9; }
+    .ofsted-rating { text-align:center; padding:1rem; border:2px solid #e5e7eb; border-radius:8px; min-width:120px; }
+    .ofsted-score { font-size:1.125rem; font-weight:700; margin-bottom:.25rem; }
+
+    .key-stats-bar { background:#f9fafb; padding:1.5rem 0; border-bottom:1px solid #e5e7eb; }
+    .key-stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:2rem; }
+    .key-stat { text-align:center; }
+    .key-stat-value { font-size:1.5rem; font-weight:700; color:#111827; margin-bottom:.25rem; }
+    .key-stat-label { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.5px; }
+
+    .profile-content { display:grid; grid-template-columns:3fr 1fr; gap:2rem; margin-top:2rem; }
+    .section-card { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+    .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:.75rem; border-bottom:2px solid #e5e7eb; }
+    .section-title { font-size:1.25rem; font-weight:600; color:#111827; }
+
+    .performance-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+    .performance-item { padding:1rem; background:#f9fafb; border-radius:8px; border-left:4px solid #3b82f6; }
+    .performance-label { font-size:.75rem; color:#6b7280; text-transform:uppercase; margin-bottom:.5rem; }
+    .performance-value { font-size:1.5rem; font-weight:700; color:#111827; }
+
+    .info-row { display:flex; justify-content:space-between; padding:.75rem 0; border-bottom:1px solid #f3f4f6; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { color:#6b7280; font-size:.875rem; }
+    .info-value { color:#111827; font-weight:500; font-size:.875rem; text-align:right; }
+
+    .sidebar-section { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+    .sidebar-title { font-size:1rem; font-weight:600; margin-bottom:1rem; color:#111827; }
+
+    @media (max-width: 768px){
+      .profile-header-content { grid-template-columns:1fr; }
+      .profile-content { grid-template-columns:1fr; }
+      .key-stats-grid { grid-template-columns:repeat(2,1fr); }
+    }
+  </style>
 </head>
 <body>
   <div id="header"></div>
@@ -456,49 +172,46 @@
         </div>
 
         <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Neighborhood</h2>
+          <div class="section-header"><h2 class="section-title">Neighborhood</h2></div>
+
+          <div class="neighborhood">
+            <!-- Left: contact box -->
+            <div class="contact-card" id="nh-card">
+              <div class="contact-row">
+                <div>
+                  <div id="nh-address" style="font-weight:600"></div>
+                  <div id="nh-la" class="contact-label"></div>
+                </div>
+              </div>
+
+              <div class="contact-row">
+                <span>👤</span>
+                <div>
+                  <div class="contact-label">School leader</div>
+                  <div id="nh-leader">—</div>
+                </div>
+              </div>
+
+              <div class="contact-row">
+                <span>📞</span>
+                <div><a id="nh-phone" href="#" rel="nofollow">—</a></div>
+              </div>
+
+              <div class="contact-row">
+                <span>🌐</span>
+                <div><a id="nh-website" href="#" target="_blank" rel="noopener">Website</a></div>
+              </div>
+
+              <div class="contact-row" id="nh-ofsted-wrap" style="display:none;">
+                <span>🎓</span>
+                <div><a id="nh-ofsted-link" href="#" target="_blank" rel="noopener">Latest Ofsted report</a></div>
+              </div>
             </div>
 
-            <div class="neighborhood">
-                <!-- Left: contact box -->
-                <div class="contact-card">
-                <div class="contact-row">
-                    <div>
-                    <div id="nh-address" style="font-weight:600"></div>
-                    <div id="nh-la" class="contact-label"></div>
-                    </div>
-                </div>
-
-                <div class="contact-row">
-                    <span>👤</span>
-                    <div>
-                    <div class="contact-label">School leader</div>
-                    <div id="nh-leader">—</div>
-                    </div>
-                </div>
-
-                <div class="contact-row">
-                    <span>📞</span>
-                    <div><a id="nh-phone" href="#" rel="nofollow">—</a></div>
-                </div>
-
-                <div class="contact-row">
-                    <span>🌐</span>
-                    <div><a id="nh-website" href="#" target="_blank" rel="noopener">Website</a></div>
-                </div>
-
-                <div class="contact-row" id="nh-ofsted-wrap" style="display:none;">
-                    <span>🎓</span>
-                    <div><a id="nh-ofsted-link" href="#" target="_blank" rel="noopener">Latest Ofsted report</a></div>
-                </div>
-                </div>
-
-                <!-- Right: map -->
-                <div id="schoolMap"></div>
-            </div>
-            </div>
-
+            <!-- Right: map -->
+            <div id="schoolMap"></div>
+          </div>
+        </div>
       </div>
 
       <aside class="sidebar">
@@ -522,87 +235,126 @@
   <div id="footer" style="margin-top:4rem;"></div>
 
   <script src="/js/main.js"></script>
+
   <script>
-        let leafletMap, leafletMarker;
+    /* ---------- small helpers ---------- */
+    let leafletMap, leafletMarker;
 
-        function formatAddress(addr){
-            const parts = [];
-            if (addr?.street) parts.push(addr.street);
-            if (addr?.town) parts.push(addr.town);
-            if (addr?.postcode) parts.push(addr.postcode);
-            return parts.join(', ');
+    function formatAddress(addr){
+      const parts = [];
+      if (addr?.street) parts.push(addr.street);
+      if (addr?.locality) parts.push(addr.locality);
+      if (addr?.town) parts.push(addr.town);
+      if (addr?.postcode) parts.push(addr.postcode);
+      return parts.join(', ');
+    }
+
+    function initMap(lat, lon, name){
+      if (!leafletMap) {
+        leafletMap = L.map('schoolMap', { scrollWheelZoom: false });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(leafletMap);
+      }
+      leafletMap.setView([lat, lon], 15);
+      if (leafletMarker) leafletMarker.remove();
+      leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
+    }
+
+    async function geocodeAddress(address) {
+      if (!address) return null;
+      const key = 'geo:' + address.toLowerCase();
+      const cached = sessionStorage.getItem(key);
+      if (cached) { try { return JSON.parse(cached); } catch {} }
+
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=gb&q=${encodeURIComponent(address)}`;
+      try {
+        const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (Array.isArray(data) && data.length) {
+          const { lat, lon } = data[0];
+          const result = { lat: parseFloat(lat), lon: parseFloat(lon) };
+          sessionStorage.setItem(key, JSON.stringify(result));
+          return result;
         }
+      } catch (e) {
+        console.warn('Geocoding failed', e);
+      }
+      return null;
+    }
 
-        function initMap(lat, lon, name){
-            // Create map once
-            if (!leafletMap) {
-            leafletMap = L.map('schoolMap', { scrollWheelZoom: false });
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(leafletMap);
-            }
+    function renderNeighborhood(school){
+      // Address + LA
+      const addressText = formatAddress(school.address || {});
+      document.getElementById('nh-address').textContent = addressText || '—';
+      document.getElementById('nh-la').textContent = school.address?.local_authority || '';
 
-            // Set view + marker
-            leafletMap.setView([lat, lon], 15);
-            if (leafletMarker) leafletMarker.remove();
-            leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
+      // Leader
+      const leader = school.headteacher_name || null;
+      const leaderWithJob = school.headteacher_job_title ? `${leader || '—'} (${school.headteacher_job_title})` : (leader || '—');
+      document.getElementById('nh-leader').textContent = leaderWithJob;
+
+      // Phone
+      const tel = school.telephone || null;
+      const phoneEl = document.getElementById('nh-phone');
+      if (tel) {
+        phoneEl.textContent = tel;
+        phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
+      } else {
+        phoneEl.textContent = '—';
+        phoneEl.removeAttribute('href');
+      }
+
+      // Website
+      const site = school.website || null;
+      const webEl = document.getElementById('nh-website');
+      if (site) {
+        const url = site.startsWith('http') ? site : `https://${site}`;
+        try {
+          webEl.href = url;
+          webEl.textContent = new URL(url).host.replace(/^www\./,'');
+        } catch {
+          webEl.href = url;
+          webEl.textContent = site;
         }
+      } else {
+        webEl.textContent = '—';
+        webEl.removeAttribute('href');
+      }
 
-        function renderNeighborhood(school){
-            // Address + LA
-            const addressText = formatAddress(school.address || {});
-            document.getElementById('nh-address').textContent = addressText || '—';
-            document.getElementById('nh-la').textContent = school.address?.local_authority || '';
+      // Ofsted report (optional)
+      if (school.ofsted?.web_link) {
+        document.getElementById('nh-ofsted-wrap').style.display = '';
+        document.getElementById('nh-ofsted-link').href = school.ofsted.web_link;
+      }
 
-            // Leader
-            const leader = school.headteacher_name || school.school_leader || school.headteacher || null;
-            document.getElementById('nh-leader').textContent = leader || '—';
+      // Always add "Open in Google Maps" link
+      const mapsHref = `https://www.google.com/maps?q=${encodeURIComponent(addressText)}`;
+      const mapsRow = document.createElement('div');
+      mapsRow.className = 'contact-row';
+      mapsRow.innerHTML = `<span>🗺️</span><div><a href="${mapsHref}" target="_blank" rel="noopener">Open in Google Maps</a></div>`;
+      document.getElementById('nh-card').appendChild(mapsRow);
 
-            // Phone
-            const tel = school.telephone || school.phone || null;
-            const phoneEl = document.getElementById('nh-phone');
-            if (tel) {
-            phoneEl.textContent = tel;
-            phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
-            } else {
-            phoneEl.textContent = '—';
-            phoneEl.removeAttribute('href');
-            }
+      // Map: use lat/lon if present, else geocode address
+      const lat = typeof school.latitude === 'number' ? school.latitude : NaN;
+      const lon = typeof school.longitude === 'number' ? school.longitude : NaN;
 
-            // Website
-            const site = school.school_website || school.website || null;
-            const webEl = document.getElementById('nh-website');
-            if (site) {
-            const url = site.startsWith('http') ? site : `https://${site}`;
-            webEl.href = url;
-            webEl.textContent = new URL(url).host.replace(/^www\./,'');
-            } else {
-            webEl.textContent = '—';
-            webEl.removeAttribute('href');
-            }
-
-            // Ofsted report (optional)
-            if (school.ofsted?.web_link) {
-            document.getElementById('nh-ofsted-wrap').style.display = '';
-            const ofEl = document.getElementById('nh-ofsted-link');
-            ofEl.href = school.ofsted.web_link;
-            }
-
-            // Map
-            const latRaw = school.latitude ?? school.lat ?? school.address?.latitude;
-            const lonRaw = school.longitude ?? school.lon ?? school.lng ?? school.address?.longitude;
-            const lat = latRaw != null ? parseFloat(latRaw) : NaN;
-            const lon = lonRaw != null ? parseFloat(lonRaw) : NaN;
-            if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
-            initMap(lat, lon, school.name);
-            } else {
-            // Fallback: fit UK if no coords
+      if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+        initMap(lat, lon, school.name);
+      } else {
+        geocodeAddress(addressText).then(coords => {
+          if (coords && !Number.isNaN(coords.lat) && !Number.isNaN(coords.lon)) {
+            initMap(coords.lat, coords.lon, school.name);
+          } else {
             if (!leafletMap) initMap(54.5, -3.2, school.name);
             else leafletMap.setView([54.5, -3.2], 5);
-            }
-        }
-        </script>
+          }
+        });
+      }
+    }
+  </script>
 
   <script>
     // Robust URN parsing: supports /school/:urn and /:city/:urn
@@ -617,7 +369,6 @@
         urn = parts[1];
       }
 
-      // breadcrumb city (best effort)
       if (city) {
         const pretty = city.charAt(0).toUpperCase() + city.slice(1).replace(/-/g,' ');
         const crumb = document.getElementById('cityCrumb');
@@ -649,22 +400,27 @@
         document.getElementById('schoolType').textContent = s.type || '-';
         document.getElementById('schoolPhase').textContent = s.phase || '-';
         document.getElementById('ageRange').textContent = s.characteristics ? `Ages ${s.characteristics.age_range}` : 'Ages -';
-        const addr = [];
-        if (s.address?.street) addr.push(s.address.street);
-        if (s.address?.town) addr.push(s.address.town);
-        if (s.address?.postcode) addr.push(s.address.postcode);
-        document.getElementById('schoolAddress').textContent = addr.join(', ') || '-';
+
+        const addr = formatAddress(s.address || {});
+        document.getElementById('schoolAddress').textContent = addr || '-';
 
         document.getElementById('overallRating').textContent = s.overall_rating ? `${s.overall_rating}/10` : '-';
         if (s.ofsted){
-          const label = s.ofsted.overall_label || getOfstedLabel(s.ofsted.overall_effectiveness);
-          document.getElementById('ofstedRating').textContent = label;
+          const label = s.ofsted.overall_label || (window.getOfstedLabel ? getOfstedLabel(s.ofsted.overall_effectiveness) : '');
+          document.getElementById('ofstedRating').textContent = label || '-';
           document.getElementById('ofstedDate').textContent = s.ofsted.inspection_date ? new Date(s.ofsted.inspection_date).toLocaleDateString() : 'Not available';
         }
 
         // stats
-        document.getElementById('statStudents').textContent = formatNumber(s.demographics?.total_students) || '-';
-        document.getElementById('statFSM').textContent = s.demographics?.fsm_percentage != null ? (s.demographics.fsm_percentage + '%') : '-';
+        if (window.formatNumber) {
+          document.getElementById('statStudents').textContent = window.formatNumber(s.demographics?.total_students) || '-';
+        } else {
+          document.getElementById('statStudents').textContent = s.demographics?.total_students ?? '-';
+        }
+
+        const fsm = s.demographics?.fsm_percentage;
+        document.getElementById('statFSM').textContent = (fsm !== null && fsm !== undefined) ? (fsm + '%') : '-';
+
         if (s.attendance?.overall_absence_rate != null){
           const att = (100 - s.attendance.overall_absence_rate).toFixed(1);
           document.getElementById('statAttendance').textContent = att + '%';
@@ -682,8 +438,8 @@
         document.getElementById('infoLA').textContent = s.address?.local_authority || '-';
         document.getElementById('infoURN').textContent = s.urn || '-';
 
+        // Neighborhood (contact + map + ofsted link)
         renderNeighborhood(s);
-
 
         // performance
         const perfRes = await fetch(`/api/schools/${urn}/performance`);
@@ -698,8 +454,10 @@
         if (near.success && near.nearby_schools) {
           document.getElementById('nearbySchools').innerHTML = near.nearby_schools.slice(0,5).map(n => `
             <div class="nearby-school" onclick="window.location.href='/school/${n.urn}'">
-              <div><div class="nearby-school-name">${n.name}</div>
-              <div class="nearby-school-distance">${n.type_of_establishment || ''}</div></div>
+              <div>
+                <div class="nearby-school-name">${n.name}</div>
+                <div class="nearby-school-distance">${n.type_of_establishment || ''}</div>
+              </div>
               <div class="nearby-school-rating">${n.overall_rating || '-'} / 10</div>
             </div>
           `).join('');
