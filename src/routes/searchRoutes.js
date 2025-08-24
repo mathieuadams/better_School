@@ -66,24 +66,25 @@ router.get('/', async (req, res) => {
     
     if (type === 'name') {
       paramCount++;
-      sqlQuery += ` AND LOWER(s.name) LIKE LOWER($${paramCount})`;
+      sqlQuery += ` AND LOWER(s.name) LIKE LOWER(${paramCount})`;
       params.push(searchTerm);
     } else if (type === 'postcode') {
       paramCount++;
-      sqlQuery += ` AND LOWER(s.postcode) LIKE LOWER($${paramCount})`;
+      sqlQuery += ` AND LOWER(s.postcode) LIKE LOWER(${paramCount})`;
       params.push(searchTerm);
     } else if (type === 'location') {
       paramCount++;
-      sqlQuery += ` AND (LOWER(s.town) LIKE LOWER($${paramCount}) OR LOWER(s.local_authority) LIKE LOWER($${paramCount}))`;
+      // Search in both town and local_authority fields
+      sqlQuery += ` AND (LOWER(s.town) LIKE LOWER(${paramCount}) OR LOWER(s.local_authority) LIKE LOWER(${paramCount}))`;
       params.push(searchTerm);
     } else {
       // Search all fields
       paramCount++;
       sqlQuery += ` AND (
-        LOWER(s.name) LIKE LOWER($${paramCount}) OR 
-        LOWER(s.postcode) LIKE LOWER($${paramCount}) OR 
-        LOWER(s.town) LIKE LOWER($${paramCount}) OR 
-        LOWER(s.local_authority) LIKE LOWER($${paramCount})
+        LOWER(s.name) LIKE LOWER(${paramCount}) OR 
+        LOWER(s.postcode) LIKE LOWER(${paramCount}) OR 
+        LOWER(s.town) LIKE LOWER(${paramCount}) OR 
+        LOWER(s.local_authority) LIKE LOWER(${paramCount})
       )`;
       params.push(searchTerm);
     }

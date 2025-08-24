@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search Schools - Better School UK">
+    <title>Search Results - Better School UK</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <style>
+        .search-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+        
+        .search-results-container {
+            margin-top: 2rem;
+        }
+        
+        .results-info {
+            margin-bottom: 1.5rem;
+            color: #6b7280;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+    
+    <!-- Search Header -->
+    <section class="search-header">
+        <div class="container">
+            <h1>Search Results</h1>
+            <p id="searchQuery">Searching...</p>
+        </div>
+    </section>
+    
+    <!-- Search Results -->
+    <div class="container search-results-container">
+        <div class="results-info" id="resultsInfo">
+            Loading results...
+        </div>
+        
+        <div id="searchResults">
+            <!-- Results will be loaded here -->
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div id="footer"></div>
+    
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script>
+        // Get search parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        const type = urlParams.get('type') || 'all';
+        
+        // Update search query display
+        if (query) {
+            document.getElementById('searchQuery').textContent = `Results for "${query}"`;
+        }
+        
+        // Load search results
+        async function loadSearchResults() {
+            if (!query) {
+                document.getElementById('searchResults').innerHTML = 
+                    '<div class="no-results"><p>Please enter a search term.</p></div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&type=${type}`);
+                const data = await response.json();
+                
+                if (data.success && data.schools) {
+                    displayResults(data.schools, data.total);
+                } else {
+                    displayNoResults();
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                displayError();
+            }
+        }
+        
+        function displayResults(schools, total) {
+            document.getElementById('resultsInfo').textContent = 
+                `Found ${total || schools.length} schools`;
+            
+            if (!schools || schools.length === 0) {
+                displayNoResults();
+                return;
+            }
+            
+            const html = schools.map(school => `
+                <div class="school-card" onclick="window.location.href='/school/${school.urn}'">
+                    <div class="school-card-header">
+                        <div>
+                            <div class="school-card-name">${school.name}</div>
+                            <div class="school-card-type">${school.type_of_establishment || ''} • ${school.phase_of_education || ''}</div>
+                        </div>
+                        <div class="school-card-rating rating-${getRatingClass(school.overall_rating)}">
+                            ${school.overall_rating || '-'}/10
+                        </div>
+                    </div>
+                    <div class="school-card-details">
+                        <div class="detail-item">
+                            <span>📍</span>
+                            <span>${school.postcode || '-'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>🎓</span>
+                            <span>Ofsted: ${getOfstedLabel(school.ofsted_rating)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>👥</span>
+                            <span>${school.number_on_roll || 'N/A'} students</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('searchResults').innerHTML = html;
+        }
+        
+        function displayNoResults() {
+            document.getElementById('resultsInfo').textContent = 'No results found';
+            document.getElementById('searchResults').innerHTML = 
+                '<div class="no-results"><p>No schools found matching your search. Try a different search term.</p></div>';
+        }
+        
+        function displayError() {
+            document.getElementById('searchResults').innerHTML = 
+                '<div class="no-results"><p>An error occurred while searching. Please try again.</p></div>';
+        }
+        
+        function getRatingClass(rating) {
+            if (!rating) return 'average';
+            if (rating >= 8) return 'excellent';
+            if (rating >= 6) return 'good';
+            if (rating >= 4) return 'satisfactory';
+            return 'poor';
+        }
+        
+        function getOfstedLabel(rating) {
+            const labels = {
+                1: 'Outstanding',
+                2: 'Good',
+                3: 'Requires Improvement',
+                4: 'Inadequate'
+            };
+            return labels[rating] || 'Not Inspected';
+        }
+        
+        // Load results on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSearchResults();
+        });
+    </script>
+</body>
+</html>

@@ -270,37 +270,66 @@
         // Get city from URL
         const citySlug = window.location.pathname.split('/')[1];
         
-        // City name mapping
-        const cityNames = {
-            'london': 'London',
-            'birmingham': 'Birmingham',
-            'glasgow': 'Glasgow',
-            'liverpool': 'Liverpool',
-            'bristol': 'Bristol',
-            'manchester': 'Manchester',
-            'sheffield': 'Sheffield',
-            'leeds': 'Leeds',
-            'edinburgh': 'Edinburgh',
-            'leicester': 'Leicester',
-            'coventry': 'Coventry',
-            'bradford': 'Bradford',
-            'cardiff': 'Cardiff',
-            'belfast': 'Belfast',
-            'nottingham': 'Nottingham',
-            'kingston-upon-hull': 'Kingston upon Hull',
-            'newcastle': 'Newcastle',
-            'stoke-on-trent': 'Stoke-on-Trent',
-            'southampton': 'Southampton',
-            'portsmouth': 'Portsmouth',
-            'milton-keynes': 'Milton Keynes',
-            'oxford': 'Oxford',
-            'cambridge': 'Cambridge',
-            'brighton': 'Brighton',
-            'bath': 'Bath',
-            'york': 'York'
+        // City name mapping with search terms
+        const cityConfig = {
+            'london': {
+                name: 'London',
+                searchTerms: ['London', 'Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 'Hammersmith', 'Kensington', 'Chelsea', 'Fulham', 'Brent', 'Ealing', 'Hounslow', 'Richmond', 'Kingston', 'Merton', 'Sutton', 'Croydon', 'Bromley', 'Bexley', 'Havering', 'Barking', 'Redbridge', 'Newham', 'Waltham Forest', 'Haringey', 'Enfield', 'Barnet', 'Harrow', 'Hillingdon']
+            },
+            'birmingham': {
+                name: 'Birmingham',
+                searchTerms: ['Birmingham']
+            },
+            'manchester': {
+                name: 'Manchester', 
+                searchTerms: ['Manchester', 'Salford', 'Trafford']
+            },
+            'glasgow': {
+                name: 'Glasgow',
+                searchTerms: ['Glasgow', 'Glasgow City']
+            },
+            'liverpool': {
+                name: 'Liverpool',
+                searchTerms: ['Liverpool']
+            },
+            'bristol': {
+                name: 'Bristol',
+                searchTerms: ['Bristol', 'City of Bristol']
+            },
+            'sheffield': {
+                name: 'Sheffield',
+                searchTerms: ['Sheffield']
+            },
+            'leeds': {
+                name: 'Leeds',
+                searchTerms: ['Leeds']
+            },
+            'edinburgh': {
+                name: 'Edinburgh',
+                searchTerms: ['Edinburgh', 'City of Edinburgh']
+            },
+            'leicester': {
+                name: 'Leicester',
+                searchTerms: ['Leicester']
+            },
+            'oxford': {
+                name: 'Oxford',
+                searchTerms: ['Oxford', 'Oxfordshire']
+            },
+            'cambridge': {
+                name: 'Cambridge',
+                searchTerms: ['Cambridge', 'Cambridgeshire']
+            }
         };
         
-        const cityName = cityNames[citySlug] || citySlug.charAt(0).toUpperCase() + citySlug.slice(1);
+        // Default config for cities not in the list
+        const defaultConfig = {
+            name: citySlug.charAt(0).toUpperCase() + citySlug.slice(1).replace(/-/g, ' '),
+            searchTerms: [citySlug.charAt(0).toUpperCase() + citySlug.slice(1).replace(/-/g, ' ')]
+        };
+        
+        const cityInfo = cityConfig[citySlug] || defaultConfig;
+        const cityName = cityInfo.name;
         
         // Update page elements
         document.getElementById('cityName').textContent = cityName;
@@ -311,15 +340,46 @@
         // Load schools for this city
         async function loadCitySchools() {
             try {
-                const response = await fetch(`/api/search?q=${encodeURIComponent(cityName)}&type=location&limit=50`);
-                const data = await response.json();
+                // For cities with multiple search terms (like London with boroughs), we need to search each
+                const allSchools = [];
+                const seenUrns = new Set();
                 
-                if (data.success && data.schools) {
-                    displayCitySchools(data.schools);
-                    updateStats(data.schools);
+                // If it's a complex city like London, search by local authority
+                if (cityInfo.searchTerms.length > 1) {
+                    // Search by local authority for better results
+                    for (const term of cityInfo.searchTerms) {
+                        const response = await fetch(`/api/search?q=${encodeURIComponent(term)}&type=location&limit=100`);
+                        const data = await response.json();
+                        
+                        if (data.success && data.schools) {
+                            for (const school of data.schools) {
+                                if (!seenUrns.has(school.urn)) {
+                                    seenUrns.add(school.urn);
+                                    allSchools.push(school);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Simple city search
+                    const response = await fetch(`/api/search?q=${encodeURIComponent(cityName)}&type=location&limit=200`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.schools) {
+                        allSchools.push(...data.schools);
+                    }
                 }
+                
+                // Sort schools by rating
+                allSchools.sort((a, b) => (b.overall_rating || 0) - (a.overall_rating || 0));
+                
+                displayCitySchools(allSchools);
+                updateStats(allSchools);
+                
             } catch (error) {
                 console.error('Error loading city schools:', error);
+                document.getElementById('schoolsList').innerHTML = 
+                    '<p style="color: #ef4444;">Error loading schools. Please try again.</p>';
             }
         }
         
