@@ -688,6 +688,9 @@
                     console.error('School not found:', data);
                     document.getElementById('schoolName').textContent = 'School Not Found';
                     document.getElementById('overallRating').textContent = '-';
+                    // Hide the loading state
+                    const loadingElements = document.querySelectorAll('.loading-message');
+                    loadingElements.forEach(el => el.style.display = 'none');
                 }
                 
                 // Load performance data
