@@ -332,23 +332,24 @@
             }
             
             const html = schools.map(school => {
-                const schoolUrl = `/${citySlug}/${school.slug || school.urn}`;
+                // Use URN for the URL since we don't have slug in the database
+                const schoolUrl = `/${citySlug}/${school.urn}`;
                 
                 return `
                     <div class="school-card" onclick="window.location.href='${schoolUrl}'">
                         <div class="school-card-header">
                             <div>
                                 <div class="school-card-name">${school.name}</div>
-                                <div class="school-card-type">${school.type_of_establishment} • ${school.phase_of_education}</div>
+                                <div class="school-card-type">${school.type_of_establishment || ''} • ${school.phase_of_education || ''}</div>
                             </div>
                             <div class="school-card-rating rating-${getRatingClass(school.overall_rating)}">
-                                ${school.overall_rating}/10
+                                ${school.overall_rating || '-'}/10
                             </div>
                         </div>
                         <div class="school-card-details">
                             <div class="detail-item">
                                 <span>📍</span>
-                                <span>${school.postcode}</span>
+                                <span>${school.postcode || '-'}</span>
                             </div>
                             <div class="detail-item">
                                 <span>🎓</span>

@@ -400,11 +400,11 @@
                     </li>
                     <li class="breadcrumb-separator">/</li>
                     <li class="breadcrumb-item">
-                        <a href="/search" id="searchCrumb">Search</a>
+                        <a href="/search">Search</a>
                     </li>
                     <li class="breadcrumb-separator">/</li>
                     <li class="breadcrumb-item">
-                        <a href="#" id="laCrumb">Local Authority</a>
+                        <a href="#" id="cityCrumb">Local Authority</a>
                     </li>
                     <li class="breadcrumb-separator">/</li>
                     <li class="breadcrumb-item active" id="schoolCrumb">School Name</li>
@@ -655,41 +655,108 @@
     <div id="footer" style="margin-top: 4rem;"></div>
     
     <!-- Scripts -->
+    <script src="/js/main.js"></script>
     <script>
-        // Load header and footer
-        fetch('/components/header.html')
-            .then(response => response.text())
-            .then(data => document.getElementById('header').innerHTML = data);
-            
-        fetch('/components/footer.html')
-            .then(response => response.text())
-            .then(data => document.getElementById('footer').innerHTML = data);
+        // Parse URL to get city and school identifier
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        let citySlug = null;
+        let schoolIdentifier = null;
         
-        // Get URN from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const urn = urlParams.get('urn') || window.location.pathname.split('/').pop();
+        // City name mapping
+        const cityNames = {
+            'london': 'London',
+            'birmingham': 'Birmingham',
+            'glasgow': 'Glasgow',
+            'liverpool': 'Liverpool',
+            'bristol': 'Bristol',
+            'manchester': 'Manchester',
+            'sheffield': 'Sheffield',
+            'leeds': 'Leeds',
+            'edinburgh': 'Edinburgh',
+            'leicester': 'Leicester',
+            'coventry': 'Coventry',
+            'bradford': 'Bradford',
+            'cardiff': 'Cardiff',
+            'belfast': 'Belfast',
+            'nottingham': 'Nottingham',
+            'kingston-upon-hull': 'Kingston upon Hull',
+            'newcastle': 'Newcastle',
+            'stoke-on-trent': 'Stoke-on-Trent',
+            'southampton': 'Southampton',
+            'portsmouth': 'Portsmouth',
+            'milton-keynes': 'Milton Keynes',
+            'oxford': 'Oxford',
+            'cambridge': 'Cambridge',
+            'brighton': 'Brighton',
+            'bath': 'Bath',
+            'york': 'York',
+            'norwich': 'Norwich',
+            'derby': 'Derby',
+            'plymouth': 'Plymouth',
+            'exeter': 'Exeter',
+            'chester': 'Chester',
+            'durham': 'Durham'
+        };
+        
+        // Determine if URL is /city/school or /school/urn
+        if (pathParts.length === 2) {
+            // Check if first part is a city
+            if (cityNames[pathParts[0]]) {
+                citySlug = pathParts[0];
+                schoolIdentifier = pathParts[1]; // This could be URN or slug
+            } else if (pathParts[0] === 'school') {
+                schoolIdentifier = pathParts[1]; // URN
+            }
+        } else if (pathParts.length === 1) {
+            // Just /schoolId
+            schoolIdentifier = pathParts[0];
+        }
+        
+        // Get city name for breadcrumb
+        const cityName = citySlug ? cityNames[citySlug] : null;
+        
+        // Update breadcrumb if we have a city
+        if (cityName) {
+            document.getElementById('cityCrumb').textContent = cityName;
+            document.getElementById('cityCrumb').href = `/${citySlug}`;
+        }
         
         // Load school data
         async function loadSchoolData() {
+            if (!schoolIdentifier) {
+                console.error('No school identifier found');
+                return;
+            }
+            
             try {
-                // Fetch school basic info
-                const response = await fetch(`/api/schools/${urn}`);
+                // Try to load by URN (assuming the identifier is numeric or the API can handle it)
+                const response = await fetch(`/api/schools/${schoolIdentifier}`);
                 const data = await response.json();
                 
                 if (data.success && data.school) {
                     updateSchoolInfo(data.school);
+                    
+                    // Update breadcrumb with actual location if not already set
+                    if (!cityName && data.school.address) {
+                        const schoolCity = data.school.address.town || data.school.address.local_authority;
+                        document.getElementById('cityCrumb').textContent = schoolCity;
+                        document.getElementById('cityCrumb').href = `/search?location=${encodeURIComponent(schoolCity)}`;
+                    }
+                } else {
+                    console.error('School not found');
+                    document.getElementById('schoolName').textContent = 'School Not Found';
                 }
                 
-                // Fetch performance data
-                const perfResponse = await fetch(`/api/schools/${urn}/performance`);
+                // Load performance data
+                const perfResponse = await fetch(`/api/schools/${schoolIdentifier}/performance`);
                 const perfData = await perfResponse.json();
                 
                 if (perfData.success && perfData.performance) {
                     updatePerformanceData(perfData.performance);
                 }
                 
-                // Fetch nearby schools
-                const nearbyResponse = await fetch(`/api/schools/${urn}/nearby?limit=5`);
+                // Load nearby schools
+                const nearbyResponse = await fetch(`/api/schools/${schoolIdentifier}/nearby?limit=5`);
                 const nearbyData = await nearbyResponse.json();
                 
                 if (nearbyData.success && nearbyData.nearby_schools) {
@@ -698,60 +765,88 @@
                 
             } catch (error) {
                 console.error('Error loading school data:', error);
+                document.getElementById('schoolName').textContent = 'Error Loading School';
             }
         }
         
         function updateSchoolInfo(school) {
             // Update header
             document.getElementById('schoolName').textContent = school.name;
-            document.getElementById('schoolType').textContent = school.type;
-            document.getElementById('schoolPhase').textContent = school.phase;
-            document.getElementById('ageRange').textContent = `Ages ${school.characteristics.age_range}`;
-            document.getElementById('schoolAddress').textContent = `${school.address.street}, ${school.address.town}, ${school.address.postcode}`;
+            document.getElementById('schoolType').textContent = school.type || '-';
+            document.getElementById('schoolPhase').textContent = school.phase || '-';
+            document.getElementById('ageRange').textContent = school.characteristics ? `Ages ${school.characteristics.age_range}` : 'Ages -';
+            
+            // Handle address properly
+            if (school.address) {
+                const addressParts = [];
+                if (school.address.street) addressParts.push(school.address.street);
+                if (school.address.town) addressParts.push(school.address.town);
+                if (school.address.postcode) addressParts.push(school.address.postcode);
+                document.getElementById('schoolAddress').textContent = addressParts.join(', ') || '-';
+            } else {
+                document.getElementById('schoolAddress').textContent = '-';
+            }
             
             // Update ratings
-            document.getElementById('overallRating').textContent = school.overall_rating + '/10';
-            const ofstedLabel = school.ofsted.overall_label;
-            document.getElementById('ofstedRating').textContent = ofstedLabel;
-            document.getElementById('ofstedRating').className = `ofsted-score ofsted-${ofstedLabel.toLowerCase().replace(' ', '-')}`;
-            document.getElementById('ofstedDate').textContent = school.ofsted.inspection_date ? 
-                new Date(school.ofsted.inspection_date).toLocaleDateString() : 'Not available';
+            const overallRating = school.overall_rating || '-';
+            document.getElementById('overallRating').textContent = overallRating !== '-' ? overallRating + '/10' : '-';
+            
+            if (school.ofsted) {
+                const ofstedLabel = school.ofsted.overall_label || getOfstedLabel(school.ofsted.overall_effectiveness);
+                document.getElementById('ofstedRating').textContent = ofstedLabel;
+                document.getElementById('ofstedRating').className = `ofsted-score ofsted-${ofstedLabel.toLowerCase().replace(/\s+/g, '-')}`;
+                document.getElementById('ofstedDate').textContent = school.ofsted.inspection_date ? 
+                    new Date(school.ofsted.inspection_date).toLocaleDateString() : 'Not available';
+            }
             
             // Update key stats
-            document.getElementById('statStudents').textContent = school.demographics.total_students || '-';
-            document.getElementById('statFSM').textContent = (school.demographics.fsm_percentage || 0) + '%';
-            document.getElementById('statAttendance').textContent = 
-                school.attendance.overall_absence_rate ? 
-                (100 - school.attendance.overall_absence_rate).toFixed(1) + '%' : '-';
+            document.getElementById('statStudents').textContent = formatNumber(school.demographics?.total_students) || '-';
+            document.getElementById('statFSM').textContent = school.demographics?.fsm_percentage ? 
+                school.demographics.fsm_percentage + '%' : '-';
+            
+            // Update attendance if available
+            if (school.attendance?.overall_absence_rate !== undefined) {
+                const attendanceRate = (100 - school.attendance.overall_absence_rate).toFixed(1);
+                document.getElementById('statAttendance').textContent = attendanceRate + '%';
+            } else {
+                document.getElementById('statAttendance').textContent = '-';
+            }
             
             // Update breadcrumb
-            document.getElementById('laCrumb').textContent = school.address.local_authority;
-            document.getElementById('laCrumb').href = `/search?location=${encodeURIComponent(school.address.local_authority)}`;
             document.getElementById('schoolCrumb').textContent = school.name;
             
             // Update page title
             document.getElementById('pageTitle').textContent = `${school.name} - Better School UK`;
             
             // Update school information section
-            document.getElementById('infoType').textContent = school.type;
-            document.getElementById('infoGender').textContent = school.characteristics.gender;
-            document.getElementById('infoAgeRange').textContent = school.characteristics.age_range;
-            document.getElementById('infoReligious').textContent = school.characteristics.religious_character || 'None';
-            document.getElementById('infoAdmissions').textContent = school.characteristics.admissions_policy || 'Standard';
-            document.getElementById('infoLA').textContent = school.address.local_authority;
-            document.getElementById('infoURN').textContent = school.urn;
+            document.getElementById('infoType').textContent = school.type || '-';
+            document.getElementById('infoGender').textContent = school.characteristics?.gender || '-';
+            document.getElementById('infoAgeRange').textContent = school.characteristics?.age_range || '-';
+            document.getElementById('infoReligious').textContent = school.characteristics?.religious_character || 'None';
+            document.getElementById('infoAdmissions').textContent = school.characteristics?.admissions_policy || 'Standard';
+            document.getElementById('infoLA').textContent = school.address?.local_authority || '-';
+            document.getElementById('infoURN').textContent = school.urn || '-';
             
             // Update demographics
-            document.getElementById('demoTotal').textContent = school.demographics.total_students;
-            document.getElementById('demoGenderSplit').textContent = 
-                `${school.demographics.boys || 0} boys, ${school.demographics.girls || 0} girls`;
-            document.getElementById('demoFSM').textContent = (school.demographics.fsm_percentage || 0) + '%';
-            document.getElementById('demoEAL').textContent = (school.demographics.eal_percentage || 0) + '%';
-            document.getElementById('demoSEN').textContent = 
-                ((school.demographics.sen_support_percentage || 0) + (school.demographics.sen_ehcp_percentage || 0)) + '%';
+            if (school.demographics) {
+                document.getElementById('demoTotal').textContent = formatNumber(school.demographics.total_students) || '-';
+                document.getElementById('demoGenderSplit').textContent = 
+                    `${school.demographics.boys || 0} boys, ${school.demographics.girls || 0} girls`;
+                document.getElementById('demoFSM').textContent = (school.demographics.fsm_percentage || 0) + '%';
+                document.getElementById('demoEAL').textContent = (school.demographics.eal_percentage || 0) + '%';
+                document.getElementById('demoSEN').textContent = 
+                    ((school.demographics.sen_support_percentage || 0) + (school.demographics.sen_ehcp_percentage || 0)) + '%';
+            }
             
             // Update Ofsted grid
-            updateOfstedGrid(school.ofsted);
+            if (school.ofsted) {
+                updateOfstedGrid(school.ofsted);
+            }
+        }
+        
+        function formatNumber(num) {
+            if (!num) return '-';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
         function updatePerformanceData(performance) {
@@ -917,6 +1012,5 @@
             }
         });
     </script>
-    <script src="/js/main.js"></script>
 </body>
 </html>
