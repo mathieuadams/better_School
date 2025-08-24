@@ -123,13 +123,14 @@ ukCities.forEach(city => {
   });
   
   // Route for school within a city
-  app.get(`/${city}/:schoolSlug`, (req, res) => {
+  // This now handles both /city/urn and /city/urn-school-name formats
+  app.get(`/${city}/:schoolIdentifier`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'school.html'));
   });
 });
 
-// Fallback route for school by URN
-app.get('/school/:urn', (req, res) => {
+// Fallback route for school by URN (handles both /school/urn and /school/urn-school-name)
+app.get('/school/:identifier', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'school.html'));
 });
 
