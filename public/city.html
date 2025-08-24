@@ -134,6 +134,20 @@
             cursor: pointer;
         }
         
+        .loading-message {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            color: #ef4444;
+            background: #fee;
+            border-radius: 8px;
+        }
+        
         @media (max-width: 768px) {
             .sidebar-layout {
                 grid-template-columns: 1fr;
@@ -192,11 +206,10 @@
             <aside class="sidebar">
                 <div class="sidebar-section">
                     <h3 class="sidebar-title">Schools</h3>
-                    <a href="#" class="sidebar-link active">Top Rated Schools</a>
-                    <a href="#" class="sidebar-link">All Schools</a>
-                    <a href="#" class="sidebar-link">Primary Schools</a>
-                    <a href="#" class="sidebar-link">Secondary Schools</a>
-                    <a href="#" class="sidebar-link">Sixth Form Colleges</a>
+                    <a href="#" class="sidebar-link active" data-filter="all">All Schools</a>
+                    <a href="#" class="sidebar-link" data-filter="primary">Primary Schools</a>
+                    <a href="#" class="sidebar-link" data-filter="secondary">Secondary Schools</a>
+                    <a href="#" class="sidebar-link" data-filter="sixth-form">Sixth Form Colleges</a>
                 </div>
                 
                 <div class="sidebar-section">
@@ -205,18 +218,11 @@
                         <!-- Will be populated -->
                     </div>
                 </div>
-                
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Neighboring Cities</h3>
-                    <div id="neighboringCities">
-                        <!-- Will be populated -->
-                    </div>
-                </div>
             </aside>
             
             <!-- Main Content Area -->
             <main class="main-content">
-                <h2>Top Rated Schools in <span id="cityNameInline">this city</span></h2>
+                <h2>Schools in <span id="cityNameInline">this city</span></h2>
                 
                 <!-- Filter Bar -->
                 <div class="filter-bar">
@@ -224,16 +230,16 @@
                         <option value="">All Phases</option>
                         <option value="Primary">Primary</option>
                         <option value="Secondary">Secondary</option>
-                        <option value="Sixth Form">Sixth Form</option>
+                        <option value="16 plus">Sixth Form</option>
                         <option value="All-through">All-through</option>
                     </select>
                     
                     <select class="filter-select" id="typeFilter">
                         <option value="">All Types</option>
                         <option value="Academy">Academy</option>
-                        <option value="Community School">Community School</option>
-                        <option value="Independent">Independent</option>
-                        <option value="Faith">Faith School</option>
+                        <option value="Community school">Community School</option>
+                        <option value="Voluntary aided school">Voluntary Aided</option>
+                        <option value="Foundation school">Foundation School</option>
                     </select>
                     
                     <select class="filter-select" id="ofstedFilter">
@@ -241,6 +247,7 @@
                         <option value="1">Outstanding</option>
                         <option value="2">Good</option>
                         <option value="3">Requires Improvement</option>
+                        <option value="4">Inadequate</option>
                     </select>
                     
                     <select class="filter-select" id="sortBy">
@@ -252,8 +259,7 @@
                 
                 <!-- Schools List -->
                 <div id="schoolsList" class="schools-list">
-                    <!-- Schools will be loaded here -->
-                    <div style="text-align: center; padding: 2rem;">
+                    <div class="loading-message">
                         <p>Loading schools...</p>
                     </div>
                 </div>
@@ -270,23 +276,31 @@
         // Get city from URL
         const citySlug = window.location.pathname.split('/')[1];
         
-        // City name mapping with search terms
+        // City configuration with London boroughs
         const cityConfig = {
             'london': {
                 name: 'London',
-                searchTerms: ['London', 'Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 'Hammersmith', 'Kensington', 'Chelsea', 'Fulham', 'Brent', 'Ealing', 'Hounslow', 'Richmond', 'Kingston', 'Merton', 'Sutton', 'Croydon', 'Bromley', 'Bexley', 'Havering', 'Barking', 'Redbridge', 'Newham', 'Waltham Forest', 'Haringey', 'Enfield', 'Barnet', 'Harrow', 'Hillingdon']
+                searchTerms: [
+                    'Westminster', 'Camden', 'Islington', 'Hackney', 'Tower Hamlets', 
+                    'Greenwich', 'Lewisham', 'Southwark', 'Lambeth', 'Wandsworth', 
+                    'Hammersmith and Fulham', 'Kensington and Chelsea', 'Brent', 'Ealing', 
+                    'Hounslow', 'Richmond upon Thames', 'Kingston upon Thames', 'Merton', 
+                    'Sutton', 'Croydon', 'Bromley', 'Bexley', 'Havering', 'Barking and Dagenham', 
+                    'Redbridge', 'Newham', 'Waltham Forest', 'Haringey', 'Enfield', 
+                    'Barnet', 'Harrow', 'Hillingdon', 'City of London'
+                ]
+            },
+            'manchester': {
+                name: 'Manchester',
+                searchTerms: ['Manchester', 'Salford', 'Trafford', 'Stockport', 'Tameside', 'Oldham', 'Rochdale', 'Bury', 'Bolton', 'Wigan']
             },
             'birmingham': {
                 name: 'Birmingham',
                 searchTerms: ['Birmingham']
             },
-            'manchester': {
-                name: 'Manchester', 
-                searchTerms: ['Manchester', 'Salford', 'Trafford']
-            },
             'glasgow': {
                 name: 'Glasgow',
-                searchTerms: ['Glasgow', 'Glasgow City']
+                searchTerms: ['Glasgow City']
             },
             'liverpool': {
                 name: 'Liverpool',
@@ -294,7 +308,7 @@
             },
             'bristol': {
                 name: 'Bristol',
-                searchTerms: ['Bristol', 'City of Bristol']
+                searchTerms: ['Bristol, City of']
             },
             'sheffield': {
                 name: 'Sheffield',
@@ -306,19 +320,11 @@
             },
             'edinburgh': {
                 name: 'Edinburgh',
-                searchTerms: ['Edinburgh', 'City of Edinburgh']
+                searchTerms: ['City of Edinburgh']
             },
             'leicester': {
                 name: 'Leicester',
                 searchTerms: ['Leicester']
-            },
-            'oxford': {
-                name: 'Oxford',
-                searchTerms: ['Oxford', 'Oxfordshire']
-            },
-            'cambridge': {
-                name: 'Cambridge',
-                searchTerms: ['Cambridge', 'Cambridgeshire']
             }
         };
         
@@ -331,55 +337,68 @@
         const cityInfo = cityConfig[citySlug] || defaultConfig;
         const cityName = cityInfo.name;
         
+        // Store all schools for filtering
+        let allSchools = [];
+        let currentFilter = {
+            phase: '',
+            type: '',
+            ofsted: '',
+            sort: 'rating'
+        };
+        
         // Update page elements
         document.getElementById('cityName').textContent = cityName;
         document.getElementById('cityNameInline').textContent = cityName;
-        document.getElementById('cityDescription').textContent = `${cityName} is a city in the United Kingdom`;
+        document.getElementById('cityDescription').textContent = `Browse and compare schools in ${cityName}`;
         document.getElementById('pageTitle').textContent = `${cityName} Schools - Better School UK`;
         
         // Load schools for this city
         async function loadCitySchools() {
             try {
-                // For cities with multiple search terms (like London with boroughs), we need to search each
-                const allSchools = [];
-                const seenUrns = new Set();
+                const schoolsList = document.getElementById('schoolsList');
+                schoolsList.innerHTML = '<div class="loading-message"><p>Loading schools...</p></div>';
                 
-                // If it's a complex city like London, search by local authority
-                if (cityInfo.searchTerms.length > 1) {
-                    // Search by local authority for better results
-                    for (const term of cityInfo.searchTerms) {
-                        const response = await fetch(`/api/search?q=${encodeURIComponent(term)}&type=location&limit=100`);
+                const allSchoolsSet = new Map(); // Use Map to prevent duplicates by URN
+                
+                // Search for each term separately
+                for (const searchTerm of cityInfo.searchTerms) {
+                    try {
+                        console.log(`Searching for: ${searchTerm}`);
+                        const response = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}&type=location&limit=500`);
                         const data = await response.json();
                         
                         if (data.success && data.schools) {
-                            for (const school of data.schools) {
-                                if (!seenUrns.has(school.urn)) {
-                                    seenUrns.add(school.urn);
-                                    allSchools.push(school);
-                                }
-                            }
+                            console.log(`Found ${data.schools.length} schools for ${searchTerm}`);
+                            data.schools.forEach(school => {
+                                allSchoolsSet.set(school.urn, school);
+                            });
                         }
-                    }
-                } else {
-                    // Simple city search
-                    const response = await fetch(`/api/search?q=${encodeURIComponent(cityName)}&type=location&limit=200`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.schools) {
-                        allSchools.push(...data.schools);
+                    } catch (error) {
+                        console.error(`Error searching for ${searchTerm}:`, error);
                     }
                 }
                 
-                // Sort schools by rating
+                // Convert Map to array
+                allSchools = Array.from(allSchoolsSet.values());
+                console.log(`Total unique schools found: ${allSchools.length}`);
+                
+                if (allSchools.length === 0) {
+                    schoolsList.innerHTML = '<div class="error-message">No schools found in this area. The search may need to be refined.</div>';
+                    updateStats([]);
+                    return;
+                }
+                
+                // Sort schools by rating initially
                 allSchools.sort((a, b) => (b.overall_rating || 0) - (a.overall_rating || 0));
                 
                 displayCitySchools(allSchools);
                 updateStats(allSchools);
+                updateLocalAuthorities(allSchools);
                 
             } catch (error) {
                 console.error('Error loading city schools:', error);
                 document.getElementById('schoolsList').innerHTML = 
-                    '<p style="color: #ef4444;">Error loading schools. Please try again.</p>';
+                    '<div class="error-message">Error loading schools. Please try again.</div>';
             }
         }
         
@@ -387,12 +406,32 @@
             const container = document.getElementById('schoolsList');
             
             if (!schools || schools.length === 0) {
-                container.innerHTML = '<p>No schools found in this area.</p>';
+                container.innerHTML = '<p>No schools found matching your filters.</p>';
                 return;
             }
             
-            const html = schools.map(school => {
-                // Use URN for the URL since we don't have slug in the database
+            // Apply filters
+            let filteredSchools = schools.filter(school => {
+                if (currentFilter.phase && school.phase_of_education !== currentFilter.phase) return false;
+                if (currentFilter.type && school.type_of_establishment !== currentFilter.type) return false;
+                if (currentFilter.ofsted && school.ofsted_rating != currentFilter.ofsted) return false;
+                return true;
+            });
+            
+            // Apply sorting
+            filteredSchools.sort((a, b) => {
+                switch (currentFilter.sort) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'ofsted':
+                        return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
+                    case 'rating':
+                    default:
+                        return (b.overall_rating || 0) - (a.overall_rating || 0);
+                }
+            });
+            
+            const html = filteredSchools.map(school => {
                 const schoolUrl = `/${citySlug}/${school.urn}`;
                 
                 return `
@@ -409,7 +448,7 @@
                         <div class="school-card-details">
                             <div class="detail-item">
                                 <span>📍</span>
-                                <span>${school.postcode || '-'}</span>
+                                <span>${school.local_authority || school.town || '-'}</span>
                             </div>
                             <div class="detail-item">
                                 <span>🎓</span>
@@ -424,7 +463,7 @@
                 `;
             }).join('');
             
-            container.innerHTML = html;
+            container.innerHTML = html || '<p>No schools found matching your filters.</p>';
         }
         
         function updateStats(schools) {
@@ -439,6 +478,15 @@
             document.getElementById('secondarySchools').textContent = secondary;
             document.getElementById('outstandingSchools').textContent = outstanding;
             document.getElementById('goodSchools').textContent = good;
+        }
+        
+        function updateLocalAuthorities(schools) {
+            const las = [...new Set(schools.map(s => s.local_authority).filter(la => la))];
+            const container = document.getElementById('localAuthorities');
+            
+            container.innerHTML = las.slice(0, 10).map(la => 
+                `<a href="#" class="sidebar-link" onclick="filterByLA('${la}')">${la}</a>`
+            ).join('');
         }
         
         function getRatingClass(rating) {
@@ -459,16 +507,54 @@
             return labels[rating] || 'Not Inspected';
         }
         
-        // Filter functionality
-        document.getElementById('phaseFilter').addEventListener('change', filterSchools);
-        document.getElementById('typeFilter').addEventListener('change', filterSchools);
-        document.getElementById('ofstedFilter').addEventListener('change', filterSchools);
-        document.getElementById('sortBy').addEventListener('change', filterSchools);
-        
-        function filterSchools() {
-            // Implementation for filtering
-            // This would filter the displayed schools based on selected criteria
+        function filterByLA(la) {
+            const filtered = allSchools.filter(s => s.local_authority === la);
+            displayCitySchools(filtered);
         }
+        
+        // Filter event listeners
+        document.getElementById('phaseFilter').addEventListener('change', (e) => {
+            currentFilter.phase = e.target.value;
+            displayCitySchools(allSchools);
+        });
+        
+        document.getElementById('typeFilter').addEventListener('change', (e) => {
+            currentFilter.type = e.target.value;
+            displayCitySchools(allSchools);
+        });
+        
+        document.getElementById('ofstedFilter').addEventListener('change', (e) => {
+            currentFilter.ofsted = e.target.value;
+            displayCitySchools(allSchools);
+        });
+        
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            currentFilter.sort = e.target.value;
+            displayCitySchools(allSchools);
+        });
+        
+        // Sidebar filter links
+        document.querySelectorAll('.sidebar-link[data-filter]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-link[data-filter]').forEach(l => l.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const filter = e.target.dataset.filter;
+                if (filter === 'all') {
+                    currentFilter.phase = '';
+                } else if (filter === 'primary') {
+                    currentFilter.phase = 'Primary';
+                } else if (filter === 'secondary') {
+                    currentFilter.phase = 'Secondary';
+                } else if (filter === 'sixth-form') {
+                    currentFilter.phase = '16 plus';
+                }
+                
+                document.getElementById('phaseFilter').value = currentFilter.phase;
+                displayCitySchools(allSchools);
+            });
+        });
         
         // Load schools on page load
         document.addEventListener('DOMContentLoaded', function() {

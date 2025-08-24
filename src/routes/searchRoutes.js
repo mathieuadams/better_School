@@ -66,26 +66,34 @@ router.get('/', async (req, res) => {
     
     if (type === 'name') {
       paramCount++;
-      sqlQuery += ` AND LOWER(s.name) LIKE LOWER(${paramCount})`;
+      sqlQuery += ` AND LOWER(s.name) LIKE LOWER($${paramCount})`;
       params.push(searchTerm);
     } else if (type === 'postcode') {
       paramCount++;
-      sqlQuery += ` AND LOWER(s.postcode) LIKE LOWER(${paramCount})`;
+      sqlQuery += ` AND LOWER(s.postcode) LIKE LOWER($${paramCount})`;
       params.push(searchTerm);
     } else if (type === 'location') {
       paramCount++;
+      paramCount++;
       // Search in both town and local_authority fields
-      sqlQuery += ` AND (LOWER(s.town) LIKE LOWER(${paramCount}) OR LOWER(s.local_authority) LIKE LOWER(${paramCount}))`;
+      sqlQuery += ` AND (LOWER(s.town) LIKE LOWER($${paramCount-1}) OR LOWER(s.local_authority) LIKE LOWER($${paramCount}))`;
+      params.push(searchTerm);
       params.push(searchTerm);
     } else {
       // Search all fields
       paramCount++;
+      paramCount++;
+      paramCount++;
+      paramCount++;
       sqlQuery += ` AND (
-        LOWER(s.name) LIKE LOWER(${paramCount}) OR 
-        LOWER(s.postcode) LIKE LOWER(${paramCount}) OR 
-        LOWER(s.town) LIKE LOWER(${paramCount}) OR 
-        LOWER(s.local_authority) LIKE LOWER(${paramCount})
+        LOWER(s.name) LIKE LOWER($${paramCount-3}) OR 
+        LOWER(s.postcode) LIKE LOWER($${paramCount-2}) OR 
+        LOWER(s.town) LIKE LOWER($${paramCount-1}) OR 
+        LOWER(s.local_authority) LIKE LOWER($${paramCount})
       )`;
+      params.push(searchTerm);
+      params.push(searchTerm);
+      params.push(searchTerm);
       params.push(searchTerm);
     }
 
@@ -121,6 +129,9 @@ router.get('/', async (req, res) => {
 
     // Execute search query
     console.log('Executing search for:', q, 'Type:', type);
+    console.log('SQL Query:', sqlQuery);
+    console.log('Parameters:', params);
+    
     const result = await query(sqlQuery, params);
 
     // Get total count for pagination
@@ -139,14 +150,31 @@ router.get('/', async (req, res) => {
     } else if (type === 'postcode') {
       countQuery += ` AND LOWER(s.postcode) LIKE LOWER($1)`;
     } else if (type === 'location') {
-      countQuery += ` AND (LOWER(s.town) LIKE LOWER($1) OR LOWER(s.local_authority) LIKE LOWER($1))`;
+      countQuery += ` AND (LOWER(s.town) LIKE LOWER($1) OR LOWER(s.local_authority) LIKE LOWER($2))`;
     } else {
       countQuery += ` AND (
         LOWER(s.name) LIKE LOWER($1) OR 
-        LOWER(s.postcode) LIKE LOWER($1) OR 
-        LOWER(s.town) LIKE LOWER($1) OR 
-        LOWER(s.local_authority) LIKE LOWER($1)
+        LOWER(s.postcode) LIKE LOWER($2) OR 
+        LOWER(s.town) LIKE LOWER($3) OR 
+        LOWER(s.local_authority) LIKE LOWER($4)
       )`;
+    }
+
+    // Add filter conditions to count query if they exist
+    let countParamOffset = type === 'location' ? 2 : (type === 'all' ? 4 : 1);
+    
+    if (phase) {
+      countQuery += ` AND s.phase_of_education = $${countParamOffset + 1}`;
+      countParamOffset++;
+    }
+    
+    if (ofsted) {
+      countQuery += ` AND o.overall_effectiveness = $${countParamOffset + 1}`;
+      countParamOffset++;
+    }
+    
+    if (la) {
+      countQuery += ` AND LOWER(s.local_authority) = LOWER($${countParamOffset + 1})`;
     }
 
     const countResult = await query(countQuery, countParams);
@@ -190,7 +218,14 @@ router.get('/postcode/:postcode', async (req, res) => {
       SELECT 
         s.*,
         o.overall_effectiveness as ofsted_rating,
-        c.number_on_roll
+        c.number_on_roll,
+        CASE 
+          WHEN o.overall_effectiveness = 1 THEN 9
+          WHEN o.overall_effectiveness = 2 THEN 7
+          WHEN o.overall_effectiveness = 3 THEN 5
+          WHEN o.overall_effectiveness = 4 THEN 3
+          ELSE 5
+        END as overall_rating
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn
