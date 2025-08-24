@@ -2,30 +2,45 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../config/database');
 
+// Helper function to convert Ofsted rating to label
+function getOfstedLabel(rating) {
+  const labels = {
+    1: 'Outstanding',
+    2: 'Good',
+    3: 'Requires Improvement',
+    4: 'Inadequate'
+  };
+  return labels[rating] || 'Not Inspected';
+}
+
 /**
  * @route   GET /api/schools/:urn
- * @desc    Get detailed school information by URN
- * @example /api/schools/100000
+ * @desc    Get detailed school information by URN (now includes phone, website, lat/lon, headteacher, ofsted link)
  */
 router.get('/:urn', async (req, res) => {
   try {
     const { urn } = req.params;
-    
-    // Validate URN
+
     if (!urn || isNaN(urn)) {
-      return res.status(400).json({ 
-        error: 'Invalid URN provided' 
-      });
+      return res.status(400).json({ error: 'Invalid URN provided' });
     }
 
-    // Get basic school information
+    // NOTE: we’re pulling extra columns from uk_schools (telephone, school_website, latitude, longitude, headteacher_name)
+    // and an optional report link from uk_ofsted_inspections (web_link/report_url).
     const schoolQuery = `
       SELECT 
         s.*,
+        /* contact + geo */
+        s.telephone,
+        s.school_website,
+        s.latitude,
+        s.longitude,
+        s.headteacher_name,
+
+        /* ofsted */
         o.overall_effectiveness as ofsted_rating,
         o.inspection_date,
         o.publication_date,
-        o.overall_effectiveness as ofsted_score,
         o.quality_of_education,
         o.behaviour_and_attitudes,
         o.personal_development,
@@ -35,6 +50,11 @@ router.get('/:urn', async (req, res) => {
         o.early_years_provision,
         o.previous_inspection_date,
         o.previous_overall_effectiveness,
+        /* try both common column names, one may be null */
+        o.web_link,
+        o.report_url,
+
+        /* census */
         c.number_on_roll,
         c.number_girls,
         c.number_boys,
@@ -42,8 +62,12 @@ router.get('/:urn', async (req, res) => {
         c.percentage_eal,
         c.percentage_sen_support,
         c.percentage_sen_ehcp,
+
+        /* attendance */
         a.overall_absence_rate,
         a.persistent_absence_rate,
+
+        /* computed overall rating (0–10 style) */
         CASE 
           WHEN o.overall_effectiveness = 1 THEN 9
           WHEN o.overall_effectiveness = 2 THEN 7
@@ -56,93 +80,101 @@ router.get('/:urn', async (req, res) => {
       LEFT JOIN uk_census_data c ON s.urn = c.urn
       LEFT JOIN uk_absence_data a ON s.urn = a.urn
       WHERE s.urn = $1
+      LIMIT 1
     `;
-    
+
     const schoolResult = await query(schoolQuery, [urn]);
-    
     if (schoolResult.rows.length === 0) {
-      return res.status(404).json({ 
-        error: 'School not found' 
-      });
+      return res.status(404).json({ error: 'School not found' });
     }
 
-    const school = schoolResult.rows[0];
-    
-    // Format the response
+    const r = schoolResult.rows[0];
+
+    // prefer a valid report link, try both columns
+    const ofstedReportLink = r.web_link || r.report_url || null;
+
     res.json({
       success: true,
       school: {
-        // Basic Information
-        urn: school.urn,
-        name: school.name,
-        type: school.type_of_establishment,
-        phase: school.phase_of_education,
-        status: school.establishment_status,
-        
-        // Contact & Location
+        // Basic
+        urn: r.urn,
+        name: r.name,
+        type: r.type_of_establishment,
+        phase: r.phase_of_education,
+        status: r.establishment_status,
+
+        // Contact & Location (added)
+        telephone: r.telephone || null,
+        website: r.school_website || null,
+        latitude: typeof r.latitude === 'number' ? r.latitude : null,
+        longitude: typeof r.longitude === 'number' ? r.longitude : null,
+        headteacher_name: r.headteacher_name || null,
+
+        // Address
         address: {
-          street: school.street,
-          locality: school.locality,
-          town: school.town,
-          postcode: school.postcode,
-          local_authority: school.local_authority
+          street: r.street,
+          locality: r.locality,
+          town: r.town,
+          postcode: r.postcode,
+          local_authority: r.local_authority
         },
-        
-        // School Characteristics
+
+        // Characteristics
         characteristics: {
-          gender: school.gender,
-          age_range: `${school.age_range_lower || 'N/A'} - ${school.age_range_upper || 'N/A'}`,
-          religious_character: school.religious_character,
-          admissions_policy: school.admissions_policy
+          gender: r.gender,
+          age_range: `${r.age_range_lower ?? 'N/A'} - ${r.age_range_upper ?? 'N/A'}`,
+          religious_character: r.religious_character,
+          admissions_policy: r.admissions_policy
         },
-        
-        // Student Demographics
+
+        // Demographics
         demographics: {
-          total_students: school.number_on_roll,
-          girls: school.number_girls,
-          boys: school.number_boys,
-          fsm_percentage: school.percentage_fsm_ever6,
-          eal_percentage: school.percentage_eal,
-          sen_support_percentage: school.percentage_sen_support,
-          sen_ehcp_percentage: school.percentage_sen_ehcp
+          total_students: r.number_on_roll,
+          girls: r.number_girls,
+          boys: r.number_boys,
+          fsm_percentage: r.percentage_fsm_ever6,
+          eal_percentage: r.percentage_eal,
+          sen_support_percentage: r.percentage_sen_support,
+          sen_ehcp_percentage: r.percentage_sen_ehcp
         },
-        
+
         // Attendance
         attendance: {
-          overall_absence_rate: school.overall_absence_rate,
-          persistent_absence_rate: school.persistent_absence_rate
+          overall_absence_rate: r.overall_absence_rate,
+          persistent_absence_rate: r.persistent_absence_rate
         },
-        
-        // Ofsted Information
+
+        // Ofsted (added web link)
         ofsted: {
-          overall_effectiveness: school.ofsted_rating,
-          overall_label: getOfstedLabel(school.ofsted_rating),
-          inspection_date: school.inspection_date,
-          publication_date: school.publication_date,
-          quality_of_education: school.quality_of_education,
-          behaviour_and_attitudes: school.behaviour_and_attitudes,
-          personal_development: school.personal_development,
-          leadership_and_management: school.leadership_and_management,
-          safeguarding_effective: school.safeguarding_effective,
-          sixth_form_provision: school.sixth_form_provision,
-          early_years_provision: school.early_years_provision,
-          previous_inspection_date: school.previous_inspection_date,
-          previous_overall_effectiveness: school.previous_overall_effectiveness
+          overall_effectiveness: r.ofsted_rating,
+          overall_label: getOfstedLabel(r.ofsted_rating),
+          inspection_date: r.inspection_date,
+          publication_date: r.publication_date,
+          quality_of_education: r.quality_of_education,
+          behaviour_and_attitudes: r.behaviour_and_attitudes,
+          personal_development: r.personal_development,
+          leadership_and_management: r.leadership_and_management,
+          safeguarding_effective: r.safeguarding_effective,
+          sixth_form_provision: r.sixth_form_provision,
+          early_years_provision: r.early_years_provision,
+          previous_inspection_date: r.previous_inspection_date,
+          previous_overall_effectiveness: r.previous_overall_effectiveness,
+          web_link: ofstedReportLink
         },
-        
-        // Overall Rating (calculated)
-        overall_rating: school.overall_rating || 5
+
+        // Overall 0–10 rating used in UI
+        overall_rating: r.overall_rating || 5
       }
     });
 
   } catch (error) {
     console.error('School fetch error:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch school information',
-      message: error.message 
-    });
+    res.status(500).json({ error: 'Failed to fetch school information', message: error.message });
   }
 });
+
+module.exports = router;
+
 
 /**
  * @route   GET /api/schools/:urn/performance

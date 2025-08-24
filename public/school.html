@@ -9,10 +9,40 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-o9N1j7kGStb4v5F7CdCwLkR2Fz6s3Z9Y+3FfRJQXY+o="
+        crossorigin=""
+    />
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-o8U3Z6S9n+R4dH8G6jH1JZwb3g2xL2zYF2dQGcR3/kE="
+        crossorigin=""
+    ></script>
     <!-- Main CSS -->
     <link rel="stylesheet" href="/css/styles.css">
     
     <style>
+          /* Neighborhood section */
+        .neighborhood {
+            display: grid;
+            grid-template-columns: 1.2fr 2fr;
+            gap: 1rem;
+        }
+        .contact-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            background: #fff;
+        }
+        .contact-row { display:flex; align-items:center; gap:.5rem; margin:.35rem 0; color:#374151 }
+        .contact-row a { color:#2563eb; text-decoration:none }
+        .contact-row a:hover { text-decoration:underline }
+        .contact-label { color:#6b7280; font-size:.875rem; }
+        #schoolMap { height: 300px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        @media (max-width: 900px){ .neighborhood { grid-template-columns: 1fr; } }
         /* School Profile Specific Styles */
         .profile-header {
             background: white;
@@ -424,6 +454,51 @@
           <div class="section-header"><h2 class="section-title">Ofsted Inspection</h2><span style="font-size:.875rem;color:#6b7280;" id="inspectionDate">-</span></div>
           <div class="performance-grid" id="ofstedGrid"></div>
         </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Neighborhood</h2>
+            </div>
+
+            <div class="neighborhood">
+                <!-- Left: contact box -->
+                <div class="contact-card">
+                <div class="contact-row">
+                    <div>
+                    <div id="nh-address" style="font-weight:600"></div>
+                    <div id="nh-la" class="contact-label"></div>
+                    </div>
+                </div>
+
+                <div class="contact-row">
+                    <span>👤</span>
+                    <div>
+                    <div class="contact-label">School leader</div>
+                    <div id="nh-leader">—</div>
+                    </div>
+                </div>
+
+                <div class="contact-row">
+                    <span>📞</span>
+                    <div><a id="nh-phone" href="#" rel="nofollow">—</a></div>
+                </div>
+
+                <div class="contact-row">
+                    <span>🌐</span>
+                    <div><a id="nh-website" href="#" target="_blank" rel="noopener">Website</a></div>
+                </div>
+
+                <div class="contact-row" id="nh-ofsted-wrap" style="display:none;">
+                    <span>🎓</span>
+                    <div><a id="nh-ofsted-link" href="#" target="_blank" rel="noopener">Latest Ofsted report</a></div>
+                </div>
+                </div>
+
+                <!-- Right: map -->
+                <div id="schoolMap"></div>
+            </div>
+            </div>
+
       </div>
 
       <aside class="sidebar">
@@ -447,6 +522,88 @@
   <div id="footer" style="margin-top:4rem;"></div>
 
   <script src="/js/main.js"></script>
+  <script>
+        let leafletMap, leafletMarker;
+
+        function formatAddress(addr){
+            const parts = [];
+            if (addr?.street) parts.push(addr.street);
+            if (addr?.town) parts.push(addr.town);
+            if (addr?.postcode) parts.push(addr.postcode);
+            return parts.join(', ');
+        }
+
+        function initMap(lat, lon, name){
+            // Create map once
+            if (!leafletMap) {
+            leafletMap = L.map('schoolMap', { scrollWheelZoom: false });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(leafletMap);
+            }
+
+            // Set view + marker
+            leafletMap.setView([lat, lon], 15);
+            if (leafletMarker) leafletMarker.remove();
+            leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
+        }
+
+        function renderNeighborhood(school){
+            // Address + LA
+            const addressText = formatAddress(school.address || {});
+            document.getElementById('nh-address').textContent = addressText || '—';
+            document.getElementById('nh-la').textContent = school.address?.local_authority || '';
+
+            // Leader
+            const leader = school.headteacher_name || school.school_leader || school.headteacher || null;
+            document.getElementById('nh-leader').textContent = leader || '—';
+
+            // Phone
+            const tel = school.telephone || school.phone || null;
+            const phoneEl = document.getElementById('nh-phone');
+            if (tel) {
+            phoneEl.textContent = tel;
+            phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
+            } else {
+            phoneEl.textContent = '—';
+            phoneEl.removeAttribute('href');
+            }
+
+            // Website
+            const site = school.school_website || school.website || null;
+            const webEl = document.getElementById('nh-website');
+            if (site) {
+            const url = site.startsWith('http') ? site : `https://${site}`;
+            webEl.href = url;
+            webEl.textContent = new URL(url).host.replace(/^www\./,'');
+            } else {
+            webEl.textContent = '—';
+            webEl.removeAttribute('href');
+            }
+
+            // Ofsted report (optional)
+            if (school.ofsted?.web_link) {
+            document.getElementById('nh-ofsted-wrap').style.display = '';
+            const ofEl = document.getElementById('nh-ofsted-link');
+            ofEl.href = school.ofsted.web_link;
+            }
+
+            // Map
+            const latRaw = school.latitude ?? school.lat ?? school.address?.latitude;
+            const lonRaw = school.longitude ?? school.lon ?? school.lng ?? school.address?.longitude;
+            const lat = latRaw != null ? parseFloat(latRaw) : NaN;
+            const lon = lonRaw != null ? parseFloat(lonRaw) : NaN;
+            if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+            initMap(lat, lon, school.name);
+            } else {
+            // Fallback: fit UK if no coords
+            if (!leafletMap) initMap(54.5, -3.2, school.name);
+            else leafletMap.setView([54.5, -3.2], 5);
+            }
+        }
+        </script>
+
   <script>
     // Robust URN parsing: supports /school/:urn and /:city/:urn
     (function init(){
@@ -524,6 +681,9 @@
         document.getElementById('infoAdmissions').textContent = s.characteristics?.admissions_policy || 'Standard';
         document.getElementById('infoLA').textContent = s.address?.local_authority || '-';
         document.getElementById('infoURN').textContent = s.urn || '-';
+
+        renderNeighborhood(s);
+
 
         // performance
         const perfRes = await fetch(`/api/schools/${urn}/performance`);
