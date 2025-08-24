@@ -287,51 +287,6 @@
             background: #2563eb;
         }
         
-        /* Progress Bars */
-        .progress-container {
-            margin-top: 1rem;
-        }
-        
-        .progress-item {
-            margin-bottom: 1rem;
-        }
-        
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        
-        .progress-label {
-            font-size: 0.875rem;
-            color: #374151;
-        }
-        
-        .progress-value {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #111827;
-        }
-        
-        .progress-bar {
-            height: 8px;
-            background: #e5e7eb;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #3b82f6;
-            border-radius: 4px;
-            transition: width 1s ease;
-        }
-        
-        .progress-fill.excellent { background: #10b981; }
-        .progress-fill.good { background: #3b82f6; }
-        .progress-fill.average { background: #f59e0b; }
-        .progress-fill.poor { background: #ef4444; }
-        
         /* Nearby Schools */
         .nearby-school {
             display: flex;
@@ -404,7 +359,7 @@
                     </li>
                     <li class="breadcrumb-separator">/</li>
                     <li class="breadcrumb-item">
-                        <a href="#" id="cityCrumb">Local Authority</a>
+                        <a href="#" id="cityCrumb">London</a>
                     </li>
                     <li class="breadcrumb-separator">/</li>
                     <li class="breadcrumb-item active" id="schoolCrumb">School Name</li>
@@ -491,10 +446,6 @@
                     
                     <div class="performance-grid" id="performanceGrid">
                         <!-- Will be populated based on school phase -->
-                    </div>
-                    
-                    <div class="progress-container" id="progressBars">
-                        <!-- Progress bars will be added here -->
                     </div>
                 </div>
                 
@@ -628,25 +579,6 @@
                         <a href="#" style="font-size: 0.875rem; color: #3b82f6;">View all nearby schools →</a>
                     </div>
                 </div>
-                
-                <!-- Quick Facts -->
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">Quick Facts</h3>
-                    <div class="info-list">
-                        <div class="info-row">
-                            <span class="info-label">Capacity</span>
-                            <span class="info-value" id="schoolCapacity">-</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Oversubscribed</span>
-                            <span class="info-value" id="schoolOversubscribed">-</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Sixth Form</span>
-                            <span class="info-value" id="schoolSixthForm">-</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -657,107 +589,96 @@
     <!-- Scripts -->
     <script src="/js/main.js"></script>
     <script>
-        // Parse URL to get city and school identifier
+        // Parse URL to get school URN
         const pathParts = window.location.pathname.split('/').filter(p => p);
+        let schoolURN = null;
         let citySlug = null;
-        let schoolIdentifier = null;
         
         // City name mapping
         const cityNames = {
             'london': 'London',
             'birmingham': 'Birmingham',
+            'manchester': 'Manchester',
             'glasgow': 'Glasgow',
             'liverpool': 'Liverpool',
             'bristol': 'Bristol',
-            'manchester': 'Manchester',
             'sheffield': 'Sheffield',
             'leeds': 'Leeds',
             'edinburgh': 'Edinburgh',
-            'leicester': 'Leicester',
-            'coventry': 'Coventry',
-            'bradford': 'Bradford',
-            'cardiff': 'Cardiff',
-            'belfast': 'Belfast',
-            'nottingham': 'Nottingham',
-            'kingston-upon-hull': 'Kingston upon Hull',
-            'newcastle': 'Newcastle',
-            'stoke-on-trent': 'Stoke-on-Trent',
-            'southampton': 'Southampton',
-            'portsmouth': 'Portsmouth',
-            'milton-keynes': 'Milton Keynes',
-            'oxford': 'Oxford',
-            'cambridge': 'Cambridge',
-            'brighton': 'Brighton',
-            'bath': 'Bath',
-            'york': 'York',
-            'norwich': 'Norwich',
-            'derby': 'Derby',
-            'plymouth': 'Plymouth',
-            'exeter': 'Exeter',
-            'chester': 'Chester',
-            'durham': 'Durham'
+            'leicester': 'Leicester'
         };
         
-        // Determine if URL is /city/school or /school/urn
+        // Determine if URL is /city/urn or /school/urn
         if (pathParts.length === 2) {
-            // Check if first part is a city
             if (cityNames[pathParts[0]]) {
+                // It's /city/urn format
                 citySlug = pathParts[0];
-                schoolIdentifier = pathParts[1]; // This could be URN or slug
+                schoolURN = pathParts[1];
             } else if (pathParts[0] === 'school') {
-                schoolIdentifier = pathParts[1]; // URN
+                // It's /school/urn format
+                schoolURN = pathParts[1];
             }
         } else if (pathParts.length === 1) {
-            // Just /schoolId
-            schoolIdentifier = pathParts[0];
+            // Assume it's just the URN
+            schoolURN = pathParts[0];
         }
         
-        // Get city name for breadcrumb
-        const cityName = citySlug ? cityNames[citySlug] : null;
+        console.log('URL parsing:', { pathParts, citySlug, schoolURN });
         
         // Update breadcrumb if we have a city
-        if (cityName) {
+        if (citySlug && cityNames[citySlug]) {
+            const cityName = cityNames[citySlug];
             document.getElementById('cityCrumb').textContent = cityName;
             document.getElementById('cityCrumb').href = `/${citySlug}`;
         }
         
         // Load school data
         async function loadSchoolData() {
-            if (!schoolIdentifier) {
-                console.error('No school identifier found');
+            if (!schoolURN) {
+                console.error('No school URN found in URL');
+                document.getElementById('schoolName').textContent = 'School Not Found';
                 return;
             }
             
+            console.log('Loading school with URN:', schoolURN);
+            
             try {
-                // Try to load by URN (assuming the identifier is numeric or the API can handle it)
-                const response = await fetch(`/api/schools/${schoolIdentifier}`);
+                // Load basic school information
+                const response = await fetch(`/api/schools/${schoolURN}`);
                 const data = await response.json();
+                
+                console.log('School data response:', data);
                 
                 if (data.success && data.school) {
                     updateSchoolInfo(data.school);
                     
                     // Update breadcrumb with actual location if not already set
-                    if (!cityName && data.school.address) {
+                    if (!citySlug && data.school.address) {
                         const schoolCity = data.school.address.town || data.school.address.local_authority;
                         document.getElementById('cityCrumb').textContent = schoolCity;
-                        document.getElementById('cityCrumb').href = `/search?location=${encodeURIComponent(schoolCity)}`;
+                        document.getElementById('cityCrumb').href = `/search?q=${encodeURIComponent(schoolCity)}&type=location`;
                     }
                 } else {
-                    console.error('School not found');
+                    console.error('School not found:', data);
                     document.getElementById('schoolName').textContent = 'School Not Found';
+                    document.getElementById('overallRating').textContent = '-';
                 }
                 
                 // Load performance data
-                const perfResponse = await fetch(`/api/schools/${schoolIdentifier}/performance`);
+                const perfResponse = await fetch(`/api/schools/${schoolURN}/performance`);
                 const perfData = await perfResponse.json();
+                
+                console.log('Performance data:', perfData);
                 
                 if (perfData.success && perfData.performance) {
                     updatePerformanceData(perfData.performance);
                 }
                 
                 // Load nearby schools
-                const nearbyResponse = await fetch(`/api/schools/${schoolIdentifier}/nearby?limit=5`);
+                const nearbyResponse = await fetch(`/api/schools/${schoolURN}/nearby?limit=5`);
                 const nearbyData = await nearbyResponse.json();
+                
+                console.log('Nearby schools:', nearbyData);
                 
                 if (nearbyData.success && nearbyData.nearby_schools) {
                     updateNearbySchools(nearbyData.nearby_schools);
@@ -788,24 +709,27 @@
             }
             
             // Update ratings
-            const overallRating = school.overall_rating || '-';
-            document.getElementById('overallRating').textContent = overallRating !== '-' ? overallRating + '/10' : '-';
+            const overallRating = school.overall_rating || 5;
+            document.getElementById('overallRating').textContent = overallRating + '/10';
             
             if (school.ofsted) {
                 const ofstedLabel = school.ofsted.overall_label || getOfstedLabel(school.ofsted.overall_effectiveness);
                 document.getElementById('ofstedRating').textContent = ofstedLabel;
                 document.getElementById('ofstedRating').className = `ofsted-score ofsted-${ofstedLabel.toLowerCase().replace(/\s+/g, '-')}`;
                 document.getElementById('ofstedDate').textContent = school.ofsted.inspection_date ? 
-                    new Date(school.ofsted.inspection_date).toLocaleDateString() : 'Not available';
+                    new Date(school.ofsted.inspection_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric' }) : 'Not available';
+            } else {
+                document.getElementById('ofstedRating').textContent = 'Not Inspected';
+                document.getElementById('ofstedDate').textContent = '-';
             }
             
             // Update key stats
             document.getElementById('statStudents').textContent = formatNumber(school.demographics?.total_students) || '-';
             document.getElementById('statFSM').textContent = school.demographics?.fsm_percentage ? 
-                school.demographics.fsm_percentage + '%' : '-';
+                school.demographics.fsm_percentage.toFixed(1) + '%' : '-';
             
             // Update attendance if available
-            if (school.attendance?.overall_absence_rate !== undefined) {
+            if (school.attendance?.overall_absence_rate !== undefined && school.attendance?.overall_absence_rate !== null) {
                 const attendanceRate = (100 - school.attendance.overall_absence_rate).toFixed(1);
                 document.getElementById('statAttendance').textContent = attendanceRate + '%';
             } else {
@@ -823,7 +747,7 @@
             document.getElementById('infoGender').textContent = school.characteristics?.gender || '-';
             document.getElementById('infoAgeRange').textContent = school.characteristics?.age_range || '-';
             document.getElementById('infoReligious').textContent = school.characteristics?.religious_character || 'None';
-            document.getElementById('infoAdmissions').textContent = school.characteristics?.admissions_policy || 'Standard';
+            document.getElementById('infoAdmissions').textContent = school.characteristics?.admissions_policy || '-';
             document.getElementById('infoLA').textContent = school.address?.local_authority || '-';
             document.getElementById('infoURN').textContent = school.urn || '-';
             
@@ -832,10 +756,13 @@
                 document.getElementById('demoTotal').textContent = formatNumber(school.demographics.total_students) || '-';
                 document.getElementById('demoGenderSplit').textContent = 
                     `${school.demographics.boys || 0} boys, ${school.demographics.girls || 0} girls`;
-                document.getElementById('demoFSM').textContent = (school.demographics.fsm_percentage || 0) + '%';
-                document.getElementById('demoEAL').textContent = (school.demographics.eal_percentage || 0) + '%';
-                document.getElementById('demoSEN').textContent = 
-                    ((school.demographics.sen_support_percentage || 0) + (school.demographics.sen_ehcp_percentage || 0)) + '%';
+                document.getElementById('demoFSM').textContent = 
+                    school.demographics.fsm_percentage ? school.demographics.fsm_percentage.toFixed(1) + '%' : '-';
+                document.getElementById('demoEAL').textContent = 
+                    school.demographics.eal_percentage ? school.demographics.eal_percentage.toFixed(1) + '%' : '-';
+                
+                const senTotal = (school.demographics.sen_support_percentage || 0) + (school.demographics.sen_ehcp_percentage || 0);
+                document.getElementById('demoSEN').textContent = senTotal ? senTotal.toFixed(1) + '%' : '-';
             }
             
             // Update Ofsted grid
@@ -845,7 +772,7 @@
         }
         
         function formatNumber(num) {
-            if (!num) return '-';
+            if (num === null || num === undefined) return '-';
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
@@ -855,25 +782,31 @@
             
             if (performance.ks2) {
                 // KS2 Performance
+                const readingProgress = performance.ks2.reading_progress;
+                const mathsProgress = performance.ks2.maths_progress;
+                
                 document.getElementById('statProgress').textContent = 
-                    performance.ks2.reading_progress ? '+' + performance.ks2.reading_progress : '-';
+                    readingProgress !== null && readingProgress !== undefined ? 
+                    (readingProgress >= 0 ? '+' : '') + readingProgress.toFixed(1) : '-';
+                    
                 document.getElementById('statAttainment').textContent = 
-                    (performance.ks2.rwm_expected_percentage || 0) + '%';
+                    performance.ks2.rwm_expected_percentage ? 
+                    performance.ks2.rwm_expected_percentage.toFixed(0) + '%' : '-';
                 
                 perfGrid.innerHTML += `
                     <div class="performance-item">
                         <div class="performance-label">Reading Progress</div>
-                        <div class="performance-value">${performance.ks2.reading_progress || '-'}</div>
+                        <div class="performance-value">${readingProgress !== null ? readingProgress.toFixed(1) : '-'}</div>
                         <div class="performance-context">KS2 Progress</div>
                     </div>
                     <div class="performance-item">
                         <div class="performance-label">Writing Progress</div>
-                        <div class="performance-value">${performance.ks2.writing_progress || '-'}</div>
+                        <div class="performance-value">${performance.ks2.writing_progress !== null ? performance.ks2.writing_progress.toFixed(1) : '-'}</div>
                         <div class="performance-context">KS2 Progress</div>
                     </div>
                     <div class="performance-item">
                         <div class="performance-label">Maths Progress</div>
-                        <div class="performance-value">${performance.ks2.maths_progress || '-'}</div>
+                        <div class="performance-value">${mathsProgress !== null ? mathsProgress.toFixed(1) : '-'}</div>
                         <div class="performance-context">KS2 Progress</div>
                     </div>
                     <div class="performance-item">
@@ -887,19 +820,22 @@
             if (performance.ks4) {
                 // KS4 Performance
                 document.getElementById('statProgress').textContent = 
-                    performance.ks4.progress_8_score || '-';
+                    performance.ks4.progress_8_score !== null ? 
+                    performance.ks4.progress_8_score.toFixed(2) : '-';
+                    
                 document.getElementById('statAttainment').textContent = 
-                    performance.ks4.attainment_8_score || '-';
+                    performance.ks4.attainment_8_score !== null ? 
+                    performance.ks4.attainment_8_score.toFixed(1) : '-';
                 
                 perfGrid.innerHTML += `
                     <div class="performance-item">
                         <div class="performance-label">Progress 8</div>
-                        <div class="performance-value">${performance.ks4.progress_8_score || '-'}</div>
+                        <div class="performance-value">${performance.ks4.progress_8_score !== null ? performance.ks4.progress_8_score.toFixed(2) : '-'}</div>
                         <div class="performance-context">${performance.ks4.progress_8_band || ''}</div>
                     </div>
                     <div class="performance-item">
                         <div class="performance-label">Attainment 8</div>
-                        <div class="performance-value">${performance.ks4.attainment_8_score || '-'}</div>
+                        <div class="performance-value">${performance.ks4.attainment_8_score !== null ? performance.ks4.attainment_8_score.toFixed(1) : '-'}</div>
                         <div class="performance-context">National avg: 46.7</div>
                     </div>
                     <div class="performance-item">
@@ -930,6 +866,10 @@
                     </div>
                 `;
             }
+            
+            if (perfGrid.innerHTML === '') {
+                perfGrid.innerHTML = '<p style="color: #6b7280;">No performance data available</p>';
+            }
         }
         
         function updateOfstedGrid(ofsted) {
@@ -955,20 +895,29 @@
             
             document.getElementById('inspectionDate').textContent = 
                 ofsted.inspection_date ? 
-                `Last inspected: ${new Date(ofsted.inspection_date).toLocaleDateString()}` : '';
+                `Last inspected: ${new Date(ofsted.inspection_date).toLocaleDateString('en-GB')}` : '';
         }
         
         function updateNearbySchools(schools) {
             const container = document.getElementById('nearbySchools');
-            container.innerHTML = schools.slice(0, 5).map(school => `
-                <div class="nearby-school" onclick="window.location.href='/school/${school.urn}'">
-                    <div>
-                        <div class="nearby-school-name">${school.name}</div>
-                        <div class="nearby-school-distance">${school.type_of_establishment}</div>
+            
+            if (!schools || schools.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; font-size: 0.875rem;">No nearby schools found</p>';
+                return;
+            }
+            
+            container.innerHTML = schools.slice(0, 5).map(school => {
+                const url = citySlug ? `/${citySlug}/${school.urn}` : `/school/${school.urn}`;
+                return `
+                    <div class="nearby-school" onclick="window.location.href='${url}'">
+                        <div>
+                            <div class="nearby-school-name">${school.name}</div>
+                            <div class="nearby-school-distance">${school.type_of_establishment || '-'}</div>
+                        </div>
+                        <div class="nearby-school-rating">${school.overall_rating || '-'}/10</div>
                     </div>
-                    <div class="nearby-school-rating">${school.overall_rating}/10</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
         
         function getOfstedLabel(rating) {
@@ -978,7 +927,7 @@
                 3: 'Requires Improvement',
                 4: 'Inadequate'
             };
-            return labels[rating] || 'Not rated';
+            return labels[rating] || 'Not Inspected';
         }
         
         // Action functions
@@ -997,7 +946,10 @@
                     url: window.location.href
                 });
             } else {
-                alert('Share functionality coming soon!');
+                // Copy URL to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Link copied to clipboard!');
+                });
             }
         }
         
@@ -1007,9 +959,7 @@
         
         // Load data on page load
         document.addEventListener('DOMContentLoaded', function() {
-            if (urn) {
-                loadSchoolData();
-            }
+            loadSchoolData();
         });
     </script>
 </body>
