@@ -9,15 +9,332 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css">
-  <style>
-    /* (styles trimmed; keeping your original look) */
-    .profile-header{background:#fff;border-bottom:1px solid #e5e7eb;padding:2rem 0}
-    .profile-header-content{display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start}
-    .main-rating{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;padding:1.5rem;border-radius:12px;text-align:center;min-width:100px}
-    .main-rating-score{font-size:2.5rem;font-weight:700;line-height:1}
-    .ofsted-rating{padding:1rem;border:2px solid #e5e7eb;border-radius:8px;min-width:120px;text-align:center}
-  </style>
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <style>
+        /* School Profile Specific Styles */
+        .profile-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 2rem 0;
+        }
+        
+        .profile-header-content {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .school-title-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        
+        .school-type-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .school-address-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .rating-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .main-rating {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .main-rating-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .main-rating-label {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            opacity: 0.9;
+        }
+        
+        .ofsted-rating {
+            text-align: center;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+        
+        .ofsted-score {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .ofsted-outstanding { color: #10b981; }
+        .ofsted-good { color: #3b82f6; }
+        .ofsted-requires-improvement { color: #f59e0b; }
+        .ofsted-inadequate { color: #ef4444; }
+        
+        /* Key Stats Bar */
+        .key-stats-bar {
+            background: #f9fafb;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .key-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+        }
+        
+        .key-stat {
+            text-align: center;
+        }
+        
+        .key-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+        
+        .key-stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Content Layout */
+        .profile-content {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .main-content {
+            background: white;
+        }
+        
+        .sidebar {
+            background: white;
+        }
+        
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        /* Performance Grid */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .performance-item {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .performance-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .performance-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        
+        .performance-context {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        /* Info List */
+        .info-list {
+            space-y: 1rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .info-value {
+            color: #111827;
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-align: right;
+        }
+        
+        /* Sidebar Sections */
+        .sidebar-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            color: #374151;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            color: #2563eb;
+        }
+        
+        .action-btn.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .action-btn.primary:hover {
+            background: #2563eb;
+        }
+        
+        /* Nearby Schools */
+        .nearby-school {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nearby-school:hover {
+            background: #f9fafb;
+            margin: 0 -0.5rem;
+            padding: 0.75rem 0.5rem;
+        }
+        
+        .nearby-school:last-child {
+            border-bottom: none;
+        }
+        
+        .nearby-school-name {
+            font-size: 0.875rem;
+            color: #111827;
+            font-weight: 500;
+        }
+        
+        .nearby-school-distance {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .nearby-school-rating {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-header-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .key-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
   <div id="header"></div>
