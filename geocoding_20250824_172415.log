@@ -1,0 +1,36 @@
+2025-08-24 17:24:17,262 - INFO - Database connection established
+2025-08-24 17:24:17,898 - INFO - Database schema updated successfully
+2025-08-24 17:24:17,898 - INFO - Starting geocoding process...
+2025-08-24 17:24:18,219 - INFO - Found 8 schools without coordinates
+2025-08-24 17:24:18,444 - INFO - Perfect match - School found: Akrotiri Primary School
+2025-08-24 17:24:18,445 - WARNING - Location outside UK bounds for Akrotiri Primary School: 34.6014865, 32.9526899
+2025-08-24 17:24:18,484 - INFO - Address match: Akrotiri Primary School - Types: ['neighborhood', 'political']
+2025-08-24 17:24:18,485 - WARNING - Location outside UK bounds for Akrotiri Primary School: 34.5851504, 32.9790163
+2025-08-24 17:24:18,674 - INFO - Perfect match - School found: St John's School
+2025-08-24 17:24:18,674 - WARNING - Location outside UK bounds for St John's School: 34.6757865, 32.8293425
+2025-08-24 17:24:18,716 - INFO - Address match: St John's School - Types: ['locality', 'political']
+2025-08-24 17:24:18,717 - WARNING - Location outside UK bounds for St John's School: 34.6768911, 32.83876
+2025-08-24 17:24:18,904 - INFO - Perfect match - School found: Episkopi Primary School
+2025-08-24 17:24:18,904 - WARNING - Location outside UK bounds for Episkopi Primary School: 34.6751558, 32.8304196
+2025-08-24 17:24:18,950 - INFO - Address match: Episkopi Primary School - Types: ['locality', 'political']
+2025-08-24 17:24:18,950 - WARNING - Location outside UK bounds for Episkopi Primary School: 34.6768911, 32.83876
+2025-08-24 17:24:19,146 - WARNING - No results found for King Richard School: King Richard School, Dhekelia, United Kingdom...
+2025-08-24 17:24:19,187 - INFO - Address match: King Richard School - Types: ['administrative_area_level_1', 'political']
+2025-08-24 17:24:19,188 - WARNING - Location outside UK bounds for King Richard School: 34.5802786, 32.9743145
+2025-08-24 17:24:19,471 - INFO - Address match: Pulham Church of England Primary Academy - Types: ['route']
+2025-08-24 17:24:19,974 - INFO - Perfect match - School found: St Thomas A Becket Catholic Primary School
+2025-08-24 17:24:20,384 - INFO - Perfect match - School found: Furzefield Primary Academy
+2025-08-24 17:24:20,830 - INFO - Perfect match - School found: Sacred Heart Roman Catholic Primary School, a Voluntary Academy
+2025-08-24 17:24:21,295 - INFO - Committed batch. Total processed: 8
+2025-08-24 17:24:21,616 - INFO - ==================================================
+2025-08-24 17:24:21,617 - INFO - GEOCODING STATISTICS
+2025-08-24 17:24:21,617 - INFO - ==================================================
+2025-08-24 17:24:21,617 - INFO - Total schools in database: 25380
+2025-08-24 17:24:21,617 - INFO - Schools with coordinates: 25376
+2025-08-24 17:24:21,617 - INFO - Schools without coordinates: 4
+2025-08-24 17:24:21,617 - INFO - Coverage: 99.98%
+2025-08-24 17:24:21,618 - INFO - API requests made: 12
+2025-08-24 17:24:21,618 - INFO - Successful geocodes this run: 4
+2025-08-24 17:24:21,618 - INFO - Failed geocodes this run: 4
+2025-08-24 17:24:21,618 - INFO - ==================================================
+2025-08-24 17:24:21,618 - INFO - Database connection closed

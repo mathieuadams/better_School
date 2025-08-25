@@ -1,0 +1,912 @@
+2025-08-24 17:10:32,120 - INFO - Database connection established
+2025-08-24 17:10:32,757 - INFO - Database schema updated successfully
+2025-08-24 17:10:32,757 - INFO - Starting geocoding process...
+2025-08-24 17:10:33,079 - INFO - Found 1550 schools without coordinates
+2025-08-24 17:10:33,370 - INFO - Perfect match - School found: Kerem School
+2025-08-24 17:10:33,854 - INFO - Perfect match - School found: St Martin's School
+2025-08-24 17:10:34,297 - INFO - Perfect match - School found: Pardes House Grammar School
+2025-08-24 17:10:34,720 - INFO - Perfect match - School found: Menorah Grammar School
+2025-08-24 17:10:35,162 - INFO - Perfect match - School found: Beth Jacob Grammar School for Girls
+2025-08-24 17:10:35,608 - INFO - Perfect match - School found: Dwight School London
+2025-08-24 17:10:36,037 - INFO - Address match: Brampton College - Types: ['premise', 'street_address']
+2025-08-24 17:10:36,498 - INFO - Perfect match - School found: Northway School
+2025-08-24 17:10:36,929 - INFO - Perfect match - School found: Oakleigh School & Acorn Assessment Centre
+2025-08-24 17:10:37,356 - INFO - Perfect match - School found: Mapledown School
+2025-08-24 17:10:37,670 - INFO - Progress: 10/1550 processed
+2025-08-24 17:10:37,820 - INFO - Perfect match - School found: Crook Log Primary School
+2025-08-24 17:10:38,255 - INFO - Perfect match - School found: Danson Primary School
+2025-08-24 17:10:38,692 - INFO - Perfect match - School found: Upton Primary School
+2025-08-24 17:10:39,124 - INFO - Perfect match - School found: Birkbeck Primary School
+2025-08-24 17:10:39,555 - INFO - Perfect match - School found: Longlands Primary School
+2025-08-24 17:10:39,983 - INFO - Perfect match - School found: Dulverton Primary School
+2025-08-24 17:10:40,413 - INFO - Perfect match - School found: Parkway Primary School
+2025-08-24 17:10:40,849 - INFO - Perfect match - School found: Foster's Primary School
+2025-08-24 17:10:41,276 - INFO - Perfect match - School found: St Stephen's Catholic Primary School
+2025-08-24 17:10:41,734 - INFO - Perfect match - School found: Our Lady of the Rosary Catholic Primary School
+2025-08-24 17:10:42,042 - INFO - Progress: 20/1550 processed
+2025-08-24 17:10:42,211 - INFO - Perfect match - School found: St Joseph's Catholic Primary School
+2025-08-24 17:10:42,633 - INFO - Perfect match - School found: St Fidelis Catholic Primary School
+2025-08-24 17:10:43,099 - INFO - Perfect match - School found: St John Fisher Catholic Primary School
+2025-08-24 17:10:43,529 - INFO - Perfect match - School found: West Lodge School
+2025-08-24 17:10:43,946 - INFO - Perfect match - School found: Merton Court School
+2025-08-24 17:10:44,399 - INFO - Perfect match - School found: Benedict House Preparatory School
+2025-08-24 17:10:44,824 - INFO - Perfect match - School found: Marlborough School
+2025-08-24 17:10:45,294 - INFO - Perfect match - School found: Peel Park Primary School and Nursery
+2025-08-24 17:10:45,710 - INFO - Perfect match - School found: Anson Primary School
+2025-08-24 17:10:46,140 - INFO - Perfect match - School found: Brentfield Primary School
+2025-08-24 17:10:46,448 - INFO - Progress: 30/1550 processed
+2025-08-24 17:10:46,577 - INFO - Perfect match - School found: Carlton Vale Infant School
+2025-08-24 17:10:47,012 - INFO - Perfect match - School found: Harlesden Primary School
+2025-08-24 17:10:47,448 - INFO - Perfect match - School found: Mount Stewart Junior School
+2025-08-24 17:10:47,896 - INFO - Perfect match - School found: Mount Stewart Infant School
+2025-08-24 17:10:48,321 - INFO - Perfect match - School found: Uxendon Manor Primary School
+2025-08-24 17:10:48,793 - INFO - Perfect match - School found: Kingsbury Green Primary School
+2025-08-24 17:10:49,223 - INFO - Perfect match - School found: Leopold Primary School
+2025-08-24 17:10:49,685 - INFO - Perfect match - School found: Lyon Park Primary School
+2025-08-24 17:10:50,113 - INFO - Perfect match - School found: Malorees Infant School
+2025-08-24 17:10:50,553 - INFO - Perfect match - School found: Northview Junior and Infant School
+2025-08-24 17:10:50,861 - INFO - Progress: 40/1550 processed
+2025-08-24 17:10:50,986 - INFO - Perfect match - School found: Park Lane Primary School
+2025-08-24 17:10:51,424 - INFO - Perfect match - School found: Preston Park Primary School
+2025-08-24 17:10:51,863 - INFO - Perfect match - School found: Roe Green Junior School
+2025-08-24 17:10:52,342 - INFO - Perfect match - School found: Roe Green Infant School
+2025-08-24 17:10:52,757 - INFO - Perfect match - School found: Barham Primary School
+2025-08-24 17:10:53,181 - INFO - Perfect match - School found: Wykeham Primary School
+2025-08-24 17:10:53,596 - INFO - Perfect match - School found: Elsley Primary School
+2025-08-24 17:10:54,024 - INFO - Perfect match - School found: Donnington Primary School
+2025-08-24 17:10:54,458 - INFO - Perfect match - School found: The Stonebridge School
+2025-08-24 17:10:54,883 - INFO - Perfect match - School found: Newfield Primary School
+2025-08-24 17:10:55,191 - INFO - Progress: 50/1550 processed
+2025-08-24 17:10:55,350 - INFO - Committed batch. Total processed: 50
+2025-08-24 17:10:55,811 - INFO - Address match: St Clement's CofE Primary School - Types: ['premise', 'street_address']
+2025-08-24 17:10:56,266 - INFO - Perfect match - School found: Armitage CofE Primary School
+2025-08-24 17:10:56,715 - INFO - Perfect match - School found: St Luke's CofE Primary School
+2025-08-24 17:10:57,170 - INFO - Perfect match - School found: St John's CofE Primary School
+2025-08-24 17:10:57,636 - INFO - Perfect match - School found: All Saints C of E Primary School
+2025-08-24 17:10:58,093 - INFO - Perfect match - School found: St Andrew's CofE Primary School
+2025-08-24 17:10:58,569 - INFO - Address match: St James' CofE Primary School, Birch-in-Rusholme - Types: ['route']
+2025-08-24 17:10:59,159 - INFO - Perfect match - School found: St Philip's Church of England Primary School
+2025-08-24 17:10:59,648 - INFO - Perfect match - School found: Christ The King RC Primary School Manchester
+2025-08-24 17:11:00,127 - INFO - Perfect match - School found: Holy Name Roman Catholic Primary School Manchester
+2025-08-24 17:11:00,435 - INFO - Progress: 60/1550 processed
+2025-08-24 17:11:00,564 - INFO - Perfect match - School found: St Ambrose RC Primary School
+2025-08-24 17:11:01,036 - INFO - Perfect match - School found: St Anne's RC Primary School Crumpsall Manchester
+2025-08-24 17:11:01,533 - INFO - Perfect match - School found: St Brigid's RC Primary School
+2025-08-24 17:11:01,984 - INFO - Perfect match - School found: St Catherine's RC Primary School
+2025-08-24 17:11:02,487 - INFO - Perfect match - School found: St John Bosco RC Primary School
+2025-08-24 17:11:02,939 - INFO - Perfect match - School found: St Malachy's RC Primary School
+2025-08-24 17:11:03,412 - INFO - Perfect match - School found: St Mary's RC Primary School Manchester
+2025-08-24 17:11:03,853 - INFO - Perfect match - School found: Sacred Heart Catholic Primary School
+2025-08-24 17:11:04,340 - INFO - Perfect match - School found: St Peter's Catholic Primary School
+2025-08-24 17:11:04,766 - INFO - Perfect match - School found: St Wilfrid's RC Primary School
+2025-08-24 17:11:05,074 - INFO - Progress: 70/1550 processed
+2025-08-24 17:11:05,216 - INFO - Perfect match - School found: St Willibrord's RC Primary School
+2025-08-24 17:11:05,653 - INFO - Perfect match - School found: St Bernard's RC Primary School Manchester
+2025-08-24 17:11:06,102 - INFO - Address match: Our Lady's RC Primary School Manchester - Types: ['premise', 'street_address']
+2025-08-24 17:11:06,542 - INFO - Address match: St Richard's RC Primary School - Types: ['route']
+2025-08-24 17:11:07,036 - INFO - Address match: St Mary's CofE Primary School Moston - Types: ['premise', 'street_address']
+2025-08-24 17:11:07,513 - INFO - Perfect match - School found: St John's RC Primary School
+2025-08-24 17:11:07,962 - INFO - Perfect match - School found: CofE School of the Resurrection
+2025-08-24 17:11:08,397 - INFO - Perfect match - School found: Saviour CofE Primary School
+2025-08-24 17:11:08,888 - INFO - Perfect match - School found: St Joseph's RC Primary School Manchester
+2025-08-24 17:11:09,328 - INFO - Perfect match - School found: St Cuthbert's RC Primary School
+2025-08-24 17:11:09,635 - INFO - Progress: 80/1550 processed
+2025-08-24 17:11:09,774 - INFO - Perfect match - School found: St Clare's RC Primary School
+2025-08-24 17:11:10,209 - INFO - Perfect match - School found: Loreto High School Chorlton
+2025-08-24 17:11:10,648 - INFO - Perfect match - School found: Our Lady's RC High School
+2025-08-24 17:11:11,145 - INFO - Perfect match - School found: The Barlow RC High School and Specialist Science College
+2025-08-24 17:11:11,628 - INFO - Perfect match - School found: Moor Allerton Preparatory School
+2025-08-24 17:11:12,061 - INFO - Address match: The Chadderton Preparatory School - Types: ['route']
+2025-08-24 17:11:12,502 - INFO - Good match - POI found: Chetham's School of Music
+2025-08-24 17:11:12,969 - INFO - Perfect match - School found: The Manchester Grammar School
+2025-08-24 17:11:13,411 - INFO - Perfect match - School found: Manchester High School for Girls
+2025-08-24 17:11:13,880 - INFO - Perfect match - School found: St Bede's College
+2025-08-24 17:11:14,188 - INFO - Progress: 90/1550 processed
+2025-08-24 17:11:14,312 - INFO - Perfect match - School found: Withington Girls' School
+2025-08-24 17:11:14,739 - INFO - Perfect match - School found: King of Kings
+2025-08-24 17:11:15,183 - INFO - Perfect match - School found: Manchester Muslim Preparatory School
+2025-08-24 17:11:15,622 - INFO - Perfect match - School found: Abbey College Manchester
+2025-08-24 17:11:16,096 - INFO - Perfect match - School found: Lancasterian School
+2025-08-24 17:11:16,535 - INFO - Perfect match - School found: The Birches School
+2025-08-24 17:11:17,016 - INFO - Perfect match - School found: Rodney House School
+2025-08-24 17:11:17,433 - INFO - Perfect match - School found: Beever Primary School
+2025-08-24 17:11:17,889 - INFO - Address match: Limehurst Community Primary School - Types: ['route']
+2025-08-24 17:11:18,330 - INFO - Perfect match - School found: Glodwick Infant and Nursery School
+2025-08-24 17:11:18,639 - INFO - Progress: 100/1550 processed
+2025-08-24 17:11:18,798 - INFO - Committed batch. Total processed: 100
+2025-08-24 17:11:19,250 - INFO - Perfect match - School found: Wyvern School
+2025-08-24 17:11:19,722 - INFO - Perfect match - School found: Booker Hill Primary School & Nursery
+2025-08-24 17:11:20,198 - INFO - Perfect match - School found: Ash Hill Primary School
+2025-08-24 17:11:20,618 - INFO - Perfect match - School found: Farnham Common Junior School
+2025-08-24 17:11:21,101 - INFO - Perfect match - School found: Holmer Green First School and Pre-School
+2025-08-24 17:11:21,554 - INFO - Perfect match - School found: Chalfont St Peter Infant School
+2025-08-24 17:11:21,986 - INFO - Perfect match - School found: Broughton Junior School
+2025-08-24 17:11:22,436 - INFO - Perfect match - School found: Carrington Junior School
+2025-08-24 17:11:22,863 - INFO - Address match: Haydon Abbey School and Pre-School - Types: ['route']
+2025-08-24 17:11:23,293 - INFO - Perfect match - School found: Danesfield School
+2025-08-24 17:11:23,601 - INFO - Progress: 110/1550 processed
+2025-08-24 17:11:23,734 - INFO - Perfect match - School found: Iver Heath Junior School
+2025-08-24 17:11:24,162 - INFO - Perfect match - School found: Bedgrove Infant School
+2025-08-24 17:11:24,623 - INFO - Perfect match - School found: Carrington Infant School
+2025-08-24 17:11:25,051 - INFO - Perfect match - School found: Broughton Community Schools (Infants)
+2025-08-24 17:11:25,479 - INFO - Perfect match - School found: Chalfont St Giles Junior School
+2025-08-24 17:11:25,906 - INFO - Perfect match - School found: Oakridge School
+2025-08-24 17:11:26,342 - INFO - Perfect match - School found: Butlers Court School
+2025-08-24 17:11:26,772 - INFO - Perfect match - School found: The John Hampden School
+2025-08-24 17:11:27,205 - INFO - Perfect match - School found: Chestnut Lane School
+2025-08-24 17:11:27,667 - INFO - Address match: Manor Farm Community Infant School - Types: ['route']
+2025-08-24 17:11:28,070 - INFO - Progress: 120/1550 processed
+2025-08-24 17:11:28,191 - INFO - Perfect match - School found: Chartridge Combined School
+2025-08-24 17:11:28,721 - INFO - Perfect match - School found: Juniper Hill School
+2025-08-24 17:11:29,167 - INFO - Perfect match - School found: Holmer Green Junior School
+2025-08-24 17:11:29,634 - INFO - Perfect match - School found: Tylers Green Middle School
+2025-08-24 17:11:30,073 - INFO - Perfect match - School found: Thomas Hickman School
+2025-08-24 17:11:30,491 - INFO - Perfect match - School found: Burford School
+2025-08-24 17:11:30,925 - INFO - Perfect match - School found: Lane End Primary School
+2025-08-24 17:11:31,350 - INFO - Perfect match - School found: Claytons Primary School
+2025-08-24 17:11:31,813 - INFO - Perfect match - School found: Barleyhurst Park Primary
+2025-08-24 17:11:32,236 - INFO - Perfect match - School found: Buckingham Primary School
+2025-08-24 17:11:32,543 - INFO - Progress: 130/1550 processed
+2025-08-24 17:11:32,678 - INFO - Perfect match - School found: Pepper Hill School
+2025-08-24 17:11:33,108 - INFO - Address match: Aston Clinton School - Types: ['premise', 'street_address']
+2025-08-24 17:11:33,538 - INFO - Perfect match - School found: Whitchurch Combined School
+2025-08-24 17:11:33,978 - INFO - Perfect match - School found: Widmer End Community Combined School
+2025-08-24 17:11:34,399 - INFO - Perfect match - School found: Spinfield School
+2025-08-24 17:11:34,819 - INFO - Perfect match - School found: Long Crendon School
+2025-08-24 17:11:35,253 - INFO - Address match: Stokenchurch Primary School - Types: ['route']
+2025-08-24 17:11:35,692 - INFO - Perfect match - School found: Iver Heath Infant School and Nursery
+2025-08-24 17:11:36,118 - INFO - Perfect match - School found: Farnham Common Infant School
+2025-08-24 17:11:36,556 - INFO - Perfect match - School found: Greenleys First School
+2025-08-24 17:11:36,864 - INFO - Progress: 140/1550 processed
+2025-08-24 17:11:36,994 - INFO - Perfect match - School found: Haddenham Community Junior School
+2025-08-24 17:11:37,433 - INFO - Perfect match - School found: Turnfurlong Junior School
+2025-08-24 17:11:37,853 - INFO - Perfect match - School found: Elangeni School
+2025-08-24 17:11:38,279 - INFO - Perfect match - School found: Falconhurst School
+2025-08-24 17:11:38,727 - INFO - Perfect match - School found: William Harding School
+2025-08-24 17:11:39,156 - INFO - Perfect match - School found: Turnfurlong Infant School
+2025-08-24 17:11:39,591 - INFO - Perfect match - School found: Robertswood School
+2025-08-24 17:11:40,031 - INFO - Perfect match - School found: Southwood School
+2025-08-24 17:11:40,456 - INFO - Perfect match - School found: Stanton School
+2025-08-24 17:11:40,903 - INFO - Perfect match - School found: Great Linford Primary School
+2025-08-24 17:11:41,210 - INFO - Progress: 150/1550 processed
+2025-08-24 17:11:41,368 - INFO - Committed batch. Total processed: 150
+2025-08-24 17:11:41,841 - INFO - Perfect match - School found: Lewes Old Grammar School
+2025-08-24 17:11:42,257 - INFO - Perfect match - School found: Frewen College
+2025-08-24 17:11:42,695 - INFO - Perfect match - School found: Sacred Heart School
+2025-08-24 17:11:43,138 - INFO - Perfect match - School found: St Christopher's School
+2025-08-24 17:11:43,554 - INFO - Perfect match - School found: Claremont School
+2025-08-24 17:11:43,998 - INFO - Perfect match - School found: Northease Manor School
+2025-08-24 17:11:44,417 - INFO - Address match: Darvell School - Types: ['route']
+2025-08-24 17:11:44,843 - INFO - Perfect match - School found: Eastbourne College
+2025-08-24 17:11:45,264 - INFO - Perfect match - School found: St Andrew's Prep
+2025-08-24 17:11:45,683 - INFO - Perfect match - School found: Bede's Prep School
+2025-08-24 17:11:45,991 - INFO - Progress: 160/1550 processed
+2025-08-24 17:11:46,123 - INFO - Address match: Buckswood School - Types: ['route']
+2025-08-24 17:11:46,537 - INFO - Perfect match - School found: Bede's Senior School
+2025-08-24 17:11:46,962 - INFO - Perfect match - School found: Brighton Girls GDST
+2025-08-24 17:11:47,395 - INFO - Good match - POI found: Greenfields School
+2025-08-24 17:11:47,817 - INFO - Address match: Owlswick School - Types: ['route']
+2025-08-24 17:11:48,270 - INFO - Perfect match - School found: Downs View Special School
+2025-08-24 17:11:48,711 - INFO - Good match - POI found: Chailey Heritage School
+2025-08-24 17:11:49,170 - INFO - Perfect match - School found: Hill Park School
+2025-08-24 17:11:49,618 - INFO - Perfect match - School found: St. George's School
+2025-08-24 17:11:50,043 - INFO - Perfect match - School found: Hamilton Primary School
+2025-08-24 17:11:50,350 - INFO - Progress: 170/1550 processed
+2025-08-24 17:11:50,479 - INFO - Perfect match - School found: Lexden Primary School with Unit for Hearing Impaired Pupils
+2025-08-24 17:11:50,921 - INFO - Address match: Myland Community Primary School - Types: ['route']
+2025-08-24 17:11:51,350 - INFO - Perfect match - School found: North Primary School and Nursery
+2025-08-24 17:11:51,783 - INFO - Perfect match - School found: Old Heath Community Primary School
+2025-08-24 17:11:52,258 - INFO - Address match: St John's Green Primary School - Types: ['route']
+2025-08-24 17:11:52,744 - INFO - Perfect match - School found: King's Ford Infant School and Nursery
+2025-08-24 17:11:53,218 - INFO - Perfect match - School found: Chalkwell Hall Junior School
+2025-08-24 17:11:53,670 - INFO - Perfect match - School found: Chalkwell Hall Infant School
+2025-08-24 17:11:54,129 - INFO - Perfect match - School found: Earls Hall Primary School
+2025-08-24 17:11:54,562 - INFO - Perfect match - School found: Oakwood Infant and Nursery School
+2025-08-24 17:11:54,870 - INFO - Progress: 180/1550 processed
+2025-08-24 17:11:54,995 - INFO - Perfect match - School found: Stanway Primary School
+2025-08-24 17:11:55,418 - INFO - Perfect match - School found: Alresford Primary School
+2025-08-24 17:11:55,855 - INFO - Perfect match - School found: Bradfield Primary School
+2025-08-24 17:11:56,278 - INFO - Perfect match - School found: Tendring Primary School
+2025-08-24 17:11:56,700 - INFO - Perfect match - School found: Wix and Wrabness Primary School
+2025-08-24 17:11:57,143 - INFO - Perfect match - School found: Gosbecks Primary School
+2025-08-24 17:11:57,559 - INFO - Perfect match - School found: Prettygate Junior School
+2025-08-24 17:11:57,966 - INFO - Address match: Prettygate Infant School - Types: ['premise', 'street_address']
+2025-08-24 17:11:58,396 - INFO - Perfect match - School found: Hazelmere Junior School
+2025-08-24 17:11:58,823 - INFO - Perfect match - School found: Hazelmere Infant School and Nursery
+2025-08-24 17:11:59,131 - INFO - Progress: 190/1550 processed
+2025-08-24 17:11:59,257 - INFO - Perfect match - School found: The Mayflower Primary School
+2025-08-24 17:11:59,684 - INFO - Perfect match - School found: Montgomery Junior School, Colchester
+2025-08-24 17:12:00,109 - INFO - Perfect match - School found: Montgomery Infant School and Nursery, Colchester
+2025-08-24 17:12:00,551 - INFO - Perfect match - School found: Brightlingsea Primary School and Nursery
+2025-08-24 17:12:00,994 - INFO - Perfect match - School found: Broomgrove Infant School
+2025-08-24 17:12:01,423 - INFO - Perfect match - School found: Broomgrove Junior School
+2025-08-24 17:12:01,880 - INFO - Perfect match - School found: Milldene Primary School
+2025-08-24 17:12:02,307 - INFO - Perfect match - School found: Friars Grove Primary School
+2025-08-24 17:12:02,733 - INFO - Perfect match - School found: Stanway Fiveways Primary School
+2025-08-24 17:12:03,155 - INFO - Perfect match - School found: Baynards Primary School
+2025-08-24 17:12:03,463 - INFO - Progress: 200/1550 processed
+2025-08-24 17:12:03,622 - INFO - Committed batch. Total processed: 200
+2025-08-24 17:12:04,065 - INFO - Perfect match - School found: Priory School
+2025-08-24 17:12:04,511 - INFO - Address match: St Catherine's School and College - Types: ['route']
+2025-08-24 17:12:04,957 - INFO - Perfect match - School found: St George's School
+2025-08-24 17:12:05,400 - INFO - Perfect match - School found: Medina House School
+2025-08-24 17:12:05,817 - INFO - Perfect match - School found: Crockenhill Primary School
+2025-08-24 17:12:06,252 - INFO - Perfect match - School found: The Anthony Roper Primary School
+2025-08-24 17:12:06,670 - INFO - Perfect match - School found: Cobham Primary School
+2025-08-24 17:12:07,096 - INFO - Perfect match - School found: Cecil Road Primary and Nursery School
+2025-08-24 17:12:07,518 - INFO - Perfect match - School found: Higham Primary School
+2025-08-24 17:12:07,950 - INFO - Perfect match - School found: Lawn Primary School
+2025-08-24 17:12:08,258 - INFO - Progress: 210/1550 processed
+2025-08-24 17:12:08,372 - INFO - Perfect match - School found: Bean Primary School
+2025-08-24 17:12:08,819 - INFO - Perfect match - School found: Capel Primary School
+2025-08-24 17:12:09,291 - INFO - Perfect match - School found: Dunton Green Primary School
+2025-08-24 17:12:09,722 - INFO - Address match: Hadlow Primary School - Types: ['postal_code']
+2025-08-24 17:12:10,147 - INFO - Perfect match - School found: Kemsing Primary School
+2025-08-24 17:12:10,570 - INFO - Perfect match - School found: Leigh Primary School
+2025-08-24 17:12:10,996 - INFO - Address match: Otford Primary School - Types: ['route']
+2025-08-24 17:12:11,427 - INFO - Address match: Pembury School - Types: ['route']
+2025-08-24 17:12:11,844 - INFO - Good match - POI found: Sandhurst Primary School
+2025-08-24 17:12:12,271 - INFO - Perfect match - School found: Weald Community Primary School
+2025-08-24 17:12:12,590 - INFO - Progress: 220/1550 processed
+2025-08-24 17:12:12,709 - INFO - Perfect match - School found: Slade Primary School and Attached Unit for Children with Hearing Impairment
+2025-08-24 17:12:13,141 - INFO - Perfect match - School found: Sussex Road Community Primary School
+2025-08-24 17:12:13,580 - INFO - Perfect match - School found: Boughton Monchelsea Primary School
+2025-08-24 17:12:14,017 - INFO - Perfect match - School found: East Farleigh Primary School
+2025-08-24 17:12:14,454 - INFO - Perfect match - School found: East Peckham Primary School
+2025-08-24 17:12:14,903 - INFO - Perfect match - School found: Headcorn Primary School
+2025-08-24 17:12:15,334 - INFO - Perfect match - School found: Hollingbourne Primary School
+2025-08-24 17:12:15,754 - INFO - Perfect match - School found: Lenham Primary School
+2025-08-24 17:12:16,192 - INFO - Perfect match - School found: Platts Heath Primary School
+2025-08-24 17:12:16,621 - INFO - Perfect match - School found: Brunswick House Primary School
+2025-08-24 17:12:16,929 - INFO - Progress: 230/1550 processed
+2025-08-24 17:12:17,055 - INFO - Perfect match - School found: North Borough Junior School
+2025-08-24 17:12:17,490 - INFO - Perfect match - School found: Park Way Primary School
+2025-08-24 17:12:17,919 - INFO - Perfect match - School found: Mereworth Community Primary School
+2025-08-24 17:12:18,348 - INFO - Perfect match - School found: Offham Primary School
+2025-08-24 17:12:18,766 - INFO - Perfect match - School found: Plaxtol Primary School
+2025-08-24 17:12:19,186 - INFO - Perfect match - School found: Ryarsh Primary School
+2025-08-24 17:12:19,601 - INFO - Address match: Shipbourne School - Types: ['route']
+2025-08-24 17:12:20,010 - INFO - Perfect match - School found: Staplehurst School
+2025-08-24 17:12:20,437 - INFO - Perfect match - School found: Sutton Valence Primary School
+2025-08-24 17:12:20,895 - INFO - Perfect match - School found: Greenvale Primary School
+2025-08-24 17:12:21,203 - INFO - Progress: 240/1550 processed
+2025-08-24 17:12:21,320 - INFO - Perfect match - School found: New Road Primary School
+2025-08-24 17:12:21,749 - INFO - Perfect match - School found: Balfour Infant School
+2025-08-24 17:12:22,165 - INFO - Perfect match - School found: Crest Infant School
+2025-08-24 17:12:22,601 - INFO - Perfect match - School found: Eastling Primary School
+2025-08-24 17:12:23,018 - INFO - Perfect match - School found: Ethelbert Road Primary School
+2025-08-24 17:12:23,438 - INFO - Perfect match - School found: Davington Primary School
+2025-08-24 17:12:23,869 - INFO - Perfect match - School found: Lower Halstow Primary School
+2025-08-24 17:12:24,330 - INFO - Address match: Rodmersham School - Types: ['postal_code']
+2025-08-24 17:12:24,768 - INFO - Perfect match - School found: Rose Street Primary School
+2025-08-24 17:12:25,189 - INFO - Perfect match - School found: Canterbury Road Primary School
+2025-08-24 17:12:25,497 - INFO - Progress: 250/1550 processed
+2025-08-24 17:12:25,655 - INFO - Committed batch. Total processed: 250
+2025-08-24 17:12:26,091 - INFO - Perfect match - School found: Northampton High School
+2025-08-24 17:12:26,552 - INFO - Address match: Bosworth Independent School - Types: ['premise', 'street_address']
+2025-08-24 17:12:26,974 - INFO - Perfect match - School found: Overstone Park School
+2025-08-24 17:12:27,407 - INFO - Perfect match - School found: Pitsford School
+2025-08-24 17:12:27,826 - INFO - Address match: Fairfields School - Types: ['premise', 'street_address']
+2025-08-24 17:12:28,291 - INFO - Address match: Acomb First School - Types: ['premise', 'street_address']
+2025-08-24 17:12:28,703 - INFO - Perfect match - School found: Allendale Primary School
+2025-08-24 17:12:29,133 - INFO - Perfect match - School found: Amble Links Primary School
+2025-08-24 17:12:29,562 - INFO - Address match: King Edwin Primary School - Types: ['route']
+2025-08-24 17:12:29,983 - INFO - Perfect match - School found: Bedlington West End Primary School
+2025-08-24 17:12:30,291 - INFO - Progress: 260/1550 processed
+2025-08-24 17:12:30,403 - INFO - Perfect match - School found: Bedlington Station Primary School
+2025-08-24 17:12:30,833 - INFO - Perfect match - School found: Stakeford Primary School
+2025-08-24 17:12:31,243 - INFO - Perfect match - School found: Cambois Primary School
+2025-08-24 17:12:31,687 - INFO - Perfect match - School found: Choppington Primary School
+2025-08-24 17:12:32,116 - INFO - Perfect match - School found: Stead Lane Primary School
+2025-08-24 17:12:32,531 - INFO - Perfect match - School found: Bellingham Primary School
+2025-08-24 17:12:32,966 - INFO - Perfect match - School found: Spittal Community School
+2025-08-24 17:12:33,410 - INFO - Perfect match - School found: Tweedmouth West First School
+2025-08-24 17:12:33,878 - INFO - Perfect match - School found: Tweedmouth Prior Park First School
+2025-08-24 17:12:34,306 - INFO - Perfect match - School found: Eastlea Primary School
+2025-08-24 17:12:34,614 - INFO - Progress: 270/1550 processed
+2025-08-24 17:12:34,781 - INFO - Good match - POI found: Beaconhill Community Primary School
+2025-08-24 17:12:35,214 - INFO - Perfect match - School found: Cramlington Shanklea Primary School
+2025-08-24 17:12:35,628 - INFO - Address match: Holywell Village First School - Types: ['route']
+2025-08-24 17:12:36,061 - INFO - Address match: Broomhill Primary School - Types: ['route']
+2025-08-24 17:12:36,535 - INFO - Address match: Red Row Primary School - Types: ['postal_code']
+2025-08-24 17:12:36,958 - INFO - Perfect match - School found: Ellington Primary School
+2025-08-24 17:12:37,378 - INFO - Perfect match - School found: Linton Primary School
+2025-08-24 17:12:37,813 - INFO - Perfect match - School found: Stamfordham Primary School
+2025-08-24 17:12:38,236 - INFO - Perfect match - School found: Hexham First School
+2025-08-24 17:12:38,646 - INFO - Perfect match - School found: Morpeth First School
+2025-08-24 17:12:38,954 - INFO - Progress: 280/1550 processed
+2025-08-24 17:12:39,066 - INFO - Perfect match - School found: Seahouses Primary School
+2025-08-24 17:12:39,513 - INFO - Address match: Otterburn Primary School - Types: ['postal_code']
+2025-08-24 17:12:39,937 - INFO - Perfect match - School found: Pegswood Primary School
+2025-08-24 17:12:40,356 - INFO - Perfect match - School found: Rothbury First School
+2025-08-24 17:12:40,776 - INFO - Good match - POI found: Beaufront First School
+2025-08-24 17:12:41,220 - INFO - Perfect match - School found: Seaton Delaval First School
+2025-08-24 17:12:41,647 - INFO - Perfect match - School found: New Hartley First School
+2025-08-24 17:12:42,066 - INFO - Perfect match - School found: Seghill First School
+2025-08-24 17:12:42,501 - INFO - Address match: Greenhaugh Primary School - Types: ['postal_code']
+2025-08-24 17:12:42,937 - INFO - Perfect match - School found: Slaley First School
+2025-08-24 17:12:43,245 - INFO - Progress: 290/1550 processed
+2025-08-24 17:12:43,365 - INFO - Perfect match - School found: Stannington First School
+2025-08-24 17:12:43,772 - INFO - Perfect match - School found: Cambo First School
+2025-08-24 17:12:44,188 - INFO - Perfect match - School found: Kielder Primary School and Nursery
+2025-08-24 17:12:44,619 - INFO - Perfect match - School found: Seaton Sluice First School
+2025-08-24 17:12:45,045 - INFO - Perfect match - School found: Wooler First School
+2025-08-24 17:12:45,467 - INFO - Address match: Bothal Primary School - Types: ['route']
+2025-08-24 17:12:45,912 - INFO - Perfect match - School found: Swarland Primary School
+2025-08-24 17:12:46,324 - INFO - Perfect match - School found: The Sele First School
+2025-08-24 17:12:46,759 - INFO - Perfect match - School found: Mowbray Primary School
+2025-08-24 17:12:47,182 - INFO - Perfect match - School found: Belford Primary School
+2025-08-24 17:12:47,490 - INFO - Progress: 300/1550 processed
+2025-08-24 17:12:47,648 - INFO - Committed batch. Total processed: 300
+2025-08-24 17:12:48,073 - INFO - Good match - POI found: Riverside College Halton
+2025-08-24 17:12:48,481 - INFO - Good match - POI found: Reaseheath College
+2025-08-24 17:12:48,927 - INFO - Good match - POI found: Cornwall College
+2025-08-24 17:12:49,353 - INFO - Good match - POI found: Truro and Penwith College
+2025-08-24 17:12:49,782 - INFO - Good match - POI found: Kendal College
+2025-08-24 17:12:50,244 - INFO - Good match - POI found: Lakes College - West Cumbria
+2025-08-24 17:12:50,663 - INFO - Good match - POI found: Furness College
+2025-08-24 17:12:51,072 - INFO - Good match - POI found: Chesterfield College
+2025-08-24 17:12:51,493 - INFO - Good match - POI found: Exeter College
+2025-08-24 17:12:51,912 - INFO - Good match - POI found: Petroc
+2025-08-24 17:12:52,220 - INFO - Progress: 310/1550 processed
+2025-08-24 17:12:52,334 - INFO - Perfect match - School found: South Devon College
+2025-08-24 17:12:52,762 - INFO - Good match - POI found: City College Plymouth
+2025-08-24 17:12:53,194 - INFO - Good match - POI found: The Bournemouth and Poole College
+2025-08-24 17:12:53,617 - INFO - Address match: Weymouth and Kingston Maurward College - Types: ['route']
+2025-08-24 17:12:54,056 - INFO - Good match - POI found: Darlington College
+2025-08-24 17:12:54,475 - INFO - Good match - POI found: Bishop Auckland College
+2025-08-24 17:12:54,894 - INFO - Good match - POI found: Derwentside College
+2025-08-24 17:12:55,331 - INFO - Good match - POI found: New College Durham
+2025-08-24 17:12:55,755 - INFO - Good match - POI found: East Sussex College Group
+2025-08-24 17:12:56,185 - INFO - Good match - POI found: Plumpton College
+2025-08-24 17:12:56,493 - INFO - Progress: 320/1550 processed
+2025-08-24 17:12:56,596 - INFO - Perfect match - School found: Varndean College
+2025-08-24 17:12:57,029 - INFO - Perfect match - School found: Brighton Hove and Sussex Sixth Form College
+2025-08-24 17:12:57,452 - INFO - Perfect match - School found: Bexhill College
+2025-08-24 17:12:57,930 - INFO - Good match - POI found: South Essex College of Further and Higher Education
+2025-08-24 17:12:58,345 - INFO - Good match - POI found: Colchester Institute
+2025-08-24 17:12:58,769 - INFO - Good match - POI found: Harlow College
+2025-08-24 17:12:59,374 - INFO - Good match - POI found: Chelmsford College
+2025-08-24 17:12:59,788 - INFO - Good match - POI found: USP College
+2025-08-24 17:13:00,206 - INFO - Good match - POI found: Gloucestershire College
+2025-08-24 17:13:00,634 - INFO - Good match - POI found: Cirencester College
+2025-08-24 17:13:00,942 - INFO - Progress: 330/1550 processed
+2025-08-24 17:13:01,050 - INFO - Perfect match - School found: Basingstoke College of Technology
+2025-08-24 17:13:01,501 - INFO - Good match - POI found: Farnborough College of Technology
+2025-08-24 17:13:01,914 - INFO - Good match - POI found: Brockenhurst College
+2025-08-24 17:13:02,344 - INFO - Good match - POI found: South Hampshire College Group
+2025-08-24 17:13:02,768 - INFO - Good match - POI found: Havant and South Downs College
+2025-08-24 17:13:03,196 - INFO - Address match: City of Portsmouth College - Types: ['route']
+2025-08-24 17:13:03,621 - INFO - Good match - POI found: Sparsholt College Hampshire
+2025-08-24 17:13:04,054 - INFO - Perfect match - School found: Barton Peveril Sixth Form College
+2025-08-24 17:13:04,470 - INFO - Good match - POI found: Itchen College
+2025-08-24 17:13:04,906 - INFO - Perfect match - School found: Peter Symonds College
+2025-08-24 17:13:05,213 - INFO - Progress: 340/1550 processed
+2025-08-24 17:13:05,345 - INFO - Address match: Herefordshire, Ludlow and North Shropshire College - Types: ['route']
+2025-08-24 17:13:05,780 - INFO - Good match - POI found: Heart of Worcestershire College
+2025-08-24 17:13:06,207 - INFO - Good match - POI found: Hereford College of Arts
+2025-08-24 17:13:06,661 - INFO - Address match: West Herts College - Types: ['premise', 'street_address']
+2025-08-24 17:13:07,086 - INFO - Good match - POI found: North Hertfordshire College
+2025-08-24 17:13:07,543 - INFO - Good match - POI found: Hertford Regional College
+2025-08-24 17:13:07,974 - INFO - Good match - POI found: Oaklands College
+2025-08-24 17:13:08,416 - INFO - Good match - POI found: The Isle of Wight College
+2025-08-24 17:13:08,846 - INFO - Good match - POI found: North Kent College
+2025-08-24 17:13:09,279 - INFO - Good match - POI found: MidKent College
+2025-08-24 17:13:09,664 - INFO - Progress: 350/1550 processed
+2025-08-24 17:13:09,822 - INFO - Committed batch. Total processed: 350
+2025-08-24 17:13:10,440 - INFO - Perfect match - School found: Gretton School
+2025-08-24 17:13:10,929 - INFO - Perfect match - School found: East London Independent School
+2025-08-24 17:13:11,394 - INFO - Perfect match - School found: Millfields Church of England (Controlled) Primary School
+2025-08-24 17:13:11,925 - INFO - Perfect match - School found: Chepstow House School
+2025-08-24 17:13:12,389 - INFO - Perfect match - School found: Kingsdale Foundation School
+2025-08-24 17:13:12,879 - INFO - Perfect match - School found: Tudor Grange Academy, Solihull
+2025-08-24 17:13:13,312 - INFO - Address match: Somervale Secondary School - Types: ['route']
+2025-08-24 17:13:13,727 - INFO - Perfect match - School found: Trenance Learning Academy
+2025-08-24 17:13:14,155 - INFO - Perfect match - School found: The Rochester Grammar School
+2025-08-24 17:13:14,593 - INFO - Perfect match - School found: Queen Elizabeth's Grammar Alford - A Selective Academy
+2025-08-24 17:13:14,900 - INFO - Progress: 360/1550 processed
+2025-08-24 17:13:15,007 - INFO - Perfect match - School found: Forest Academy
+2025-08-24 17:13:15,434 - INFO - Perfect match - School found: Sandwich Technology School
+2025-08-24 17:13:15,871 - INFO - Perfect match - School found: Sandy Hill Academy
+2025-08-24 17:13:16,300 - INFO - Perfect match - School found: Denbigh High School
+2025-08-24 17:13:16,774 - INFO - Address match: St Patricks Church of England Primary Academy - Types: ['route']
+2025-08-24 17:13:17,239 - INFO - Perfect match - School found: Torquay Boys' Grammar School
+2025-08-24 17:13:17,660 - INFO - Perfect match - School found: Samuel Ward Academy
+2025-08-24 17:13:18,149 - INFO - Perfect match - School found: John Taylor High School
+2025-08-24 17:13:18,571 - INFO - Perfect match - School found: Fulston Manor School
+2025-08-24 17:13:19,000 - INFO - Perfect match - School found: R A Butler Infant School
+2025-08-24 17:13:19,308 - INFO - Progress: 370/1550 processed
+2025-08-24 17:13:19,458 - INFO - Perfect match - School found: Green Lane Primary Academy
+2025-08-24 17:13:19,883 - INFO - Perfect match - School found: Kingsmead School
+2025-08-24 17:13:20,290 - INFO - Perfect match - School found: R A Butler Junior School
+2025-08-24 17:13:20,715 - INFO - Perfect match - School found: Guru Nanak Sikh Academy
+2025-08-24 17:13:21,144 - INFO - Perfect match - School found: Wales High School
+2025-08-24 17:13:21,636 - INFO - Perfect match - School found: Crosshall Infant School Academy Trust
+2025-08-24 17:13:22,052 - INFO - Perfect match - School found: Arden
+2025-08-24 17:13:22,472 - INFO - Perfect match - School found: Beths Grammar School
+2025-08-24 17:13:22,930 - INFO - Perfect match - School found: Norton Hill Academy
+2025-08-24 17:13:23,353 - INFO - Perfect match - School found: Ivybridge Community College
+2025-08-24 17:13:23,661 - INFO - Progress: 380/1550 processed
+2025-08-24 17:13:23,782 - INFO - Perfect match - School found: Fort Pitt Grammar School
+2025-08-24 17:13:24,202 - INFO - Perfect match - School found: Cleves School
+2025-08-24 17:13:24,670 - INFO - Perfect match - School found: Crosshall Junior School
+2025-08-24 17:13:25,098 - INFO - Perfect match - School found: Sandbach High School and Sixth Form College
+2025-08-24 17:13:25,515 - INFO - Perfect match - School found: Lampton Academy
+2025-08-24 17:13:25,985 - INFO - Perfect match - School found: King Harold Business & Enterprise Academy
+2025-08-24 17:13:26,408 - INFO - Perfect match - School found: Garforth Academy
+2025-08-24 17:13:26,840 - INFO - Perfect match - School found: The Canterbury Primary School
+2025-08-24 17:13:27,264 - INFO - Perfect match - School found: Lark Rise Academy
+2025-08-24 17:13:27,739 - INFO - Perfect match - School found: John Henry Newman Catholic College
+2025-08-24 17:13:28,050 - INFO - Progress: 390/1550 processed
+2025-08-24 17:13:28,179 - INFO - Perfect match - School found: Gosforth Junior High Academy
+2025-08-24 17:13:28,682 - INFO - Perfect match - School found: Leigh Academy Tonbridge
+2025-08-24 17:13:29,105 - INFO - Perfect match - School found: Caistor Grammar School
+2025-08-24 17:13:29,522 - INFO - Perfect match - School found: Meopham Community Academy
+2025-08-24 17:13:29,999 - INFO - Perfect match - School found: Gosforth Academy
+2025-08-24 17:13:30,432 - INFO - Perfect match - School found: Pate's Grammar School
+2025-08-24 17:13:30,874 - INFO - Perfect match - School found: Bourne Abbey Church of England Primary Academy
+2025-08-24 17:13:31,297 - INFO - Address match: Darrick Wood School - Types: ['premise', 'street_address']
+2025-08-24 17:13:31,736 - INFO - Perfect match - School found: Martham Academy and Nursery
+2025-08-24 17:13:32,159 - INFO - Perfect match - School found: Queen Elizabeth School
+2025-08-24 17:13:32,467 - INFO - Progress: 400/1550 processed
+2025-08-24 17:13:32,625 - INFO - Committed batch. Total processed: 400
+2025-08-24 17:13:33,105 - INFO - Perfect match - School found: Beaumont Hill Academy
+2025-08-24 17:13:33,546 - INFO - Perfect match - School found: Ash Field Academy
+2025-08-24 17:13:33,980 - INFO - Perfect match - School found: Cedar Mount Academy
+2025-08-24 17:13:34,417 - INFO - Perfect match - School found: Moseley Park
+2025-08-24 17:13:34,855 - INFO - Perfect match - School found: Saint Mary's Catholic Primary School, Loughborough
+2025-08-24 17:13:35,326 - INFO - Perfect match - School found: Saint Clare's Primary School A Catholic Voluntary Academy, Coalville, Leicestershire
+2025-08-24 17:13:35,778 - INFO - Good match - POI found: Holy Cross School A Catholic Voluntary Academy
+2025-08-24 17:13:36,206 - INFO - Perfect match - School found: De Lisle College Loughborough Leicestershire
+2025-08-24 17:13:36,689 - INFO - Address match: Saint Winefride's Catholic Voluntary Academy, Shepshed, Leicestershire - Types: ['route']
+2025-08-24 17:13:37,112 - INFO - Perfect match - School found: Waterloo Primary Academy
+2025-08-24 17:13:37,420 - INFO - Progress: 410/1550 processed
+2025-08-24 17:13:37,539 - INFO - Perfect match - School found: The Newbridge School
+2025-08-24 17:13:38,036 - INFO - Perfect match - School found: Holy Trinity Primary School, A Church of England Academy
+2025-08-24 17:13:38,475 - INFO - Perfect match - School found: Warren Farm Primary School
+2025-08-24 17:13:38,908 - INFO - Perfect match - School found: Crawshaw Academy
+2025-08-24 17:13:39,340 - INFO - Perfect match - School found: Tregoze Primary School
+2025-08-24 17:13:39,760 - INFO - Address match: Rodbourne Cheney Primary School - Types: ['premise', 'street_address']
+2025-08-24 17:13:40,178 - INFO - Perfect match - School found: Nyland School
+2025-08-24 17:13:40,613 - INFO - Perfect match - School found: Mountford Manor Primary School
+2025-08-24 17:13:41,030 - INFO - Perfect match - School found: Drove Primary School
+2025-08-24 17:13:41,453 - INFO - Perfect match - School found: Elburton Primary School
+2025-08-24 17:13:41,764 - INFO - Progress: 420/1550 processed
+2025-08-24 17:13:41,896 - INFO - Perfect match - School found: St Teresa's Catholic Primary School, Colchester
+2025-08-24 17:13:42,337 - INFO - Perfect match - School found: Westminster City School
+2025-08-24 17:13:42,781 - INFO - Perfect match - School found: The Grey Coat Hospital
+2025-08-24 17:13:43,198 - INFO - Perfect match - School found: Armthorpe Academy
+2025-08-24 17:13:43,635 - INFO - Perfect match - School found: Pilton Bluecoat Church of England Academy
+2025-08-24 17:13:44,101 - INFO - Address match: St John Roman Catholic Primary School - Types: ['route']
+2025-08-24 17:13:44,602 - INFO - Perfect match - School found: Christ Church Church of England Primary School
+2025-08-24 17:13:45,036 - INFO - Perfect match - School found: Neston High School
+2025-08-24 17:13:45,460 - INFO - Perfect match - School found: Huncote Primary School
+2025-08-24 17:13:45,894 - INFO - Good match - POI found: Our Lady Catholic Primary School
+2025-08-24 17:13:46,202 - INFO - Progress: 430/1550 processed
+2025-08-24 17:13:46,314 - INFO - Perfect match - School found: Brookvale Groby Learning Campus
+2025-08-24 17:13:46,782 - INFO - Address match: Ruskington Chestnut Street Church of England Academy - Types: ['route']
+2025-08-24 17:13:47,211 - INFO - Perfect match - School found: The Frances Bardsley Academy for Girls
+2025-08-24 17:13:47,646 - INFO - Perfect match - School found: Heath Lane Academy
+2025-08-24 17:13:48,061 - INFO - Perfect match - School found: Chattenden Primary School
+2025-08-24 17:13:48,509 - INFO - Perfect match - School found: St Bernard's Catholic High School
+2025-08-24 17:13:48,959 - INFO - Perfect match - School found: The Gainsborough Hillcrest Early Years Academy
+2025-08-24 17:13:49,388 - INFO - Perfect match - School found: East Herrington Primary Academy
+2025-08-24 17:13:49,805 - INFO - Perfect match - School found: The Vale Primary Academy
+2025-08-24 17:13:50,224 - INFO - Perfect match - School found: Kings Bournemouth
+2025-08-24 17:13:50,532 - INFO - Progress: 440/1550 processed
+2025-08-24 17:13:50,647 - INFO - Perfect match - School found: The Gateway Primary Free School
+2025-08-24 17:13:51,118 - INFO - Perfect match - School found: St Cyprian's Greek Orthodox Primary Academy
+2025-08-24 17:13:51,537 - INFO - Perfect match - School found: Rodillian Academy
+2025-08-24 17:13:51,980 - INFO - Perfect match - School found: All Saints' Catholic High School
+2025-08-24 17:13:52,435 - INFO - Perfect match - School found: Our Lady of Perpetual Succour Catholic Primary School
+2025-08-24 17:13:52,910 - INFO - Perfect match - School found: St Mary's Catholic Primary School
+2025-08-24 17:13:53,390 - INFO - Perfect match - School found: St Teresa's Catholic Primary School
+2025-08-24 17:13:53,829 - INFO - Perfect match - School found: The Trinity Catholic School A Voluntary Academy
+2025-08-24 17:13:54,259 - INFO - Perfect match - School found: Altwood Church of England School
+2025-08-24 17:13:54,702 - INFO - Perfect match - School found: Woodlands Academy of Learning
+2025-08-24 17:13:55,010 - INFO - Progress: 450/1550 processed
+2025-08-24 17:13:55,168 - INFO - Committed batch. Total processed: 450
+2025-08-24 17:13:55,657 - INFO - Perfect match - School found: Whiston Worrygoose Junior and Infant School
+2025-08-24 17:13:56,070 - INFO - Perfect match - School found: Tomlinscote School
+2025-08-24 17:13:56,504 - INFO - Address match: Dunswell Primary School - Types: ['route']
+2025-08-24 17:13:56,931 - INFO - Perfect match - School found: Oakley Vale Primary School
+2025-08-24 17:13:57,367 - INFO - Perfect match - School found: John Blandy Primary School
+2025-08-24 17:13:57,789 - INFO - Perfect match - School found: The Cornelius Vermuyden School
+2025-08-24 17:13:58,216 - INFO - Perfect match - School found: Matchborough First School Academy
+2025-08-24 17:13:58,639 - INFO - Perfect match - School found: Hillsborough Primary School
+2025-08-24 17:13:59,067 - INFO - Perfect match - School found: Dudley Infant Academy
+2025-08-24 17:13:59,526 - INFO - Perfect match - School found: Glasshoughton Infant Academy
+2025-08-24 17:13:59,833 - INFO - Progress: 460/1550 processed
+2025-08-24 17:13:59,950 - INFO - Perfect match - School found: Beaver Road Primary School
+2025-08-24 17:14:00,380 - INFO - Perfect match - School found: Kirby Muxloe Primary School
+2025-08-24 17:14:00,818 - INFO - Perfect match - School found: Enderby Danemill Primary School
+2025-08-24 17:14:01,263 - INFO - Address match: Croxton Kerrial Church of England Primary School - Types: ['route']
+2025-08-24 17:14:01,694 - INFO - Perfect match - School found: Summercourt Academy
+2025-08-24 17:14:02,122 - INFO - Perfect match - School found: Skelton Primary School
+2025-08-24 17:14:02,569 - INFO - Perfect match - School found: Barnehurst Infant School
+2025-08-24 17:14:02,991 - INFO - Perfect match - School found: Barnehurst Junior School
+2025-08-24 17:14:03,464 - INFO - Perfect match - School found: Furley Park Primary Academy
+2025-08-24 17:14:03,872 - INFO - Perfect match - School found: Hamstreet Primary Academy
+2025-08-24 17:14:04,180 - INFO - Progress: 470/1550 processed
+2025-08-24 17:14:04,331 - INFO - Perfect match - School found: Cleves Cross Primary and Nursery School Academy
+2025-08-24 17:14:04,762 - INFO - Perfect match - School found: Mary Rose Academy
+2025-08-24 17:14:05,184 - INFO - Perfect match - School found: The Halifax Academy
+2025-08-24 17:14:05,653 - INFO - Perfect match - School found: Green Oaks Primary Academy
+2025-08-24 17:14:06,065 - INFO - Perfect match - School found: Falmouth Primary Academy
+2025-08-24 17:14:06,486 - INFO - Perfect match - School found: Castle Wood Academy
+2025-08-24 17:14:06,962 - INFO - Good match - POI found: Kinetic Academy
+2025-08-24 17:14:07,383 - INFO - Perfect match - School found: Foxhole Learning Academy
+2025-08-24 17:14:07,799 - INFO - Perfect match - School found: England Lane Academy
+2025-08-24 17:14:08,224 - INFO - Perfect match - School found: Millbrook CofE Primary School
+2025-08-24 17:14:08,532 - INFO - Progress: 480/1550 processed
+2025-08-24 17:14:08,640 - INFO - Perfect match - School found: Montem Academy
+2025-08-24 17:14:09,080 - INFO - Perfect match - School found: Carleton Park Junior and Infant School
+2025-08-24 17:14:09,580 - INFO - Perfect match - School found: St John's Primary School
+2025-08-24 17:14:10,028 - INFO - Perfect match - School found: St Joseph's School, a Catholic Voluntary Academy
+2025-08-24 17:14:10,500 - INFO - Perfect match - School found: St Mary's Church of England Primary School
+2025-08-24 17:14:10,935 - INFO - Perfect match - School found: St Nicolas' CofE VA School, Downderry
+2025-08-24 17:14:11,421 - INFO - Good match - POI found: Ulceby St Nicholas Church of England Primary School
+2025-08-24 17:14:11,862 - INFO - Good match - POI found: Wheatley Church of England Primary School
+2025-08-24 17:14:12,308 - INFO - Perfect match - School found: St Martin's CofE Primary School
+2025-08-24 17:14:12,753 - INFO - Perfect match - School found: Kenyngton Manor Primary School
+2025-08-24 17:14:13,061 - INFO - Progress: 490/1550 processed
+2025-08-24 17:14:13,192 - INFO - Perfect match - School found: Cordwalles Junior School
+2025-08-24 17:14:13,623 - INFO - Perfect match - School found: Springfield Primary School
+2025-08-24 17:14:14,093 - INFO - Perfect match - School found: Whitesheet Church of England Primary Academy
+2025-08-24 17:14:14,529 - INFO - Perfect match - School found: Southbroom St James Academy
+2025-08-24 17:14:14,955 - INFO - Perfect match - School found: Carr Lodge Academy
+2025-08-24 17:14:15,435 - INFO - Perfect match - School found: Avon Park School
+2025-08-24 17:14:15,916 - INFO - Good match - POI found: St Jude's Church of England Primary Academy
+2025-08-24 17:14:16,348 - INFO - Address match: The Laurels School - Types: ['intersection']
+2025-08-24 17:14:16,783 - INFO - Perfect match - School found: Arnbrook Primary School
+2025-08-24 17:14:17,214 - INFO - Perfect match - School found: Dixons Marchbank Primary
+2025-08-24 17:14:17,522 - INFO - Progress: 500/1550 processed
+2025-08-24 17:14:17,682 - INFO - Committed batch. Total processed: 500
+2025-08-24 17:14:18,133 - INFO - Address match: Braithwaite CofE Primary School - Types: ['postal_code']
+2025-08-24 17:14:18,568 - INFO - Perfect match - School found: Wynyard Church of England Primary School
+2025-08-24 17:14:19,029 - INFO - Perfect match - School found: Ark Byron Primary Academy
+2025-08-24 17:14:19,462 - INFO - Perfect match - School found: Hackney New Primary School
+2025-08-24 17:14:19,896 - INFO - Perfect match - School found: One Sixth Form College
+2025-08-24 17:14:20,394 - INFO - Perfect match - School found: The Bishop David Brown School
+2025-08-24 17:14:20,864 - INFO - Perfect match - School found: Manor Green Primary Academy
+2025-08-24 17:14:21,298 - INFO - Perfect match - School found: Warberry CofE Academy
+2025-08-24 17:14:21,724 - INFO - Perfect match - School found: Manor Academy Sale
+2025-08-24 17:14:22,136 - INFO - Perfect match - School found: Pictor Academy
+2025-08-24 17:14:22,444 - INFO - Progress: 510/1550 processed
+2025-08-24 17:14:22,576 - INFO - Perfect match - School found: Pound Hill Infant Academy
+2025-08-24 17:14:23,009 - INFO - Perfect match - School found: Lindfield Primary Academy
+2025-08-24 17:14:23,451 - INFO - Perfect match - School found: Somerfords' Walter Powell CofE Academy
+2025-08-24 17:14:23,866 - INFO - Address match: Lydiard Millicent CofE Primary School - Types: ['route']
+2025-08-24 17:14:24,354 - INFO - Good match - POI found: St Paulinus Church of England Primary School
+2025-08-24 17:14:24,775 - INFO - Perfect match - School found: Hillsgrove Primary School
+2025-08-24 17:14:25,213 - INFO - Perfect match - School found: Little Lever School
+2025-08-24 17:14:25,646 - INFO - Perfect match - School found: Oak Lodge Primary School
+2025-08-24 17:14:26,079 - INFO - Perfect match - School found: Marian Vian Primary School
+2025-08-24 17:14:26,497 - INFO - Perfect match - School found: Unicorn Primary School
+2025-08-24 17:14:26,805 - INFO - Progress: 520/1550 processed
+2025-08-24 17:14:26,968 - INFO - Perfect match - School found: Wickham Common Primary School
+2025-08-24 17:14:27,384 - INFO - Perfect match - School found: The Russett School
+2025-08-24 17:14:27,798 - INFO - Perfect match - School found: Shortlanesend School
+2025-08-24 17:14:28,308 - INFO - Perfect match - School found: Mithian School
+2025-08-24 17:14:28,755 - INFO - Perfect match - School found: Blackwater Community Primary School
+2025-08-24 17:14:29,174 - INFO - Perfect match - School found: Cockermouth School
+2025-08-24 17:14:29,632 - INFO - Perfect match - School found: Thorpepark Academy
+2025-08-24 17:14:30,062 - INFO - Perfect match - School found: St Lawrence School
+2025-08-24 17:14:30,496 - INFO - Perfect match - School found: St Bernard's School
+2025-08-24 17:14:30,976 - INFO - Perfect match - School found: Cardinal Newman Catholic School A Specialist Science College
+2025-08-24 17:14:31,283 - INFO - Progress: 530/1550 processed
+2025-08-24 17:14:31,418 - INFO - Perfect match - School found: Hallam Primary School
+2025-08-24 17:14:31,854 - INFO - Perfect match - School found: Stottesdon CofE Primary School
+2025-08-24 17:14:32,271 - INFO - Perfect match - School found: Kingsmead School
+2025-08-24 17:14:32,703 - INFO - Perfect match - School found: Heathside School
+2025-08-24 17:14:33,120 - INFO - Perfect match - School found: Oxted School
+2025-08-24 17:14:33,550 - INFO - Perfect match - School found: Bradon Forest School
+2025-08-24 17:14:33,969 - INFO - Perfect match - School found: Highfields School
+2025-08-24 17:14:34,407 - INFO - Address match: Seagry Church of England Primary School - Types: ['route']
+2025-08-24 17:14:34,836 - INFO - Perfect match - School found: St Margaret Clitherow Catholic Primary School, Bracknell
+2025-08-24 17:14:35,261 - INFO - Perfect match - School found: Park House School
+2025-08-24 17:14:35,568 - INFO - Progress: 540/1550 processed
+2025-08-24 17:14:35,685 - INFO - Perfect match - School found: Ridgeway Farm CofE Academy
+2025-08-24 17:14:36,113 - INFO - Perfect match - School found: Cambian Bletchley Park School
+2025-08-24 17:14:36,584 - INFO - Address match: Dagnall VA Church of England School - Types: ['postal_code']
+2025-08-24 17:14:37,034 - INFO - Perfect match - School found: Stafford Hall School
+2025-08-24 17:14:37,495 - INFO - Perfect match - School found: Kingfisher Primary School
+2025-08-24 17:14:37,922 - INFO - Perfect match - School found: Primrose Lane Primary School
+2025-08-24 17:14:38,402 - INFO - Perfect match - School found: Lycee International de Londres
+2025-08-24 17:14:38,823 - INFO - Perfect match - School found: Cambridge Street School
+2025-08-24 17:14:39,250 - INFO - Address match: Jefferson House - Types: ['premise', 'street_address']
+2025-08-24 17:14:39,703 - INFO - Address match: Austen House - Types: ['postal_code']
+2025-08-24 17:14:40,012 - INFO - Progress: 550/1550 processed
+2025-08-24 17:14:40,170 - INFO - Committed batch. Total processed: 550
+2025-08-24 17:14:40,614 - INFO - Perfect match - School found: Dartford Grammar School for Girls
+2025-08-24 17:14:41,067 - INFO - Perfect match - School found: St Thomas More Voluntary Catholic Academy
+2025-08-24 17:14:41,503 - INFO - Perfect match - School found: St Anthony's Voluntary Catholic Academy
+2025-08-24 17:14:41,925 - INFO - Perfect match - School found: St Charles Voluntary Catholic Academy
+2025-08-24 17:14:42,394 - INFO - Perfect match - School found: Olive Hill Primary Academy
+2025-08-24 17:14:42,826 - INFO - Perfect match - School found: Jarvis Brook Primary School
+2025-08-24 17:14:43,250 - INFO - Perfect match - School found: Lawford Mead Primary & Nursery
+2025-08-24 17:14:43,677 - INFO - Perfect match - School found: Kings Road Primary School
+2025-08-24 17:14:44,091 - INFO - Perfect match - School found: Paisley Primary School
+2025-08-24 17:14:44,522 - INFO - Perfect match - School found: Tile Cross Academy
+2025-08-24 17:14:44,829 - INFO - Progress: 560/1550 processed
+2025-08-24 17:14:44,956 - INFO - Perfect match - School found: Newland School for Girls
+2025-08-24 17:14:45,413 - INFO - Perfect match - School found: Rosendale Primary School
+2025-08-24 17:14:45,839 - INFO - Perfect match - School found: The Elmgreen School
+2025-08-24 17:14:46,283 - INFO - Address match: Swannington Church of England Primary School - Types: ['route']
+2025-08-24 17:14:46,696 - INFO - Perfect match - School found: Putteridge High School
+2025-08-24 17:14:47,119 - INFO - Perfect match - School found: Challney High School for Girls
+2025-08-24 17:14:47,554 - INFO - Perfect match - School found: King's Park Infant School, Dereham
+2025-08-24 17:14:48,012 - INFO - Perfect match - School found: Grove House Infant and Nursery School
+2025-08-24 17:14:48,439 - INFO - Perfect match - School found: Garvestone Community Primary School
+2025-08-24 17:14:48,865 - INFO - Perfect match - School found: Dereham Neatherd High School
+2025-08-24 17:14:49,173 - INFO - Progress: 570/1550 processed
+2025-08-24 17:14:49,326 - INFO - Perfect match - School found: Beeston Primary School
+2025-08-24 17:14:49,795 - INFO - Perfect match - School found: Hall Meadow Primary School
+2025-08-24 17:14:50,234 - INFO - Perfect match - School found: Welford Sibbertoft and Sulby Endowed School
+2025-08-24 17:14:50,651 - INFO - Good match - POI found: Westbury Academy
+2025-08-24 17:14:51,064 - INFO - Perfect match - School found: Woodlands Academy
+2025-08-24 17:14:51,513 - INFO - Perfect match - School found: Mapplewells Primary and Nursery School
+2025-08-24 17:14:51,991 - INFO - Perfect match - School found: Woodsetts Primary School
+2025-08-24 17:14:52,428 - INFO - Perfect match - School found: Brampton Cortonwood Infant School
+2025-08-24 17:14:52,862 - INFO - Perfect match - School found: Anston Brook Primary School
+2025-08-24 17:14:53,286 - INFO - Perfect match - School found: Rainhill High School
+2025-08-24 17:14:53,594 - INFO - Progress: 580/1550 processed
+2025-08-24 17:14:53,723 - INFO - Address match: Rainford High School - Types: ['premise', 'street_address']
+2025-08-24 17:14:54,157 - INFO - Perfect match - School found: Springfield Junior School
+2025-08-24 17:14:54,631 - INFO - Good match - POI found: St Andrew's Church of England Infant School
+2025-08-24 17:14:55,051 - INFO - Perfect match - School found: Ackton Pastures Primary Academy
+2025-08-24 17:14:55,463 - INFO - Perfect match - School found: Half Acres Primary Academy
+2025-08-24 17:14:55,891 - INFO - Address match: Heytesbury Church of England Primary School - Types: ['route']
+2025-08-24 17:14:56,329 - INFO - Perfect match - School found: St Barnabas CofE First and Middle School
+2025-08-24 17:14:56,763 - INFO - Perfect match - School found: Crowle CofE First School
+2025-08-24 17:14:57,192 - INFO - Perfect match - School found: Hallmoor School
+2025-08-24 17:14:57,638 - INFO - Perfect match - School found: Bordesley Village Primary School
+2025-08-24 17:14:57,945 - INFO - Progress: 590/1550 processed
+2025-08-24 17:14:58,071 - INFO - Perfect match - School found: West Wycombe School
+2025-08-24 17:14:58,507 - INFO - Perfect match - School found: Dorney School
+2025-08-24 17:14:58,973 - INFO - Perfect match - School found: St Mark's CofE Primary School
+2025-08-24 17:14:59,442 - INFO - Perfect match - School found: Manshead Church of England Academy
+2025-08-24 17:14:59,881 - INFO - Perfect match - School found: Derwent Primary School
+2025-08-24 17:15:00,330 - INFO - Perfect match - School found: Temple Normanton Junior Academy
+2025-08-24 17:15:00,809 - INFO - Perfect match - School found: Rossington St Michael's CofE Primary School
+2025-08-24 17:15:01,237 - INFO - Perfect match - School found: Pennine View School
+2025-08-24 17:15:01,672 - INFO - Perfect match - School found: Edlington Victoria Academy
+2025-08-24 17:15:02,128 - INFO - Perfect match - School found: Rosedale Primary School
+2025-08-24 17:15:02,436 - INFO - Progress: 600/1550 processed
+2025-08-24 17:15:02,594 - INFO - Committed batch. Total processed: 600
+2025-08-24 17:15:03,035 - INFO - Perfect match - School found: Edenbridge Primary School
+2025-08-24 17:15:03,467 - INFO - Perfect match - School found: Raleigh Infant Academy
+2025-08-24 17:15:03,910 - INFO - Perfect match - School found: Winshill Village Primary and Nursery School
+2025-08-24 17:15:04,383 - INFO - Perfect match - School found: All Saints Church of England Primary School, Newmarket
+2025-08-24 17:15:04,864 - INFO - Perfect match - School found: Holy Rosary Catholic Voluntary Academy
+2025-08-24 17:15:05,284 - INFO - Perfect match - School found: Outwood Junior Academy Brumby
+2025-08-24 17:15:05,735 - INFO - Perfect match - School found: Ss Mary & John Catholic Primary School
+2025-08-24 17:15:06,210 - INFO - Address match: Roxton Church of England Academy - Types: ['route']
+2025-08-24 17:15:06,630 - INFO - Perfect match - School found: Sandhills Community Primary School
+2025-08-24 17:15:07,066 - INFO - Perfect match - School found: Shotley Community Primary School
+2025-08-24 17:15:07,373 - INFO - Progress: 610/1550 processed
+2025-08-24 17:15:07,496 - INFO - Perfect match - School found: St Charles' Catholic Voluntary Academy
+2025-08-24 17:15:07,911 - INFO - Perfect match - School found: Littlegreen Academy
+2025-08-24 17:15:08,417 - INFO - Perfect match - School found: St Mary & All Saints Church of England Primary School
+2025-08-24 17:15:08,883 - INFO - Good match - POI found: Marsden Heights Community College
+2025-08-24 17:15:09,314 - INFO - Perfect match - School found: The Young Women's Hub
+2025-08-24 17:15:09,772 - INFO - Perfect match - School found: Rose Hill Primary School
+2025-08-24 17:15:10,207 - INFO - Address match: Colsterworth Church of England Primary School - Types: ['route']
+2025-08-24 17:15:10,663 - INFO - Perfect match - School found: Howard Community Academy
+2025-08-24 17:15:11,079 - INFO - Perfect match - School found: Beckfoot Nessfield
+2025-08-24 17:15:11,500 - INFO - Perfect match - School found: Burscough Priory Academy
+2025-08-24 17:15:11,809 - INFO - Progress: 620/1550 processed
+2025-08-24 17:15:11,930 - INFO - Perfect match - School found: Parklands Primary School
+2025-08-24 17:15:12,362 - INFO - Perfect match - School found: Oasis Academy Sholing
+2025-08-24 17:15:12,789 - INFO - Address match: K-HQ - Types: ['premise', 'street_address']
+2025-08-24 17:15:13,221 - INFO - Perfect match - School found: Westbourne School
+2025-08-24 17:15:13,692 - INFO - Address match: Needwood CofE Primary School - Types: ['route']
+2025-08-24 17:15:14,174 - INFO - Address match: All Saints CofE (C) Primary School - Types: ['route']
+2025-08-24 17:15:14,617 - INFO - Perfect match - School found: Holy Cross Catholic Primary School
+2025-08-24 17:15:15,063 - INFO - Perfect match - School found: Middleton Primary School
+2025-08-24 17:15:15,598 - INFO - Address match: St Peter and St Paul RC Junior and Infant School - Types: ['route']
+2025-08-24 17:15:16,090 - INFO - Perfect match - School found: St Thomas of Canterbury Catholic Primary School
+2025-08-24 17:15:16,398 - INFO - Progress: 630/1550 processed
+2025-08-24 17:15:16,652 - INFO - Perfect match - School found: St Joseph's Catholic Primary School
+2025-08-24 17:15:17,136 - INFO - Perfect match - School found: Cambridge International School
+2025-08-24 17:15:17,585 - INFO - Good match - POI found: AldridgeUTC@MediaCityUK
+2025-08-24 17:15:18,034 - INFO - Perfect match - School found: Ridgeway Academy
+2025-08-24 17:15:18,531 - INFO - Perfect match - School found: Christ Church Upper Armley Church of England Primary School
+2025-08-24 17:15:18,958 - INFO - Perfect match - School found: Lambourn CofE Primary School
+2025-08-24 17:15:19,403 - INFO - Perfect match - School found: Holy Trinity Primary School
+2025-08-24 17:15:19,818 - INFO - Perfect match - School found: Sanders Draper
+2025-08-24 17:15:20,245 - INFO - Perfect match - School found: Thongsley Fields Primary and Nursery School
+2025-08-24 17:15:20,681 - INFO - Perfect match - School found: Grange Primary Academy
+2025-08-24 17:15:20,988 - INFO - Progress: 640/1550 processed
+2025-08-24 17:15:21,105 - INFO - Perfect match - School found: Braeburn Primary and Nursery Academy
+2025-08-24 17:15:21,540 - INFO - Perfect match - School found: Shoreside Primary School
+2025-08-24 17:15:21,993 - INFO - Perfect match - School found: The Python Hill Academy
+2025-08-24 17:15:22,433 - INFO - Perfect match - School found: Co-op Academy Bebington
+2025-08-24 17:15:22,866 - INFO - Perfect match - School found: E-ACT Royton and Crompton Academy
+2025-08-24 17:15:23,298 - INFO - Perfect match - School found: Ark Acton Academy
+2025-08-24 17:15:23,742 - INFO - Perfect match - School found: Nelson Infant School
+2025-08-24 17:15:24,170 - INFO - Perfect match - School found: Darton Academy
+2025-08-24 17:15:24,614 - INFO - Perfect match - School found: St Mary's Catholic Voluntary Academy
+2025-08-24 17:15:25,048 - INFO - Perfect match - School found: Britannia Primary School and Nursery
+2025-08-24 17:15:25,356 - INFO - Progress: 650/1550 processed
+2025-08-24 17:15:25,514 - INFO - Committed batch. Total processed: 650
+2025-08-24 17:15:25,956 - INFO - Perfect match - School found: WV2 Education
+2025-08-24 17:15:26,399 - INFO - Perfect match - School found: Hague Bar Primary School
+2025-08-24 17:15:26,828 - INFO - Perfect match - School found: Ormskirk School
+2025-08-24 17:15:27,287 - INFO - Address match: LS-TEN - Types: ['premise', 'street_address']
+2025-08-24 17:15:27,714 - INFO - Address match: Poolsbrook Primary Academy - Types: ['route']
+2025-08-24 17:15:28,184 - INFO - Perfect match - School found: Walton Peak Flying High Academy
+2025-08-24 17:15:28,624 - INFO - Perfect match - School found: Meadow Park School
+2025-08-24 17:15:29,057 - INFO - Perfect match - School found: Rayner Stephens High School
+2025-08-24 17:15:29,493 - INFO - Perfect match - School found: Longdendale High School
+2025-08-24 17:15:29,961 - INFO - Perfect match - School found: West Grantham Church of England Primary Academy
+2025-08-24 17:15:30,269 - INFO - Progress: 660/1550 processed
+2025-08-24 17:15:30,398 - INFO - Perfect match - School found: West Grantham Church of England Secondary Academy
+2025-08-24 17:15:30,875 - INFO - Address match: Garden Fields Junior Mixed and Infant School - Types: ['route']
+2025-08-24 17:15:31,307 - INFO - Perfect match - School found: Frimley CofE Junior School
+2025-08-24 17:15:31,736 - INFO - Perfect match - School found: Moorhouse Academy
+2025-08-24 17:15:32,175 - INFO - Perfect match - School found: Woodlands School
+2025-08-24 17:15:32,658 - INFO - Address match: St Joseph's Catholic Primary School - Types: ['route']
+2025-08-24 17:15:33,099 - INFO - Perfect match - School found: The Rosary Catholic Primary School
+2025-08-24 17:15:33,560 - INFO - Address match: St Chad's Catholic Primary School - Types: ['route']
+2025-08-24 17:15:34,009 - INFO - Perfect match - School found: St Joseph's Catholic Primary School
+2025-08-24 17:15:34,439 - INFO - Perfect match - School found: Milefield Primary School
+2025-08-24 17:15:34,747 - INFO - Progress: 670/1550 processed
+2025-08-24 17:15:34,937 - INFO - Address match: St Mark's Catholic Primary School, Westerhope - Types: ['route']
+2025-08-24 17:15:35,432 - INFO - Perfect match - School found: St George's Catholic Primary School, Bells Close
+2025-08-24 17:15:35,922 - INFO - Perfect match - School found: English Martyrs' Catholic Primary School, Fenham
+2025-08-24 17:15:36,436 - INFO - Perfect match - School found: St Bede's Catholic Primary School, Newcastle
+2025-08-24 17:15:36,925 - INFO - Perfect match - School found: St Alban's Catholic Primary School, Walker
+2025-08-24 17:15:37,401 - INFO - Perfect match - School found: St Cuthbert's Catholic Primary School, North Shields
+2025-08-24 17:15:37,883 - INFO - Perfect match - School found: St Joseph's Catholic Primary School, North Shields
+2025-08-24 17:15:38,352 - INFO - Address match: St Mary's Catholic Primary School, North Shields - Types: ['route']
+2025-08-24 17:15:38,786 - INFO - Perfect match - School found: Star of the Sea Catholic Primary School, Whitley Bay
+2025-08-24 17:15:39,265 - INFO - Address match: St Patrick's Catholic Primary School, Ryhope - Types: ['route']
+2025-08-24 17:15:39,573 - INFO - Progress: 680/1550 processed
+2025-08-24 17:15:39,678 - INFO - Perfect match - School found: The Emmbrook School
+2025-08-24 17:15:40,095 - INFO - Perfect match - School found: The Icknield Primary School
+2025-08-24 17:15:40,560 - INFO - Perfect match - School found: Belgrave Primary School
+2025-08-24 17:15:40,989 - INFO - Perfect match - School found: Statham Primary School
+2025-08-24 17:15:41,410 - INFO - Perfect match - School found: Ravenbank Primary School
+2025-08-24 17:15:41,842 - INFO - Perfect match - School found: Oughtrington Primary School
+2025-08-24 17:15:42,276 - INFO - Perfect match - School found: Leftwich Community Primary School
+2025-08-24 17:15:42,725 - INFO - Perfect match - School found: Preston Primary School
+2025-08-24 17:15:43,195 - INFO - Perfect match - School found: St Cuthbert's Catholic Primary School, Stockton
+2025-08-24 17:15:43,676 - INFO - Address match: St Patrick's Catholic Primary School, Stockton - Types: ['route']
+2025-08-24 17:15:43,984 - INFO - Progress: 690/1550 processed
+2025-08-24 17:15:44,154 - INFO - Perfect match - School found: St George's CofE Primary School
+2025-08-24 17:15:44,573 - INFO - Perfect match - School found: Wimborne First School and Nursery
+2025-08-24 17:15:45,012 - INFO - Perfect match - School found: Annfield Plain Junior School
+2025-08-24 17:15:45,442 - INFO - Perfect match - School found: Annfield Plain Infant School
+2025-08-24 17:15:45,881 - INFO - Perfect match - School found: East Stanley School
+2025-08-24 17:15:46,321 - INFO - Perfect match - School found: St Jude's CofE Infant School
+2025-08-24 17:15:46,814 - INFO - Perfect match - School found: Nazene Danielle School of Performing Arts
+2025-08-24 17:15:47,294 - INFO - Good match - POI found: Redbourn Park School
+2025-08-24 17:15:47,710 - INFO - Address match: Me'or High School - Types: ['street_address']
+2025-08-24 17:15:48,166 - INFO - Address match: Orchard Manor School - Types: ['route']
+2025-08-24 17:15:48,474 - INFO - Progress: 700/1550 processed
+2025-08-24 17:15:48,632 - INFO - Committed batch. Total processed: 700
+2025-08-24 17:15:49,071 - INFO - Perfect match - School found: Knop Law Primary School
+2025-08-24 17:15:49,498 - INFO - Perfect match - School found: Milecastle Primary School
+2025-08-24 17:15:49,946 - INFO - Perfect match - School found: Simonside Primary School
+2025-08-24 17:15:50,380 - INFO - Perfect match - School found: Westerhope Primary School
+2025-08-24 17:15:50,810 - INFO - Address match: Cheswardine Primary and Nursery School - Types: ['route']
+2025-08-24 17:15:51,163 - INFO - Perfect match - School found: Pooles Park Primary School
+2025-08-24 17:15:51,587 - INFO - Perfect match - School found: Carlton le Willows Academy
+2025-08-24 17:15:52,022 - INFO - Address match: The Watkin Centre - Types: ['premise', 'street_address']
+2025-08-24 17:15:52,456 - INFO - Perfect match - School found: Westlands Primary School
+2025-08-24 17:15:52,922 - INFO - Perfect match - School found: Apley Wood Primary Academy
+2025-08-24 17:15:53,230 - INFO - Progress: 710/1550 processed
+2025-08-24 17:15:53,331 - INFO - Perfect match - School found: Onny CofE (A) Primary School
+2025-08-24 17:15:53,756 - INFO - Perfect match - School found: Goodrich CofE Primary School
+2025-08-24 17:15:54,226 - INFO - Perfect match - School found: Lydbury North Church of England Primary School
+2025-08-24 17:15:54,721 - INFO - Perfect match - School found: Ardleigh St Mary's Church of England Primary Academy
+2025-08-24 17:15:55,214 - INFO - Perfect match - School found: St Cecilia's Catholic Primary School
+2025-08-24 17:15:55,632 - INFO - Perfect match - School found: Luck Lane, A Share Primary Academy
+2025-08-24 17:15:56,095 - INFO - Address match: SS Peter and Paul Catholic Primary School, a Voluntary Academy - Types: ['route']
+2025-08-24 17:15:56,573 - INFO - Perfect match - School found: Our Lady's Catholic Primary School, a Voluntary Academy
+2025-08-24 17:15:57,001 - INFO - Good match - POI found: Life Skills Hub Central
+2025-08-24 17:15:57,418 - INFO - Address match: Woodview - Types: ['route']
+2025-08-24 17:15:57,726 - INFO - Progress: 720/1550 processed
+2025-08-24 17:15:57,855 - INFO - Perfect match - School found: Waverley Primary School
+2025-08-24 17:15:58,333 - INFO - Perfect match - School found: St Monica's Catholic Primary School
+2025-08-24 17:15:58,774 - INFO - Perfect match - School found: St Anthony's Catholic Primary School
+2025-08-24 17:15:59,336 - INFO - Good match - POI found: Our Lady and St Philip Neri Catholic Primary School
+2025-08-24 17:15:59,788 - INFO - Perfect match - School found: St Anne's and Guardian Angels Catholic Primary School
+2025-08-24 17:16:00,254 - INFO - Perfect match - School found: Newfield Park Primary Academy
+2025-08-24 17:16:00,696 - INFO - Perfect match - School found: Billinge Chapel End Primary School
+2025-08-24 17:16:01,145 - INFO - Perfect match - School found: Ainsdale St John's Church of England Primary School
+2025-08-24 17:16:01,562 - INFO - Perfect match - School found: Irby Primary School
+2025-08-24 17:16:02,074 - INFO - Perfect match - School found: St Bernadette's Roman Catholic Primary School, a Voluntary Academy
+2025-08-24 17:16:02,382 - INFO - Progress: 730/1550 processed
+2025-08-24 17:16:02,546 - INFO - Perfect match - School found: St Mary's Roman Catholic Primary School, A Voluntary Academy
+2025-08-24 17:16:02,974 - INFO - Perfect match - School found: Hey-with-Zion Primary School
+2025-08-24 17:16:03,397 - INFO - Address match: Eastburn Primary School - Types: ['route']
+2025-08-24 17:16:03,817 - INFO - Address match: Hebden Royd CofE Primary School - Types: ['route']
+2025-08-24 17:16:04,266 - INFO - Address match: Berry Brow Infant and Nursery Academy - Types: ['route']
+2025-08-24 17:16:04,616 - INFO - Perfect match - School found: Earlsheaton Infant School
+2025-08-24 17:16:05,024 - INFO - Perfect match - School found: Newsome Junior Academy
+2025-08-24 17:16:05,452 - INFO - Perfect match - School found: St Alban's Catholic Primary School
+2025-08-24 17:16:05,877 - INFO - Perfect match - School found: Bradshaw Primary School
+2025-08-24 17:16:06,328 - INFO - Perfect match - School found: Whitehouse Primary School
+2025-08-24 17:16:06,636 - INFO - Progress: 740/1550 processed
+2025-08-24 17:16:06,748 - INFO - Perfect match - School found: Palterton Primary School
+2025-08-24 17:16:07,185 - INFO - Perfect match - School found: Fishburn Primary School
+2025-08-24 17:16:07,623 - INFO - Address match: St Mary's Rickmansworth CofE Primary School - Types: ['route']
+2025-08-24 17:16:08,043 - INFO - Perfect match - School found: Leyland Methodist Junior School
+2025-08-24 17:16:08,452 - INFO - Perfect match - School found: Leyland Methodist Infant School
+2025-08-24 17:16:08,877 - INFO - Perfect match - School found: Holy Family Catholic Primary School
+2025-08-24 17:16:09,290 - INFO - Perfect match - School found: St William's Catholic Primary School, Pilling
+2025-08-24 17:16:09,720 - INFO - Perfect match - School found: Wheatley Lane Methodist Primary School
+2025-08-24 17:16:10,226 - INFO - Address match: Sutton Church of England Infant Acdemy - Types: ['route']
+2025-08-24 17:16:10,650 - INFO - Address match: Catfield CofE Primary Academy - Types: ['route']
+2025-08-24 17:16:10,958 - INFO - Progress: 750/1550 processed
+2025-08-24 17:16:11,117 - INFO - Committed batch. Total processed: 750
+2025-08-24 17:16:11,556 - INFO - Address match: St George's Church of England School, Bourton - Types: ['route']
+2025-08-24 17:16:12,040 - INFO - Address match: All Saints Church of England Voluntary Controlled Primary School - Types: ['route']
+2025-08-24 17:16:12,489 - INFO - Address match: Pimperne Church of England VC Primary School - Types: ['route']
+2025-08-24 17:16:12,955 - INFO - Address match: St Mary's CofE VC First School, Charminster - Types: ['route']
+2025-08-24 17:16:13,374 - INFO - Perfect match - School found: Martongate Primary School
+2025-08-24 17:16:13,799 - INFO - Perfect match - School found: Scartho Infants' School and Nursery
+2025-08-24 17:16:14,289 - INFO - Perfect match - School found: Beverley Minster Church of England Voluntary Controlled Primary School
+2025-08-24 17:16:14,697 - INFO - Perfect match - School found: Haxey CofE Primary School
+2025-08-24 17:16:15,127 - INFO - Perfect match - School found: The Humberston CofE Primary School
+2025-08-24 17:16:15,562 - INFO - Perfect match - School found: Stanford Junior and Infant School
+2025-08-24 17:16:15,869 - INFO - Progress: 760/1550 processed
+2025-08-24 17:16:15,979 - INFO - Perfect match - School found: West Butterwick C of E Primary School
+2025-08-24 17:16:16,431 - INFO - Address match: St Martin's CofE Primary School - Types: ['route']
+2025-08-24 17:16:16,871 - INFO - Perfect match - School found: Chillerton and Rookley Primary School
+2025-08-24 17:16:17,304 - INFO - Perfect match - School found: Cowes Primary School
+2025-08-24 17:16:17,814 - INFO - Perfect match - School found: Arreton St George's Church of England (Aided) Primary School
+2025-08-24 17:16:18,254 - INFO - Perfect match - School found: Shoreham Village School
+2025-08-24 17:16:18,682 - INFO - Perfect match - School found: Ightham Primary School
+2025-08-24 17:16:19,113 - INFO - Perfect match - School found: Luton Primary School
+2025-08-24 17:16:19,540 - INFO - Perfect match - School found: Parkwood Primary School
+2025-08-24 17:16:19,957 - INFO - Perfect match - School found: Aylesham Primary School
+2025-08-24 17:16:20,264 - INFO - Progress: 770/1550 processed
+2025-08-24 17:16:20,409 - INFO - Perfect match - School found: St Michael's RC Primary School
+2025-08-24 17:16:20,830 - INFO - Address match: English Martyrs' Catholic Primary School - Types: ['premise', 'street_address']
+2025-08-24 17:16:21,307 - INFO - Perfect match - School found: St Thomas of Canterbury RC Primary School
+2025-08-24 17:16:21,743 - INFO - Perfect match - School found: Ditton Church of England Junior School
+2025-08-24 17:16:22,182 - INFO - Perfect match - School found: St Bartholomew's Catholic Primary School, Swanley
+2025-08-24 17:16:22,612 - INFO - Perfect match - School found: Hugh Christie School
+2025-08-24 17:16:23,041 - INFO - Address match: Chartfield School - Types: ['premise', 'street_address']
+2025-08-24 17:16:23,477 - INFO - Perfect match - School found: Brindle Gregson Lane Primary School
+2025-08-24 17:16:23,829 - INFO - Perfect match - School found: Highfield Community Primary School
+2025-08-24 17:16:24,255 - INFO - Perfect match - School found: Pinfold Primary School
+2025-08-24 17:16:24,562 - INFO - Progress: 780/1550 processed
+2025-08-24 17:16:24,676 - INFO - Perfect match - School found: Eldon Primary School
+2025-08-24 17:16:25,101 - INFO - Perfect match - School found: Freckleton Strike Lane Primary School
+2025-08-24 17:16:25,524 - INFO - Perfect match - School found: Balshaw Lane Community Primary School
+2025-08-24 17:16:25,950 - INFO - Perfect match - School found: Gillibrand Primary School
+2025-08-24 17:16:26,301 - INFO - Perfect match - School found: Leyland Methodist Junior School
+2025-08-24 17:16:26,645 - INFO - Perfect match - School found: Leyland Methodist Infant School
+2025-08-24 17:16:27,118 - INFO - Perfect match - School found: Accrington Benjamin Hargreaves Voluntary Aided Church of England Primary School
+2025-08-24 17:16:27,578 - INFO - Perfect match - School found: St Mary and St Andrew's Catholic Primary School, Barton Newsham
+2025-08-24 17:16:28,063 - INFO - Perfect match - School found: Hesketh-with-Becconsall All Saints CofE School
+2025-08-24 17:16:28,409 - INFO - Perfect match - School found: Holy Family Catholic Primary School, Warton
+2025-08-24 17:16:28,716 - INFO - Progress: 790/1550 processed
+2025-08-24 17:16:28,843 - INFO - Perfect match - School found: Our Lady of the Assumption Catholic Primary School
+2025-08-24 17:16:29,324 - INFO - Perfect match - School found: St John Vianney's Catholic Primary School
+2025-08-24 17:16:29,673 - INFO - Perfect match - School found: Holy Family Catholic Primary School
+2025-08-24 17:16:30,088 - INFO - Perfect match - School found: Sacred Heart Catholic Primary School
+2025-08-24 17:16:30,553 - INFO - Perfect match - School found: St Ignatius' Catholic Primary School
+2025-08-24 17:16:31,025 - INFO - Perfect match - School found: Bishop Martin Church of England Primary School
+2025-08-24 17:16:31,484 - INFO - Perfect match - School found: St Mary and Michael Catholic Primary School
+2025-08-24 17:16:31,832 - INFO - Perfect match - School found: Our Lady of Lourdes Catholic Primary School, Carnforth
+2025-08-24 17:16:32,268 - INFO - Good match - POI found: St Mary's Catholic Primary School, Fleetwood
+2025-08-24 17:16:32,675 - INFO - Perfect match - School found: The Willows Catholic Primary School, Kirkham
+2025-08-24 17:16:32,983 - INFO - Progress: 800/1550 processed
+2025-08-24 17:16:33,141 - INFO - Committed batch. Total processed: 800
+2025-08-24 17:16:33,625 - INFO - ==================================================
+2025-08-24 17:16:33,626 - INFO - GEOCODING STATISTICS
+2025-08-24 17:16:33,626 - INFO - ==================================================
+2025-08-24 17:16:33,626 - INFO - Total schools in database: 25380
+2025-08-24 17:16:33,626 - INFO - Schools with coordinates: 24630
+2025-08-24 17:16:33,626 - INFO - Schools without coordinates: 750
+2025-08-24 17:16:33,626 - INFO - Coverage: 97.04%
+2025-08-24 17:16:33,626 - INFO - API requests made: 800
+2025-08-24 17:16:33,626 - INFO - Successful geocodes this run: 800
+2025-08-24 17:16:33,626 - INFO - Failed geocodes this run: 0
+2025-08-24 17:16:33,626 - INFO - ==================================================
+2025-08-24 17:16:33,627 - INFO - Database connection closed

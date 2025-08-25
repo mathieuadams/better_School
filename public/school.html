@@ -75,6 +75,114 @@
     .sidebar-section { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
     .sidebar-title { font-size:1rem; font-weight:600; margin-bottom:1rem; color:#111827; }
 
+      /* Neighborhood section - improved styling */
+  .neighborhood { 
+    display: grid; 
+    grid-template-columns: 1.2fr 2fr; 
+    gap: 1.5rem; 
+  }
+  
+  .contact-card { 
+    border: 1px solid #e5e7eb; 
+    border-radius: 8px; 
+    padding: 1.25rem; 
+    background: #fff; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .contact-header {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 1rem;
+  }
+  
+  .contact-address {
+    font-weight: 600;
+    color: #111827;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  .contact-la {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  .contact-row { 
+    display: flex; 
+    align-items: flex-start; 
+    gap: 0.75rem; 
+    margin: 0.75rem 0; 
+    color: #374151;
+  }
+  
+  .contact-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  .contact-content {
+    flex: 1;
+  }
+  
+  .contact-label { 
+    color: #6b7280; 
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+  
+  .contact-value {
+    color: #111827;
+    font-size: 0.875rem;
+  }
+  
+  .contact-row a { 
+    color: #2563eb; 
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+  
+  .contact-row a:hover { 
+    text-decoration: underline;
+  }
+  
+  #schoolMap { 
+    height: 350px; 
+    border-radius: 8px; 
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .map-actions {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
+  }
+  
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+  
+  .map-link:hover {    text-decoration: underline;  }
+  
+  @media (max-width: 900px) { 
+    .neighborhood {       grid-template-columns: 1fr;     } 
+  }
+
     @media (max-width: 768px){
       .profile-header-content { grid-template-columns:1fr; }
       .profile-content { grid-template-columns:1fr; }
@@ -171,49 +279,87 @@
           <div class="performance-grid" id="ofstedGrid"></div>
         </div>
 
+        <!-- Updated HTML structure for the Neighborhood section -->
         <div class="section-card">
-          <div class="section-header"><h2 class="section-title">Neighborhood</h2></div>
+          <div class="section-header">
+            <h2 class="section-title">Contact & Location</h2>
+          </div>
 
           <div class="neighborhood">
-            <!-- Left: contact box -->
-            <div class="contact-card" id="nh-card">
+            <!-- Left: Enhanced contact card -->
+            <div class="contact-card">
+              <div class="contact-header">
+                <div class="contact-address" id="nh-address">Loading...</div>
+                <div class="contact-la" id="nh-la"></div>
+              </div>
+
               <div class="contact-row">
-                <div>
-                  <div id="nh-address" style="font-weight:600"></div>
-                  <div id="nh-la" class="contact-label"></div>
+                <div class="contact-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="contact-content">
+                  <div class="contact-label">School Leader</div>
+                  <div class="contact-value" id="nh-leader">—</div>
                 </div>
               </div>
 
               <div class="contact-row">
-                <span>👤</span>
-                <div>
-                  <div class="contact-label">School leader</div>
-                  <div id="nh-leader">—</div>
+                <div class="contact-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                  </svg>
+                </div>
+                <div class="contact-content">
+                  <div class="contact-label">Phone</div>
+                  <a id="nh-phone" href="#" rel="nofollow">—</a>
                 </div>
               </div>
 
               <div class="contact-row">
-                <span>📞</span>
-                <div><a id="nh-phone" href="#" rel="nofollow">—</a></div>
-              </div>
-
-              <div class="contact-row">
-                <span>🌐</span>
-                <div><a id="nh-website" href="#" target="_blank" rel="noopener">Website</a></div>
+                <div class="contact-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M14.243 5.757a6 6 0 10-.986 9.284 1 1 0 111.087 1.678A8 8 0 1118 10a3 3 0 01-4.8 2.401A4 4 0 1114 10a1 1 0 102 0c0-1.537-.586-3.07-1.757-4.243zM12 10a2 2 0 10-4 0 2 2 0 004 0z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="contact-content">
+                  <div class="contact-label">Website</div>
+                  <a id="nh-website" href="#" target="_blank" rel="noopener">—</a>
+                </div>
               </div>
 
               <div class="contact-row" id="nh-ofsted-wrap" style="display:none;">
-                <span>🎓</span>
-                <div><a id="nh-ofsted-link" href="#" target="_blank" rel="noopener">Latest Ofsted report</a></div>
+                <div class="contact-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                  </svg>
+                </div>
+                <div class="contact-content">
+                  <div class="contact-label">Ofsted Report</div>
+                  <a id="nh-ofsted-link" href="#" target="_blank" rel="noopener">View latest report</a>
+                </div>
+              </div>
+
+              <div class="map-actions">
+                <a id="nh-maps-link" href="#" target="_blank" rel="noopener" class="map-link">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                  </svg>
+                  Open in Google Maps
+                </a>
               </div>
             </div>
 
             <!-- Right: map -->
-            <div id="schoolMap"></div>
+            <div>
+              <div id="schoolMap"></div>
+              <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280;">
+                Map showing school location
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
       <aside class="sidebar">
         <div class="sidebar-section">
           <div class="action-buttons" style="display:flex;flex-direction:column;gap:.75rem">
@@ -285,75 +431,97 @@
       return null;
     }
 
-    function renderNeighborhood(school){
-      // Address + LA
-      const addressText = formatAddress(school.address || {});
-      document.getElementById('nh-address').textContent = addressText || '—';
-      document.getElementById('nh-la').textContent = school.address?.local_authority || '';
+function renderNeighborhood(school) {
+  // Address + LA
+  const addressText = formatAddress(school.address || {});
+  document.getElementById('nh-address').textContent = addressText || '—';
+  document.getElementById('nh-la').textContent = school.address?.local_authority ? `${school.address.local_authority}, ${school.address.region || ''}` : '';
 
-      // Leader
-      const leader = school.headteacher_name || null;
-      const leaderWithJob = school.headteacher_job_title ? `${leader || '—'} (${school.headteacher_job_title})` : (leader || '—');
-      document.getElementById('nh-leader').textContent = leaderWithJob;
-
-      // Phone
-      const tel = school.telephone || null;
-      const phoneEl = document.getElementById('nh-phone');
-      if (tel) {
-        phoneEl.textContent = tel;
-        phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
-      } else {
-        phoneEl.textContent = '—';
-        phoneEl.removeAttribute('href');
-      }
-
-      // Website
-      const site = school.website || null;
-      const webEl = document.getElementById('nh-website');
-      if (site) {
-        const url = site.startsWith('http') ? site : `https://${site}`;
-        try {
-          webEl.href = url;
-          webEl.textContent = new URL(url).host.replace(/^www\./,'');
-        } catch {
-          webEl.href = url;
-          webEl.textContent = site;
-        }
-      } else {
-        webEl.textContent = '—';
-        webEl.removeAttribute('href');
-      }
-
-      // Ofsted report (optional)
-      if (school.ofsted?.web_link) {
-        document.getElementById('nh-ofsted-wrap').style.display = '';
-        document.getElementById('nh-ofsted-link').href = school.ofsted.web_link;
-      }
-
-      // Always add "Open in Google Maps" link
-      const mapsHref = `https://www.google.com/maps?q=${encodeURIComponent(addressText)}`;
-      const mapsRow = document.createElement('div');
-      mapsRow.className = 'contact-row';
-      mapsRow.innerHTML = `<span>🗺️</span><div><a href="${mapsHref}" target="_blank" rel="noopener">Open in Google Maps</a></div>`;
-      document.getElementById('nh-card').appendChild(mapsRow);
-
-      // Map: use lat/lon if present, else geocode address
-      const lat = typeof school.latitude === 'number' ? school.latitude : NaN;
-      const lon = typeof school.longitude === 'number' ? school.longitude : NaN;
-
-      if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
-        initMap(lat, lon, school.name);
-      } else {
-        geocodeAddress(addressText).then(coords => {
-          if (coords && !Number.isNaN(coords.lat) && !Number.isNaN(coords.lon)) {
-            initMap(coords.lat, coords.lon, school.name);
-          } else {
-            if (!leafletMap) initMap(54.5, -3.2, school.name);
-            else leafletMap.setView([54.5, -3.2], 5);
-          }
-        });
-      }
+  // Leader - combining name and title
+  let leaderDisplay = '—';
+  if (school.headteacher_name) {
+    leaderDisplay = school.headteacher_name;
+    if (school.headteacher_job_title) {
+      leaderDisplay += ` (${school.headteacher_job_title})`;
     }
+  } else if (school.headteacher_job_title) {
+    leaderDisplay = school.headteacher_job_title;
+  }
+  document.getElementById('nh-leader').textContent = leaderDisplay;
+
+  // Phone
+  const tel = school.telephone || null;
+  const phoneEl = document.getElementById('nh-phone');
+  if (tel) {
+    phoneEl.textContent = tel;
+    phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
+  } else {
+    phoneEl.textContent = 'Not available';
+    phoneEl.removeAttribute('href');
+    phoneEl.style.color = '#6b7280';
+    phoneEl.style.cursor = 'default';
+  }
+
+  // Website
+  const site = school.website || null;
+  const webEl = document.getElementById('nh-website');
+  if (site) {
+    let url = site;
+    if (!site.startsWith('http://') && !site.startsWith('https://')) {
+      url = 'http://' + site;
+    }
+    try {
+      webEl.href = url;
+      const urlObj = new URL(url);
+      webEl.textContent = urlObj.host.replace(/^www\./,'');
+    } catch {
+      webEl.href = url;
+      webEl.textContent = site;
+    }
+  } else {
+    webEl.textContent = 'Not available';
+    webEl.removeAttribute('href');
+    webEl.style.color = '#6b7280';
+    webEl.style.cursor = 'default';
+  }
+
+  // Ofsted report
+  if (school.ofsted?.web_link) {
+    document.getElementById('nh-ofsted-wrap').style.display = '';
+    document.getElementById('nh-ofsted-link').href = school.ofsted.web_link;
+  }
+
+  // Google Maps link
+  const mapsLink = document.getElementById('nh-maps-link');
+  if (addressText) {
+    mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}`;
+  }
+
+  // Map: prioritize lat/lon from database
+  const lat = school.latitude;
+  const lon = school.longitude;
+
+  if (typeof lat === 'number' && typeof lon === 'number' && !isNaN(lat) && !isNaN(lon)) {
+    // Use coordinates from database
+    initMap(lat, lon, school.name);
+    
+    // Update Google Maps link to use coordinates for better accuracy
+    mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+  } else if (addressText) {
+    // Fallback to geocoding
+    geocodeAddress(addressText).then(coords => {
+      if (coords && !isNaN(coords.lat) && !isNaN(coords.lon)) {
+        initMap(coords.lat, coords.lon, school.name);
+      } else {
+        // Show UK overview if geocoding fails
+        if (!leafletMap) {
+          initMap(52.5, -1.5, school.name);
+          leafletMap.setZoom(6);
+        }
+      }
+    });
+  }
+}
   </script>
 
   <script>
