@@ -10,34 +10,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Leaflet -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-o9N1j7kGStb4v5F7CdCwLkR2Fz6s3Z9Y+3FfRJQXY+o="
-    crossorigin=""
-  />
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-o8U3Z6S9n+R4dH8G6jH1JZwb3g2xL2zYF2dQGcR3/kE="
-    crossorigin=""
-  ></script>
+  <!-- Leaflet CSS and JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- Main CSS -->
   <link rel="stylesheet" href="/css/styles.css">
 
   <style>
-    /* Neighborhood section */
-    .neighborhood { display:grid; grid-template-columns: 1.2fr 2fr; gap:1rem; }
-    .contact-card { border:1px solid #e5e7eb; border-radius:8px; padding:1rem 1.25rem; background:#fff; }
-    .contact-row { display:flex; align-items:center; gap:.5rem; margin:.35rem 0; color:#374151 }
-    .contact-row a { color:#2563eb; text-decoration:none }
-    .contact-row a:hover { text-decoration:underline }
-    .contact-label { color:#6b7280; font-size:.875rem; }
-    #schoolMap { height: 300px; border-radius: 8px; border: 1px solid #e5e7eb; }
-    @media (max-width: 900px){ .neighborhood { grid-template-columns: 1fr; } }
-
-    /* Profile general */
+    /* Profile sections */
     .profile-header { background:#fff; border-bottom:1px solid #e5e7eb; padding:2rem 0; }
     .profile-header-content { display:grid; grid-template-columns:1fr auto; gap:2rem; align-items:start; }
     .school-title-section h1 { font-size:2rem; font-weight:700; color:#111827; margin-bottom:.5rem; }
@@ -75,113 +56,118 @@
     .sidebar-section { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
     .sidebar-title { font-size:1rem; font-weight:600; margin-bottom:1rem; color:#111827; }
 
-      /* Neighborhood section - improved styling */
-  .neighborhood { 
-    display: grid; 
-    grid-template-columns: 1.2fr 2fr; 
-    gap: 1.5rem; 
-  }
-  
-  .contact-card { 
-    border: 1px solid #e5e7eb; 
-    border-radius: 8px; 
-    padding: 1.25rem; 
-    background: #fff; 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-  
-  .contact-header {
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #f3f4f6;
-    margin-bottom: 1rem;
-  }
-  
-  .contact-address {
-    font-weight: 600;
-    color: #111827;
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-  
-  .contact-la {
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
-  
-  .contact-row { 
-    display: flex; 
-    align-items: flex-start; 
-    gap: 0.75rem; 
-    margin: 0.75rem 0; 
-    color: #374151;
-  }
-  
-  .contact-icon {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6b7280;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  
-  .contact-content {
-    flex: 1;
-  }
-  
-  .contact-label { 
-    color: #6b7280; 
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.25rem;
-  }
-  
-  .contact-value {
-    color: #111827;
-    font-size: 0.875rem;
-  }
-  
-  .contact-row a { 
-    color: #2563eb; 
-    text-decoration: none;
-    font-size: 0.875rem;
-  }
-  
-  .contact-row a:hover { 
-    text-decoration: underline;
-  }
-  
-  #schoolMap { 
-    height: 350px; 
-    border-radius: 8px; 
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-  
-  .map-actions {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid #f3f4f6;
-  }
-  
-  .map-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #2563eb;
-    text-decoration: none;
-    font-size: 0.875rem;
-  }
-  
-  .map-link:hover {    text-decoration: underline;  }
-  
-  @media (max-width: 900px) { 
-    .neighborhood {       grid-template-columns: 1fr;     } 
-  }
+    /* Neighborhood/Contact section */
+    .neighborhood { 
+      display: grid; 
+      grid-template-columns: 1.2fr 2fr; 
+      gap: 1.5rem; 
+    }
+    
+    .contact-card { 
+      border: 1px solid #e5e7eb; 
+      border-radius: 8px; 
+      padding: 1.25rem; 
+      background: #fff; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .contact-header {
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      margin-bottom: 1rem;
+    }
+    
+    .contact-address {
+      font-weight: 600;
+      color: #111827;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    
+    .contact-la {
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    
+    .contact-row { 
+      display: flex; 
+      align-items: flex-start; 
+      gap: 0.75rem; 
+      margin: 0.75rem 0; 
+      color: #374151;
+    }
+    
+    .contact-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .contact-content {
+      flex: 1;
+    }
+    
+    .contact-label { 
+      color: #6b7280; 
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+    
+    .contact-value {
+      color: #111827;
+      font-size: 0.875rem;
+    }
+    
+    .contact-row a { 
+      color: #2563eb; 
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+    
+    .contact-row a:hover { 
+      text-decoration: underline;
+    }
+    
+    #schoolMap { 
+      height: 400px;
+      min-height: 400px;
+      width: 100%;
+      border-radius: 8px; 
+      border: 1px solid #e5e7eb;
+      background-color: #f3f4f6;
+      position: relative;
+    }
+    
+    .map-actions {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #f3f4f6;
+    }
+    
+    .map-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+    
+    .map-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 900px) { 
+      .neighborhood { grid-template-columns: 1fr; } 
+    }
 
     @media (max-width: 768px){
       .profile-header-content { grid-template-columns:1fr; }
@@ -250,15 +236,15 @@
   </section>
 
   <section class="container" style="margin-top:2rem;">
-    <div class="profile-content" style="display:grid;grid-template-columns:3fr 1fr;gap:2rem">
+    <div class="profile-content">
       <div class="main-content">
+        
         <div class="section-card">
           <div class="section-header">
             <h2 class="section-title">Academic Performance</h2>
             <span style="font-size:.875rem;color:#6b7280;">2023/2024</span>
           </div>
           <div class="performance-grid" id="performanceGrid"></div>
-          <div class="progress-container" id="progressBars"></div>
         </div>
 
         <div class="section-card">
@@ -275,18 +261,24 @@
         </div>
 
         <div class="section-card">
-          <div class="section-header"><h2 class="section-title">Ofsted Inspection</h2><span style="font-size:.875rem;color:#6b7280;" id="inspectionDate">-</span></div>
+          <div class="section-header">
+            <h2 class="section-title">Ofsted Inspection</h2>
+            <span style="font-size:.875rem;color:#6b7280;" id="inspectionDate">-</span>
+          </div>
           <div class="performance-grid" id="ofstedGrid"></div>
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+            <a id="ofsted-report-link" href="#" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: none; font-size: 0.875rem;">
+              View full Ofsted report →
+            </a>
+          </div>
         </div>
 
-        <!-- Updated HTML structure for the Neighborhood section -->
         <div class="section-card">
           <div class="section-header">
             <h2 class="section-title">Contact & Location</h2>
           </div>
 
           <div class="neighborhood">
-            <!-- Left: Enhanced contact card -->
             <div class="contact-card">
               <div class="contact-header">
                 <div class="contact-address" id="nh-address">Loading...</div>
@@ -329,18 +321,6 @@
                 </div>
               </div>
 
-              <div class="contact-row" id="nh-ofsted-wrap" style="display:none;">
-                <div class="contact-icon">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                  </svg>
-                </div>
-                <div class="contact-content">
-                  <div class="contact-label">Ofsted Report</div>
-                  <a id="nh-ofsted-link" href="#" target="_blank" rel="noopener">View latest report</a>
-                </div>
-              </div>
-
               <div class="map-actions">
                 <a id="nh-maps-link" href="#" target="_blank" rel="noopener" class="map-link">
                   <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
@@ -351,7 +331,6 @@
               </div>
             </div>
 
-            <!-- Right: map -->
             <div>
               <div id="schoolMap"></div>
               <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280;">
@@ -360,6 +339,9 @@
             </div>
           </div>
         </div>
+
+      </div>
+
       <aside class="sidebar">
         <div class="sidebar-section">
           <div class="action-buttons" style="display:flex;flex-direction:column;gap:.75rem">
@@ -383,10 +365,12 @@
   <script src="/js/main.js"></script>
 
   <script>
-    /* ---------- small helpers ---------- */
-    let leafletMap, leafletMarker;
+    // Global variables
+    let leafletMap = null;
+    let leafletMarker = null;
 
-    function formatAddress(addr){
+    // Helper function to format address
+    function formatAddress(addr) {
       const parts = [];
       if (addr?.street) parts.push(addr.street);
       if (addr?.locality) parts.push(addr.locality);
@@ -395,24 +379,58 @@
       return parts.join(', ');
     }
 
-    function initMap(lat, lon, name){
-      if (!leafletMap) {
-        leafletMap = L.map('schoolMap', { scrollWheelZoom: false });
+    // Initialize or update map
+    function initMap(lat, lon, name) {
+      const mapContainer = document.getElementById('schoolMap');
+      if (!mapContainer) {
+        console.error('Map container not found');
+        return;
+      }
+
+      // If map already exists, just update the view
+      if (leafletMap) {
+        leafletMap.setView([lat, lon], 15);
+        if (leafletMarker) {
+          leafletMarker.setLatLng([lat, lon]);
+          leafletMarker.setPopupContent(name || 'School');
+        } else {
+          leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
+        }
+        leafletMap.invalidateSize();
+        return;
+      }
+
+      // Create new map
+      try {
+        leafletMap = L.map('schoolMap', { 
+          scrollWheelZoom: false,
+          zoomControl: true 
+        }).setView([lat, lon], 15);
+        
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
-          attribution: '&copy; OpenStreetMap contributors'
+          attribution: '© OpenStreetMap contributors'
         }).addTo(leafletMap);
+        
+        leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
+        
+        setTimeout(() => {
+          leafletMap.invalidateSize();
+        }, 100);
+        
+      } catch (error) {
+        console.error('Error initializing map:', error);
       }
-      leafletMap.setView([lat, lon], 15);
-      if (leafletMarker) leafletMarker.remove();
-      leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
     }
 
+    // Geocode address fallback
     async function geocodeAddress(address) {
       if (!address) return null;
       const key = 'geo:' + address.toLowerCase();
       const cached = sessionStorage.getItem(key);
-      if (cached) { try { return JSON.parse(cached); } catch {} }
+      if (cached) { 
+        try { return JSON.parse(cached); } catch {} 
+      }
 
       const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=gb&q=${encodeURIComponent(address)}`;
       try {
@@ -424,7 +442,6 @@
           const result = { lat: parseFloat(lat), lon: parseFloat(lon) };
           sessionStorage.setItem(key, JSON.stringify(result));
           return result;
-          
         }
       } catch (e) {
         console.warn('Geocoding failed', e);
@@ -432,102 +449,114 @@
       return null;
     }
 
-function renderNeighborhood(school) {
-  // Address + LA
-  const addressText = formatAddress(school.address || {});
-  document.getElementById('nh-address').textContent = addressText || '—';
-  document.getElementById('nh-la').textContent = school.address?.local_authority ? `${school.address.local_authority}, ${school.address.region || ''}` : '';
+    // Render neighborhood/contact section
+    function renderNeighborhood(school) {
+      // Address
+      const addressParts = [];
+      if (school.address?.street) addressParts.push(school.address.street);
+      if (school.address?.locality) addressParts.push(school.address.locality);
+      if (school.address?.town) addressParts.push(school.address.town);
+      if (school.address?.postcode) addressParts.push(school.address.postcode);
+      
+      const addressText = addressParts.join(', ');
+      document.getElementById('nh-address').textContent = addressText || '—';
+      document.getElementById('nh-la').textContent = school.address?.local_authority ? 
+        `${school.address.local_authority}${school.address.region ? ', ' + school.address.region : ''}` : '';
 
-  // Leader - combining name and title
-  let leaderDisplay = '—';
-  if (school.headteacher_name) {
-    leaderDisplay = school.headteacher_name;
-    if (school.headteacher_job_title) {
-      leaderDisplay += ` (${school.headteacher_job_title})`;
-    }
-  } else if (school.headteacher_job_title) {
-    leaderDisplay = school.headteacher_job_title;
-  }
-  document.getElementById('nh-leader').textContent = leaderDisplay;
+      // School Leader
+      let leaderDisplay = '—';
+      if (school.headteacher_name) {
+        leaderDisplay = school.headteacher_name;
+        if (school.headteacher_job_title) {
+          leaderDisplay += ` (${school.headteacher_job_title})`;
+        }
+      } else if (school.headteacher_job_title) {
+        leaderDisplay = school.headteacher_job_title;
+      }
+      document.getElementById('nh-leader').textContent = leaderDisplay;
 
-  // Phone
-  const tel = school.telephone || null;
-  const phoneEl = document.getElementById('nh-phone');
-  if (tel) {
-    phoneEl.textContent = tel;
-    phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
-  } else {
-    phoneEl.textContent = 'Not available';
-    phoneEl.removeAttribute('href');
-    phoneEl.style.color = '#6b7280';
-    phoneEl.style.cursor = 'default';
-  }
-
-  // Website
-  const site = school.website || null;
-  const webEl = document.getElementById('nh-website');
-  if (site) {
-    let url = site;
-    if (!site.startsWith('http://') && !site.startsWith('https://')) {
-      url = 'http://' + site;
-    }
-    try {
-      webEl.href = url;
-      const urlObj = new URL(url);
-      webEl.textContent = urlObj.host.replace(/^www\./,'');
-    } catch {
-      webEl.href = url;
-      webEl.textContent = site;
-    }
-  } else {
-    webEl.textContent = 'Not available';
-    webEl.removeAttribute('href');
-    webEl.style.color = '#6b7280';
-    webEl.style.cursor = 'default';
-  }
-
-  // Ofsted report
-  if (school.ofsted?.web_link) {
-    document.getElementById('nh-ofsted-wrap').style.display = '';
-    document.getElementById('nh-ofsted-link').href = school.ofsted.web_link;
-  }
-
-  // Google Maps link
-  const mapsLink = document.getElementById('nh-maps-link');
-  if (addressText) {
-    mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}`;
-  }
-
-  // Map: prioritize lat/lon from database
-  const lat = school.latitude;
-  const lon = school.longitude;
-
-  if (typeof lat === 'number' && typeof lon === 'number' && !isNaN(lat) && !isNaN(lon)) {
-    // Use coordinates from database
-    initMap(lat, lon, school.name);
-    
-    // Update Google Maps link to use coordinates for better accuracy
-    mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
-  } else if (addressText) {
-    // Fallback to geocoding
-    geocodeAddress(addressText).then(coords => {
-      if (coords && !isNaN(coords.lat) && !isNaN(coords.lon)) {
-        initMap(coords.lat, coords.lon, school.name);
+      // Phone
+      const tel = school.telephone || null;
+      const phoneEl = document.getElementById('nh-phone');
+      if (tel) {
+        phoneEl.textContent = tel;
+        phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
+        phoneEl.style.color = '#2563eb';
       } else {
-        // Show UK overview if geocoding fails
-        if (!leafletMap) {
-          initMap(52.5, -1.5, school.name);
-          leafletMap.setZoom(6);
+        phoneEl.textContent = 'Not available';
+        phoneEl.removeAttribute('href');
+        phoneEl.style.color = '#6b7280';
+        phoneEl.style.cursor = 'default';
+      }
+
+      // Website
+      const site = school.website || null;
+      const webEl = document.getElementById('nh-website');
+      if (site) {
+        let url = site;
+        if (!site.startsWith('http://') && !site.startsWith('https://')) {
+          url = 'http://' + site;
+        }
+        try {
+          webEl.href = url;
+          const urlObj = new URL(url);
+          webEl.textContent = urlObj.host.replace(/^www\./,'');
+          webEl.style.color = '#2563eb';
+        } catch {
+          webEl.href = url;
+          webEl.textContent = site;
+          webEl.style.color = '#2563eb';
+        }
+      } else {
+        webEl.textContent = 'Not available';
+        webEl.removeAttribute('href');
+        webEl.style.color = '#6b7280';
+        webEl.style.cursor = 'default';
+      }
+
+      // Google Maps link
+      const mapsLink = document.getElementById('nh-maps-link');
+      if (mapsLink) {
+        if (typeof school.latitude === 'number' && typeof school.longitude === 'number' && 
+            !isNaN(school.latitude) && !isNaN(school.longitude)) {
+          mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${school.latitude},${school.longitude}`;
+        } else if (addressText) {
+          mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}`;
         }
       }
-    });
-  }
-}
-  </script>
 
-  <script>
-    // Robust URN parsing: supports /school/:urn and /:city/:urn
-    (function init(){
+      // Initialize map with coordinates
+      const lat = parseFloat(school.latitude);
+      const lon = parseFloat(school.longitude);
+      
+      console.log('School coordinates:', { lat, lon, name: school.name });
+
+      if (!isNaN(lat) && !isNaN(lon)) {
+        // Use database coordinates
+        setTimeout(() => {
+          console.log('Initializing map with DB coordinates:', lat, lon);
+          initMap(lat, lon, school.name);
+        }, 200);
+      } else if (addressText) {
+        // Fallback to geocoding
+        console.log('No DB coordinates, geocoding:', addressText);
+        geocodeAddress(addressText).then(coords => {
+          if (coords && !isNaN(coords.lat) && !isNaN(coords.lon)) {
+            console.log('Geocoding successful:', coords);
+            initMap(coords.lat, coords.lon, school.name);
+          } else {
+            console.log('Geocoding failed, showing UK overview');
+            initMap(52.5, -1.5, school.name);
+            if (leafletMap) leafletMap.setZoom(6);
+          }
+        }).catch(err => {
+          console.error('Geocoding error:', err);
+        });
+      }
+    }
+
+    // Initialize page
+    (function init() {
       const parts = window.location.pathname.split('/').filter(Boolean);
       let urn = null, city = null;
 
@@ -553,18 +582,20 @@ function renderNeighborhood(school) {
       loadAll(urn);
     })();
 
-    async function loadAll(urn){
-      try{
-        // basic
+    // Load all school data
+    async function loadAll(urn) {
+      try {
         const schoolRes = await fetch(`/api/schools/${urn}`);
         const schoolData = await schoolRes.json();
+        
         if (!(schoolData && schoolData.success && schoolData.school)) {
           document.getElementById('schoolName').textContent = 'School Not Found';
           return;
         }
+        
         const s = schoolData.school;
 
-        // header/info
+        // Update header
         document.getElementById('schoolName').textContent = s.name || '-';
         document.getElementById('schoolType').textContent = s.type || '-';
         document.getElementById('schoolPhase').textContent = s.phase || '-';
@@ -574,31 +605,60 @@ function renderNeighborhood(school) {
         document.getElementById('schoolAddress').textContent = addr || '-';
 
         document.getElementById('overallRating').textContent = s.overall_rating ? `${s.overall_rating}/10` : '-';
-        if (s.ofsted){
-          const label = s.ofsted.overall_label || (window.getOfstedLabel ? getOfstedLabel(s.ofsted.overall_effectiveness) : '');
-          document.getElementById('ofstedRating').textContent = label || '-';
-          document.getElementById('ofstedDate').textContent = s.ofsted.inspection_date ? new Date(s.ofsted.inspection_date).toLocaleDateString() : 'Not available';
+        
+        // Ofsted info
+        if (s.ofsted) {
+          document.getElementById('ofstedRating').textContent = s.ofsted.overall_label || '-';
+          document.getElementById('ofstedDate').textContent = s.ofsted.inspection_date ? 
+            new Date(s.ofsted.inspection_date).toLocaleDateString() : 'Not available';
+          document.getElementById('inspectionDate').textContent = s.ofsted.inspection_date ? 
+            new Date(s.ofsted.inspection_date).toLocaleDateString() : '-';
+          
+          // Ofsted report link
+          const ofstedLink = document.getElementById('ofsted-report-link');
+          if (ofstedLink && s.ofsted.web_link) {
+            ofstedLink.href = s.ofsted.web_link;
+            ofstedLink.style.display = '';
+          } else if (ofstedLink) {
+            ofstedLink.style.display = 'none';
+          }
+
+          // Ofsted grid
+          const ofstedGrid = document.getElementById('ofstedGrid');
+          if (ofstedGrid) {
+            const ratings = [
+              { label: 'Overall Effectiveness', value: s.ofsted.overall_label },
+              { label: 'Quality of Education', value: getOfstedLabel(s.ofsted.quality_of_education) },
+              { label: 'Behaviour & Attitudes', value: getOfstedLabel(s.ofsted.behaviour_and_attitudes) },
+              { label: 'Personal Development', value: getOfstedLabel(s.ofsted.personal_development) },
+              { label: 'Leadership & Management', value: getOfstedLabel(s.ofsted.leadership_and_management) },
+              { label: 'Safeguarding', value: s.ofsted.safeguarding_effective || '-' }
+            ];
+            
+            ofstedGrid.innerHTML = ratings.map(r => `
+              <div class="performance-item">
+                <div class="performance-label">${r.label}</div>
+                <div class="performance-value" style="font-size:1rem;">${r.value || '-'}</div>
+              </div>
+            `).join('');
+          }
         }
 
-        // stats
-        if (window.formatNumber) {
-          document.getElementById('statStudents').textContent = window.formatNumber(s.demographics?.total_students) || '-';
-        } else {
-          document.getElementById('statStudents').textContent = s.demographics?.total_students ?? '-';
-        }
-
+        // Stats
+        document.getElementById('statStudents').textContent = s.demographics?.total_students || '-';
         const fsm = s.demographics?.fsm_percentage;
         document.getElementById('statFSM').textContent = (fsm !== null && fsm !== undefined) ? (fsm + '%') : '-';
 
-        if (s.attendance?.overall_absence_rate != null){
+        if (s.attendance?.overall_absence_rate != null) {
           const att = (100 - s.attendance.overall_absence_rate).toFixed(1);
           document.getElementById('statAttendance').textContent = att + '%';
         }
 
+        // Breadcrumb and title
         document.getElementById('schoolCrumb').textContent = s.name || 'School';
         document.getElementById('pageTitle').textContent = `${s.name} - Better School UK`;
 
-        // info panel
+        // Info panel
         document.getElementById('infoType').textContent = s.type || '-';
         document.getElementById('infoGender').textContent = s.characteristics?.gender || '-';
         document.getElementById('infoAgeRange').textContent = s.characteristics?.age_range || '-';
@@ -607,49 +667,55 @@ function renderNeighborhood(school) {
         document.getElementById('infoLA').textContent = s.address?.local_authority || '-';
         document.getElementById('infoURN').textContent = s.urn || '-';
 
-        // Neighborhood (contact + map + ofsted link)
+        // Render contact and map
         renderNeighborhood(s);
 
-        // performance
+        // Load performance data
         const perfRes = await fetch(`/api/schools/${urn}/performance`);
         const perf = await perfRes.json();
         if (perf.success && perf.performance) {
           renderPerformance(perf.performance);
         }
 
-        // nearby
+        // Load nearby schools
         const nearRes = await fetch(`/api/schools/${urn}/nearby?limit=5`);
         const near = await nearRes.json();
         if (near.success && near.nearby_schools) {
           document.getElementById('nearbySchools').innerHTML = near.nearby_schools.slice(0,5).map(n => `
-            <div class="nearby-school" onclick="window.location.href='/school/${n.urn}'">
-              <div>
-                <div class="nearby-school-name">${n.name}</div>
-                <div class="nearby-school-distance">${n.type_of_establishment || ''}</div>
+            <div class="nearby-school" onclick="window.location.href='/school/${n.urn}'" style="cursor:pointer; padding:0.75rem 0; border-bottom:1px solid #f3f4f6;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:600; color:#111827; font-size:0.875rem;">${n.name}</div>
+                  <div style="color:#6b7280; font-size:0.75rem;">${n.type_of_establishment || ''}</div>
+                </div>
+                <div style="font-weight:700; color:#2563eb; font-size:0.875rem;">${n.overall_rating || '-'}/10</div>
               </div>
-              <div class="nearby-school-rating">${n.overall_rating || '-'} / 10</div>
             </div>
           `).join('');
         }
-      }catch(e){
-        console.error(e);
+        
+      } catch(e) {
+        console.error('Error loading school:', e);
         document.getElementById('schoolName').textContent = 'Error Loading School';
       }
     }
 
-    function renderPerformance(p){
+    // Render performance data
+    function renderPerformance(p) {
       const grid = document.getElementById('performanceGrid');
       grid.innerHTML = '';
-      if (p.ks2){
+      
+      if (p.ks2) {
         grid.innerHTML += `
           <div class="performance-item"><div class="performance-label">Reading Progress</div><div class="performance-value">${p.ks2.reading_progress ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Writing Progress</div><div class="performance-value">${p.ks2.writing_progress ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Maths Progress</div><div class="performance-value">${p.ks2.maths_progress ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Expected Standard (R/W/M)</div><div class="performance-value">${p.ks2.rwm_expected_percentage ?? '-'}%</div></div>`;
         document.getElementById('statProgress').textContent = p.ks2.reading_progress ? `+${p.ks2.reading_progress}` : '-';
-        document.getElementById('statAttainment').textContent = (p.ks2.rwm_expected_percentage ?? '-') + (p.ks2.rwm_expected_percentage!=null ? '%' : '');
+        document.getElementById('statAttainment').textContent = (p.ks2.rwm_expected_percentage ?? '-') + (p.ks2.rwm_expected_percentage != null ? '%' : '');
       }
-      if (p.ks4){
+      
+      if (p.ks4) {
         grid.innerHTML += `
           <div class="performance-item"><div class="performance-label">Progress 8</div><div class="performance-value">${p.ks4.progress_8_score ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Attainment 8</div><div class="performance-value">${p.ks4.attainment_8_score ?? '-'}</div></div>
@@ -657,11 +723,18 @@ function renderNeighborhood(school) {
         document.getElementById('statProgress').textContent = p.ks4.progress_8_score ?? '-';
         document.getElementById('statAttainment').textContent = p.ks4.attainment_8_score ?? '-';
       }
-      if (p.ks5){
+      
+      if (p.ks5) {
         grid.innerHTML += `
           <div class="performance-item"><div class="performance-label">A Level Grade</div><div class="performance-value">${p.ks5.a_level_average_grade ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">A Level Points</div><div class="performance-value">${p.ks5.a_level_points_per_entry ?? '-'}</div></div>`;
       }
+    }
+
+    // Helper for Ofsted labels
+    function getOfstedLabel(rating) {
+      const labels = { 1: 'Outstanding', 2: 'Good', 3: 'Requires Improvement', 4: 'Inadequate' };
+      return labels[rating] || '-';
     }
   </script>
 </body>
