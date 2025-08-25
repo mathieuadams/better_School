@@ -424,6 +424,7 @@
           const result = { lat: parseFloat(lat), lon: parseFloat(lon) };
           sessionStorage.setItem(key, JSON.stringify(result));
           return result;
+          
         }
       } catch (e) {
         console.warn('Geocoding failed', e);
