@@ -84,6 +84,92 @@ async function geocodeAddress(address) {
   return null;
 }
 
+// Render student demographics
+function renderDemographics(school) {
+  // Get census data if available
+  const demographics = school.demographics;
+  const census = school.census_data; // You'll need to add this to the API response
+  
+  if (!demographics && !census) {
+    // Hide demographics section if no data
+    const demoSection = document.querySelector('#demographicsSection');
+    if (demoSection) {
+      demoSection.style.display = 'none';
+    }
+    return;
+  }
+  
+  // EAL (English as Additional Language)
+  const ealPercent = census?.percentage_eal || demographics?.eal_percentage;
+  if (ealPercent !== null && ealPercent !== undefined) {
+    const ealEl = document.getElementById('ealPercentage');
+    const ealCircle = document.getElementById('ealCircle');
+    if (ealEl) ealEl.textContent = Math.round(ealPercent) + '%';
+    if (ealCircle) {
+      const circumference = 2 * Math.PI * 40;
+      const offset = circumference - (ealPercent / 100) * circumference;
+      ealCircle.style.strokeDashoffset = offset;
+    }
+  }
+  
+  // FSM (Free School Meals - proxy for low income)
+  const fsmPercent = demographics?.fsm_percentage || census?.percentage_fsm_ever6;
+  if (fsmPercent !== null && fsmPercent !== undefined) {
+    const fsmEl = document.getElementById('fsmPercentage');
+    const fsmCircle = document.getElementById('fsmCircle');
+    if (fsmEl) fsmEl.textContent = Math.round(fsmPercent) + '%';
+    if (fsmCircle) {
+      const circumference = 2 * Math.PI * 40;
+      const offset = circumference - (fsmPercent / 100) * circumference;
+      fsmCircle.style.strokeDashoffset = offset;
+    }
+  }
+  
+  // Gender breakdown
+  const boys = demographics?.boys || census?.number_boys;
+  const girls = demographics?.girls || census?.number_girls;
+  if (boys && girls) {
+    const total = boys + girls;
+    const femalePercent = Math.round((girls / total) * 100);
+    const malePercent = Math.round((boys / total) * 100);
+    
+    const femaleEl = document.getElementById('femalePercentage');
+    const maleEl = document.getElementById('malePercentage');
+    const genderCircle = document.getElementById('genderCircle');
+    
+    if (femaleEl) femaleEl.textContent = femalePercent + '%';
+    if (maleEl) maleEl.textContent = malePercent + '%';
+    if (genderCircle) {
+      const circumference = 2 * Math.PI * 40;
+      const offset = circumference - (malePercent / 100) * circumference;
+      genderCircle.style.strokeDashoffset = offset;
+    }
+  }
+  
+  // SEN data if available
+  const senSupport = demographics?.sen_support_percentage || census?.percentage_sen_support;
+  const senEhcp = demographics?.sen_ehcp_percentage || census?.percentage_sen_ehcp;
+  
+  if (senSupport !== null || senEhcp !== null) {
+    const additionalDemo = document.getElementById('additionalDemographics');
+    if (additionalDemo) additionalDemo.style.display = 'block';
+    
+    if (senSupport !== null) {
+      const senSupportBar = document.getElementById('senSupportBar');
+      const senSupportValue = document.getElementById('senSupportValue');
+      if (senSupportBar) senSupportBar.style.width = Math.min(100, senSupport) + '%';
+      if (senSupportValue) senSupportValue.textContent = senSupport.toFixed(1) + '%';
+    }
+    
+    if (senEhcp !== null) {
+      const senEhcpBar = document.getElementById('senEhcpBar');
+      const senEhcpValue = document.getElementById('senEhcpValue');
+      if (senEhcpBar) senEhcpBar.style.width = Math.min(100, senEhcp) + '%';
+      if (senEhcpValue) senEhcpValue.textContent = senEhcp.toFixed(1) + '%';
+    }
+  }
+}
+
 // Render test scores
 function renderTestScores(school) {
   if (!school.test_scores) {
@@ -451,7 +537,10 @@ async function loadAll(urn) {
     if (infoURNEl) infoURNEl.textContent = s.urn || '-';
 
     // Render test scores
+    
     renderTestScores(s);
+    // renderDemographics
+    renderDemographics(s);
 
     // Render contact and map
     renderNeighborhood(s);

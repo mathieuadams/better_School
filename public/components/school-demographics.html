@@ -1,0 +1,172 @@
+<!-- school-demographics.html -->
+<div class="section-card">
+  <div class="section-header">
+    <h2 class="section-title">Student Demographics</h2>
+  </div>
+  
+  <p style="color:#374151; margin-bottom:1.5rem; font-size:0.875rem;">
+    Schools that create a positive culture help all students thrive.
+  </p>
+  
+  <!-- Circular metrics -->
+  <div class="demographic-metrics">
+    <!-- EAL Students -->
+    <div class="metric-circle" id="ealMetric">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="8"
+                stroke-dasharray="251.2" 
+                stroke-dashoffset="251.2"
+                transform="rotate(-90 50 50)"
+                id="ealCircle"/>
+      </svg>
+      <div class="metric-value">
+        <span id="ealPercentage">-</span>
+      </div>
+    </div>
+    <div class="metric-label">Students learning English</div>
+    
+    <!-- FSM Students -->
+    <div class="metric-circle" id="fsmMetric">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="8"
+                stroke-dasharray="251.2" 
+                stroke-dashoffset="251.2"
+                transform="rotate(-90 50 50)"
+                id="fsmCircle"/>
+      </svg>
+      <div class="metric-value">
+        <span id="fsmPercentage">-</span>
+      </div>
+    </div>
+    <div class="metric-label">Students from low-income families</div>
+    
+    <!-- Gender Breakdown -->
+    <div class="metric-circle" id="genderMetric">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#86efac" stroke-width="20"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="20"
+                stroke-dasharray="251.2" 
+                stroke-dashoffset="125.6"
+                transform="rotate(-90 50 50)"
+                id="genderCircle"/>
+      </svg>
+      <div class="metric-value gender-split">
+        <span id="femalePercentage">-</span>
+        <span id="malePercentage">-</span>
+      </div>
+    </div>
+    <div class="metric-label">
+      Gender<br>
+      <span style="color:#86efac;">■</span> Female
+      <span style="color:#10b981; margin-left:10px;">■</span> Male
+    </div>
+  </div>
+  
+  <!-- Additional demographics if available -->
+  <div id="additionalDemographics" style="margin-top: 2rem; display: none;">
+    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Special Educational Needs</h3>
+    <div class="demographic-bars">
+      <div class="demo-row">
+        <span class="demo-label">SEN Support</span>
+        <div class="demo-bar">
+          <div class="demo-fill" id="senSupportBar" style="width: 0%"></div>
+        </div>
+        <span class="demo-value" id="senSupportValue">-</span>
+      </div>
+      <div class="demo-row">
+        <span class="demo-label">EHCP/Statement</span>
+        <div class="demo-bar">
+          <div class="demo-fill" id="senEhcpBar" style="width: 0%"></div>
+        </div>
+        <span class="demo-value" id="senEhcpValue">-</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.demographic-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.metric-circle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 0.5rem;
+}
+
+.metric-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.metric-value.gender-split {
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+.demographic-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.demo-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 50px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.demo-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.demo-bar {
+  height: 24px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  position: relative;
+}
+
+.demo-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.demo-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .demographic-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
