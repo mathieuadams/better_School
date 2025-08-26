@@ -22,10 +22,15 @@
       </div>
       <div class="score-display">
         <span class="score-percentage" id="englishScore">-</span>
-        <div class="score-bar">
-          <div class="score-fill" id="englishBar" style="width: 0%"></div>
-          <div class="average-marker" id="englishAvg" style="left: 50%; display: none;">
-            <span class="avg-label">▼ <span id="englishAvgLabel">-</span></span>
+        <div class="score-bar-container">
+          <div class="score-bar">
+            <div class="score-fill" id="englishBar" style="width: 0%"></div>
+            <div class="average-marker" id="englishAvg" style="left: 50%; display: none;">
+              <span class="avg-arrow">▼</span>
+            </div>
+          </div>
+          <div class="avg-label-container">
+            <span class="avg-value" id="englishAvgLabel" style="display: none;">National Avg: -</span>
           </div>
         </div>
       </div>
@@ -48,10 +53,15 @@
       </div>
       <div class="score-display">
         <span class="score-percentage" id="mathScore">-</span>
-        <div class="score-bar">
-          <div class="score-fill" id="mathBar" style="width: 0%"></div>
-          <div class="average-marker" id="mathAvg" style="left: 50%; display: none;">
-            <span class="avg-label">▼ <span id="mathAvgLabel">-</span></span>
+        <div class="score-bar-container">
+          <div class="score-bar">
+            <div class="score-fill" id="mathBar" style="width: 0%"></div>
+            <div class="average-marker" id="mathAvg" style="left: 50%; display: none;">
+              <span class="avg-arrow">▼</span>
+            </div>
+          </div>
+          <div class="avg-label-container">
+            <span class="avg-value" id="mathAvgLabel" style="display: none;">National Avg: -</span>
           </div>
         </div>
       </div>
@@ -74,10 +84,15 @@
       </div>
       <div class="score-display">
         <span class="score-percentage" id="scienceScore">-</span>
-        <div class="score-bar">
-          <div class="score-fill" id="scienceBar" style="width: 0%"></div>
-          <div class="average-marker" id="scienceAvg" style="left: 50%; display: none;">
-            <span class="avg-label">▼ <span id="scienceAvgLabel">-</span></span>
+        <div class="score-bar-container">
+          <div class="score-bar">
+            <div class="score-fill" id="scienceBar" style="width: 0%"></div>
+            <div class="average-marker" id="scienceAvg" style="left: 50%; display: none;">
+              <span class="avg-arrow">▼</span>
+            </div>
+          </div>
+          <div class="avg-label-container">
+            <span class="avg-value" id="scienceAvgLabel" style="display: none;">National Avg: -</span>
           </div>
         </div>
       </div>
@@ -90,7 +105,7 @@
   </div>
   
   <div class="average-legend">
-    <span class="legend-item">▼ Local Authority Avg.</span>
+    <span class="legend-item">▼ National Average.</span>
   </div>
   
   <!-- Parent Tip Box -->
