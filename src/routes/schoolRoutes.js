@@ -18,6 +18,7 @@ const toNum = v => {
  * Returns a robust object even when optional tables are missing.
  * Pulls telephone, website, head names, lat/lon (if any) from uk_schools.
  * Also merges latest Ofsted + optional census/attendance.
+ * Includes new test scores fields.
  * Optional: ?debug=1 reveals which tables returned data.
  * ======================================================================= */
 router.get('/:urn', async (req, res) => {
@@ -29,7 +30,7 @@ router.get('/:urn', async (req, res) => {
       return res.status(400).json({ error: 'Invalid URN provided' });
     }
 
-    // 1) Base row from uk_schools
+    // 1) Base row from uk_schools - now includes test scores
     const baseSql = `
       SELECT
         s.id, s.urn, s.la_code, s.establishment_number, s.name, s.name_lower, s.slug,
@@ -44,7 +45,11 @@ router.get('/:urn', async (req, res) => {
         s.has_nursery, s.has_sixth_form, s.is_boarding_school, s.has_sen_provision,
         s.religious_character, s.religious_ethos, s.diocese, s.percentage_fsm,
         s.is_part_of_trust, s.trust_name, s.ukprn, s.uprn,
-        s.date_opened, s.last_changed_date, s.created_at, s.updated_at
+        s.date_opened, s.last_changed_date, s.created_at, s.updated_at,
+        -- New test score fields
+        s.english_score, s.english_avg,
+        s.math_score, s.math_avg,
+        s.science_score, s.science_avg
       FROM uk_schools s
       WHERE s.urn = $1
       LIMIT 1
@@ -175,6 +180,22 @@ router.get('/:urn', async (req, res) => {
         attendance: {
           overall_absence_rate: a.overall_absence_rate ?? null,
           persistent_absence_rate: a.persistent_absence_rate ?? null,
+        },
+
+        // Test Scores (NEW)
+        test_scores: {
+          english: {
+            score: toNum(s.english_score),
+            average: toNum(s.english_avg)
+          },
+          math: {
+            score: toNum(s.math_score),
+            average: toNum(s.math_avg)
+          },
+          science: {
+            score: toNum(s.science_score),
+            average: toNum(s.science_avg)
+          }
         },
 
         // Ofsted
@@ -421,7 +442,10 @@ router.get('/:urn/comparison', async (req, res) => {
         ks4.basics_9_5_percentage,
         ks2.rwm_expected_percentage,
         ks2.reading_progress,
-        ks2.maths_progress
+        ks2.maths_progress,
+        s.english_score,
+        s.math_score,
+        s.science_score
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn
@@ -442,6 +466,9 @@ router.get('/:urn/comparison', async (req, res) => {
         AVG(ks4.progress_8_score) as avg_progress_8,
         AVG(ks4.attainment_8_score) as avg_attainment_8,
         AVG(ks2.rwm_expected_percentage) as avg_ks2_expected,
+        AVG(s.english_score) as avg_english_score,
+        AVG(s.math_score) as avg_math_score,
+        AVG(s.science_score) as avg_science_score,
         COUNT(DISTINCT s.urn) as school_count
       FROM uk_schools s
       LEFT JOIN uk_census_data c ON s.urn = c.urn
@@ -456,6 +483,9 @@ router.get('/:urn/comparison', async (req, res) => {
         AVG(ks4.progress_8_score) as avg_progress_8,
         AVG(ks4.attainment_8_score) as avg_attainment_8,
         AVG(ks2.rwm_expected_percentage) as avg_ks2_expected,
+        AVG(s.english_score) as avg_english_score,
+        AVG(s.math_score) as avg_math_score,
+        AVG(s.science_score) as avg_science_score,
         COUNT(DISTINCT s.urn) as school_count
       FROM uk_schools s
       LEFT JOIN uk_census_data c ON s.urn = c.urn

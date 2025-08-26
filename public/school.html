@@ -56,6 +56,171 @@
     .sidebar-section { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
     .sidebar-title { font-size:1rem; font-weight:600; margin-bottom:1rem; color:#111827; }
 
+    /* Test Scores Section Styles */
+    .test-scores-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .test-score-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 40px;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .test-score-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .test-subject {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .subject-name {
+      font-weight: 500;
+      color: #374151;
+      font-size: 0.875rem;
+    }
+
+    .info-btn {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-btn:hover {
+      color: #6b7280;
+    }
+
+    .score-display {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .score-percentage {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      min-width: 50px;
+    }
+
+    .score-bar {
+      flex: 1;
+      height: 32px;
+      background: #f3f4f6;
+      border-radius: 4px;
+      position: relative;
+      overflow: visible;
+    }
+
+    .score-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .average-marker {
+      position: absolute;
+      top: -8px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .avg-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .expand-btn {
+      background: none;
+      border: none;
+      color: #2563eb;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .expand-btn:hover {
+      transform: translateX(2px);
+    }
+
+    .average-legend {
+      padding: 0.75rem;
+      background: #f9fafb;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      text-align: right;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .parent-tip-box {
+      background: #f0f9ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .tip-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .tip-content {
+      flex: 1;
+    }
+
+    .tip-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1e40af;
+      margin-bottom: 0.25rem;
+    }
+
+    .tip-text {
+      font-size: 0.875rem;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    /* Color variations based on performance */
+    .score-fill.high-performing {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .score-fill.average-performing {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    }
+
+    .score-fill.low-performing {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+    }
+
     /* Neighborhood/Contact section */
     .neighborhood { 
       display: grid; 
@@ -228,8 +393,8 @@
       <div class="key-stats-grid">
         <div class="key-stat"><div class="key-stat-value" id="statStudents">-</div><div class="key-stat-label">Students</div></div>
         <div class="key-stat"><div class="key-stat-value" id="statFSM">-</div><div class="key-stat-label">Free School Meals</div></div>
-        <div class="key-stat"><div class="key-stat-value" id="statProgress">-</div><div class="key-stat-label">Progress Score</div></div>
-        <div class="key-stat"><div class="key-stat-value" id="statAttainment">-</div><div class="key-stat-label">Attainment</div></div>
+        <div class="key-stat"><div class="key-stat-value" id="statEnglish">-</div><div class="key-stat-label">English Score</div></div>
+        <div class="key-stat"><div class="key-stat-value" id="statMath">-</div><div class="key-stat-label">Math Score</div></div>
         <div class="key-stat"><div class="key-stat-value" id="statAttendance">-</div><div class="key-stat-label">Attendance</div></div>
       </div>
     </div>
@@ -239,12 +404,119 @@
     <div class="profile-content">
       <div class="main-content">
         
+        <!-- New Test Scores Section -->
         <div class="section-card">
           <div class="section-header">
-            <h2 class="section-title">Academic Performance</h2>
+            <h2 class="section-title">Test Scores</h2>
             <span style="font-size:.875rem;color:#6b7280;">2023/2024</span>
           </div>
-          <div class="performance-grid" id="performanceGrid"></div>
+          
+          <p style="color:#374151; margin-bottom:1.5rem; font-size:0.875rem;">
+            These scores reflect how well students at this school perform on state-required tests.
+          </p>
+          
+          <div class="test-scores-container" id="testScoresContainer">
+            <!-- English -->
+            <div class="test-score-row">
+              <div class="test-subject">
+                <span class="subject-name">English</span>
+                <button class="info-btn" onclick="showSubjectInfo('english')" aria-label="More info about English scores">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="score-display">
+                <span class="score-percentage" id="englishScore">-</span>
+                <div class="score-bar">
+                  <div class="score-fill" id="englishBar" style="width: 0%"></div>
+                  <div class="average-marker" id="englishAvg" style="left: 50%; display: none;">
+                    <span class="avg-label">▼ <span id="englishAvgLabel">-</span></span>
+                  </div>
+                </div>
+              </div>
+              <button class="expand-btn" onclick="toggleDetails('english')">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Math -->
+            <div class="test-score-row">
+              <div class="test-subject">
+                <span class="subject-name">Math</span>
+                <button class="info-btn" onclick="showSubjectInfo('math')" aria-label="More info about Math scores">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="score-display">
+                <span class="score-percentage" id="mathScore">-</span>
+                <div class="score-bar">
+                  <div class="score-fill" id="mathBar" style="width: 0%"></div>
+                  <div class="average-marker" id="mathAvg" style="left: 50%; display: none;">
+                    <span class="avg-label">▼ <span id="mathAvgLabel">-</span></span>
+                  </div>
+                </div>
+              </div>
+              <button class="expand-btn" onclick="toggleDetails('math')">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Science -->
+            <div class="test-score-row">
+              <div class="test-subject">
+                <span class="subject-name">Science</span>
+                <button class="info-btn" onclick="showSubjectInfo('science')" aria-label="More info about Science scores">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="score-display">
+                <span class="score-percentage" id="scienceScore">-</span>
+                <div class="score-bar">
+                  <div class="score-fill" id="scienceBar" style="width: 0%"></div>
+                  <div class="average-marker" id="scienceAvg" style="left: 50%; display: none;">
+                    <span class="avg-label">▼ <span id="scienceAvgLabel">-</span></span>
+                  </div>
+                </div>
+              </div>
+              <button class="expand-btn" onclick="toggleDetails('science')">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="average-legend">
+            <span class="legend-item">▼ Local Authority Avg.</span>
+          </div>
+          
+          <!-- Parent Tip Box -->
+          <div class="parent-tip-box">
+            <div class="tip-icon">🦉</div>
+            <div class="tip-content">
+              <h4 class="tip-title">Parent Tip</h4>
+              <p class="tip-text">
+                Even high-performing schools can have disparities between student groups. Understand what 
+                <a href="https://www.gov.uk/national-curriculum" target="_blank" style="color:#2563eb;">on-track learning looks like</a> 
+                for your child and how you can help at home.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Original detailed performance data (hidden by default) -->
+          <div id="detailedPerformance" style="display:none; margin-top:1.5rem;">
+            <h3 style="font-size:1rem; font-weight:600; margin-bottom:1rem;">Detailed Performance Metrics</h3>
+            <div class="performance-grid" id="performanceGrid"></div>
+          </div>
         </div>
 
         <div class="section-card">
@@ -449,6 +721,70 @@
       return null;
     }
 
+    // Render test scores
+    function renderTestScores(school) {
+      if (!school.test_scores) {
+        console.log('No test scores available, falling back to performance data');
+        return;
+      }
+      
+      const subjects = ['english', 'math', 'science'];
+      
+      subjects.forEach(subject => {
+        const score = school.test_scores[subject].score;
+        const average = school.test_scores[subject].average;
+        
+        if (score !== null && score !== undefined) {
+          // Update score text
+          document.getElementById(`${subject}Score`).textContent = Math.round(score) + '%';
+          
+          // Update progress bar
+          const bar = document.getElementById(`${subject}Bar`);
+          bar.style.width = Math.min(100, Math.max(0, score)) + '%';
+          
+          // Set color based on performance
+          if (score >= 70) {
+            bar.className = 'score-fill high-performing';
+          } else if (score >= 50) {
+            bar.className = 'score-fill average-performing';
+          } else {
+            bar.className = 'score-fill low-performing';
+          }
+          
+          // Update average marker if available
+          if (average !== null && average !== undefined) {
+            const avgElement = document.getElementById(`${subject}Avg`);
+            avgElement.style.left = Math.min(100, Math.max(0, average)) + '%';
+            avgElement.style.display = 'flex';
+            document.getElementById(`${subject}AvgLabel`).textContent = Math.round(average) + '%';
+          }
+        } else {
+          document.getElementById(`${subject}Score`).textContent = 'N/A';
+        }
+      });
+    }
+
+    // Show info modal for subject
+    function showSubjectInfo(subject) {
+      const info = {
+        english: 'This shows the percentage of students meeting expected standards in English/Reading assessments.',
+        math: 'This shows the percentage of students meeting expected standards in Mathematics assessments.',
+        science: 'This shows the percentage of students meeting expected standards in Science assessments.'
+      };
+      
+      alert(info[subject] || 'Information not available');
+    }
+
+    // Toggle detailed performance view
+    function toggleDetails(subject) {
+      const detailed = document.getElementById('detailedPerformance');
+      if (detailed.style.display === 'none') {
+        detailed.style.display = 'block';
+      } else {
+        detailed.style.display = 'none';
+      }
+    }
+
     // Render neighborhood/contact section
     function renderNeighborhood(school) {
       // Address
@@ -648,6 +984,17 @@
         document.getElementById('statStudents').textContent = s.demographics?.total_students || '-';
         const fsm = s.demographics?.fsm_percentage;
         document.getElementById('statFSM').textContent = (fsm !== null && fsm !== undefined) ? (fsm + '%') : '-';
+        
+        // Update test score stats in key stats bar
+        if (s.test_scores) {
+          const englishScore = s.test_scores.english?.score;
+          const mathScore = s.test_scores.math?.score;
+          
+          document.getElementById('statEnglish').textContent = 
+            englishScore !== null && englishScore !== undefined ? Math.round(englishScore) + '%' : '-';
+          document.getElementById('statMath').textContent = 
+            mathScore !== null && mathScore !== undefined ? Math.round(mathScore) + '%' : '-';
+        }
 
         if (s.attendance?.overall_absence_rate != null) {
           const att = (100 - s.attendance.overall_absence_rate).toFixed(1);
@@ -667,10 +1014,13 @@
         document.getElementById('infoLA').textContent = s.address?.local_authority || '-';
         document.getElementById('infoURN').textContent = s.urn || '-';
 
+        // Render test scores
+        renderTestScores(s);
+
         // Render contact and map
         renderNeighborhood(s);
 
-        // Load performance data
+        // Load performance data (for detailed view)
         const perfRes = await fetch(`/api/schools/${urn}/performance`);
         const perf = await perfRes.json();
         if (perf.success && perf.performance) {
@@ -700,9 +1050,11 @@
       }
     }
 
-    // Render performance data
+    // Render performance data (for detailed view)
     function renderPerformance(p) {
       const grid = document.getElementById('performanceGrid');
+      if (!grid) return;
+      
       grid.innerHTML = '';
       
       if (p.ks2) {
@@ -711,8 +1063,6 @@
           <div class="performance-item"><div class="performance-label">Writing Progress</div><div class="performance-value">${p.ks2.writing_progress ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Maths Progress</div><div class="performance-value">${p.ks2.maths_progress ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Expected Standard (R/W/M)</div><div class="performance-value">${p.ks2.rwm_expected_percentage ?? '-'}%</div></div>`;
-        document.getElementById('statProgress').textContent = p.ks2.reading_progress ? `+${p.ks2.reading_progress}` : '-';
-        document.getElementById('statAttainment').textContent = (p.ks2.rwm_expected_percentage ?? '-') + (p.ks2.rwm_expected_percentage != null ? '%' : '');
       }
       
       if (p.ks4) {
@@ -720,8 +1070,6 @@
           <div class="performance-item"><div class="performance-label">Progress 8</div><div class="performance-value">${p.ks4.progress_8_score ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Attainment 8</div><div class="performance-value">${p.ks4.attainment_8_score ?? '-'}</div></div>
           <div class="performance-item"><div class="performance-label">Grade 5+ Eng & Maths</div><div class="performance-value">${p.ks4.basics_9_5_percentage ?? '-'}%</div></div>`;
-        document.getElementById('statProgress').textContent = p.ks4.progress_8_score ?? '-';
-        document.getElementById('statAttainment').textContent = p.ks4.attainment_8_score ?? '-';
       }
       
       if (p.ks5) {
