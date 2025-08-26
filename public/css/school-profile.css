@@ -200,8 +200,12 @@
   min-width: 50px;
 }
 
-.score-bar {
+.score-bar-container {
   flex: 1;
+  position: relative;
+}
+
+.score-bar {
   height: 32px;
   background: #f3f4f6;
   border-radius: 4px;
@@ -219,21 +223,33 @@
 
 .average-marker {
   position: absolute;
-  top: -8px;
+  top: -10px;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 10;
+  height: 52px;
 }
 
-.avg-label {
+.avg-arrow {
+  font-size: 1rem;
+  color: #374151;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.avg-label-container {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.avg-value {
   font-size: 0.75rem;
   color: #6b7280;
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 2px;
 }
 
 .expand-btn {

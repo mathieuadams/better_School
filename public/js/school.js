@@ -129,7 +129,15 @@ function renderTestScores(school) {
       if (average !== null && average !== undefined && avgEl && avgLabelEl) {
         avgEl.style.left = Math.min(100, Math.max(0, average)) + '%';
         avgEl.style.display = 'flex';
-        avgLabelEl.textContent = Math.round(average) + '%';
+        avgLabelEl.textContent = 'National Avg: ' + Math.round(average) + '%';
+        avgLabelEl.style.display = 'inline';
+        
+        // Position the label to align with the arrow
+        const avgContainer = avgLabelEl.parentElement;
+        if (avgContainer) {
+          avgContainer.style.paddingLeft = Math.min(100, Math.max(0, average)) + '%';
+          avgContainer.style.transform = 'translateX(-50%)';
+        }
       }
     } else if (scoreEl) {
       scoreEl.textContent = 'N/A';
