@@ -1,0 +1,4 @@
+/* school-profile.css */
+.profile-header { background:#fff; border-bottom:1px solid #e5e7eb; padding:2rem 0; }
+.profile-header-content { display:grid; grid-template-columns:1fr auto; gap:2rem; align-items:start; }
+/* ... rest of the styles from the original file ... */

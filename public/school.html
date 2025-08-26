@@ -16,595 +16,43 @@
 
   <!-- Main CSS -->
   <link rel="stylesheet" href="/css/styles.css">
-
-  <style>
-    /* Profile sections */
-    .profile-header { background:#fff; border-bottom:1px solid #e5e7eb; padding:2rem 0; }
-    .profile-header-content { display:grid; grid-template-columns:1fr auto; gap:2rem; align-items:start; }
-    .school-title-section h1 { font-size:2rem; font-weight:700; color:#111827; margin-bottom:.5rem; }
-    .school-type-info { display:flex; gap:1rem; align-items:center; color:#6b7280; font-size:.875rem; margin-bottom:1rem; }
-    .school-address-info { display:flex; align-items:center; gap:.5rem; color:#6b7280; font-size:.875rem; }
-
-    .rating-section { display:flex; gap:1rem; align-items:center; }
-    .main-rating { background: linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; padding:1.5rem; border-radius:12px; text-align:center; min-width:100px; }
-    .main-rating-score { font-size:2.5rem; font-weight:700; line-height:1; }
-    .main-rating-label { font-size:.75rem; margin-top:.25rem; opacity:.9; }
-    .ofsted-rating { text-align:center; padding:1rem; border:2px solid #e5e7eb; border-radius:8px; min-width:120px; }
-    .ofsted-score { font-size:1.125rem; font-weight:700; margin-bottom:.25rem; }
-
-    .key-stats-bar { background:#f9fafb; padding:1.5rem 0; border-bottom:1px solid #e5e7eb; }
-    .key-stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:2rem; }
-    .key-stat { text-align:center; }
-    .key-stat-value { font-size:1.5rem; font-weight:700; color:#111827; margin-bottom:.25rem; }
-    .key-stat-label { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.5px; }
-
-    .profile-content { display:grid; grid-template-columns:3fr 1fr; gap:2rem; margin-top:2rem; }
-    .section-card { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
-    .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:.75rem; border-bottom:2px solid #e5e7eb; }
-    .section-title { font-size:1.25rem; font-weight:600; color:#111827; }
-
-    .performance-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
-    .performance-item { padding:1rem; background:#f9fafb; border-radius:8px; border-left:4px solid #3b82f6; }
-    .performance-label { font-size:.75rem; color:#6b7280; text-transform:uppercase; margin-bottom:.5rem; }
-    .performance-value { font-size:1.5rem; font-weight:700; color:#111827; }
-
-    .info-row { display:flex; justify-content:space-between; padding:.75rem 0; border-bottom:1px solid #f3f4f6; }
-    .info-row:last-child { border-bottom:none; }
-    .info-label { color:#6b7280; font-size:.875rem; }
-    .info-value { color:#111827; font-weight:500; font-size:.875rem; text-align:right; }
-
-    .sidebar-section { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
-    .sidebar-title { font-size:1rem; font-weight:600; margin-bottom:1rem; color:#111827; }
-
-    /* Test Scores Section Styles */
-    .test-scores-container {
-      margin-bottom: 1.5rem;
-    }
-
-    .test-score-row {
-      display: grid;
-      grid-template-columns: 120px 1fr 40px;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    .test-score-row:last-of-type {
-      border-bottom: none;
-    }
-
-    .test-subject {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .subject-name {
-      font-weight: 500;
-      color: #374151;
-      font-size: 0.875rem;
-    }
-
-    .info-btn {
-      background: none;
-      border: none;
-      color: #9ca3af;
-      cursor: pointer;
-      padding: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .info-btn:hover {
-      color: #6b7280;
-    }
-
-    .score-display {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .score-percentage {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #111827;
-      min-width: 50px;
-    }
-
-    .score-bar {
-      flex: 1;
-      height: 32px;
-      background: #f3f4f6;
-      border-radius: 4px;
-      position: relative;
-      overflow: visible;
-    }
-
-    .score-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981, #059669);
-      border-radius: 4px;
-      transition: width 0.5s ease;
-      position: relative;
-    }
-
-    .average-marker {
-      position: absolute;
-      top: -8px;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 10;
-    }
-
-    .avg-label {
-      font-size: 0.75rem;
-      color: #6b7280;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .expand-btn {
-      background: none;
-      border: none;
-      color: #2563eb;
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s;
-    }
-
-    .expand-btn:hover {
-      transform: translateX(2px);
-    }
-
-    .average-legend {
-      padding: 0.75rem;
-      background: #f9fafb;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      text-align: right;
-      font-size: 0.75rem;
-      color: #6b7280;
-    }
-
-    .parent-tip-box {
-      background: #f0f9ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      padding: 1rem;
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .tip-icon {
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
-
-    .tip-content {
-      flex: 1;
-    }
-
-    .tip-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #1e40af;
-      margin-bottom: 0.25rem;
-    }
-
-    .tip-text {
-      font-size: 0.875rem;
-      color: #374151;
-      line-height: 1.5;
-    }
-
-    /* Color variations based on performance */
-    .score-fill.high-performing {
-      background: linear-gradient(90deg, #10b981, #059669);
-    }
-
-    .score-fill.average-performing {
-      background: linear-gradient(90deg, #fbbf24, #f59e0b);
-    }
-
-    .score-fill.low-performing {
-      background: linear-gradient(90deg, #f87171, #ef4444);
-    }
-
-    /* Neighborhood/Contact section */
-    .neighborhood { 
-      display: grid; 
-      grid-template-columns: 1.2fr 2fr; 
-      gap: 1.5rem; 
-    }
-    
-    .contact-card { 
-      border: 1px solid #e5e7eb; 
-      border-radius: 8px; 
-      padding: 1.25rem; 
-      background: #fff; 
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .contact-header {
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #f3f4f6;
-      margin-bottom: 1rem;
-    }
-    
-    .contact-address {
-      font-weight: 600;
-      color: #111827;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-    
-    .contact-la {
-      color: #6b7280;
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-    }
-    
-    .contact-row { 
-      display: flex; 
-      align-items: flex-start; 
-      gap: 0.75rem; 
-      margin: 0.75rem 0; 
-      color: #374151;
-    }
-    
-    .contact-icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #6b7280;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    
-    .contact-content {
-      flex: 1;
-    }
-    
-    .contact-label { 
-      color: #6b7280; 
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.25rem;
-    }
-    
-    .contact-value {
-      color: #111827;
-      font-size: 0.875rem;
-    }
-    
-    .contact-row a { 
-      color: #2563eb; 
-      text-decoration: none;
-      font-size: 0.875rem;
-    }
-    
-    .contact-row a:hover { 
-      text-decoration: underline;
-    }
-    
-    #schoolMap { 
-      height: 400px;
-      min-height: 400px;
-      width: 100%;
-      border-radius: 8px; 
-      border: 1px solid #e5e7eb;
-      background-color: #f3f4f6;
-      position: relative;
-    }
-    
-    .map-actions {
-      margin-top: 0.75rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid #f3f4f6;
-    }
-    
-    .map-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #2563eb;
-      text-decoration: none;
-      font-size: 0.875rem;
-    }
-    
-    .map-link:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 900px) { 
-      .neighborhood { grid-template-columns: 1fr; } 
-    }
-
-    @media (max-width: 768px){
-      .profile-header-content { grid-template-columns:1fr; }
-      .profile-content { grid-template-columns:1fr; }
-      .key-stats-grid { grid-template-columns:repeat(2,1fr); }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/school-profile.css">
 </head>
 <body>
+  <!-- Header will be loaded dynamically -->
   <div id="header"></div>
 
-  <div class="breadcrumb">
-    <div class="container">
-      <ol class="breadcrumb-list">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-separator">/</li>
-        <li class="breadcrumb-item"><a href="/search">Search</a></li>
-        <li class="breadcrumb-separator">/</li>
-        <li class="breadcrumb-item"><a href="#" id="cityCrumb">Local Authority</a></li>
-        <li class="breadcrumb-separator">/</li>
-        <li class="breadcrumb-item active" id="schoolCrumb">School Name</li>
-      </ol>
-    </div>
-  </div>
+  <!-- Breadcrumb will be loaded dynamically -->
+  <div id="breadcrumb"></div>
 
-  <section class="profile-header">
-    <div class="container">
-      <div class="profile-header-content">
-        <div>
-          <h1 id="schoolName">Loading...</h1>
-          <div class="school-type-info">
-            <span id="schoolType">-</span><span>•</span>
-            <span id="schoolPhase">-</span><span>•</span>
-            <span id="ageRange">Ages -</span>
-          </div>
-          <div class="school-address-info">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-            <span id="schoolAddress">-</span>
-          </div>
-        </div>
-        <div class="rating-section">
-          <div class="main-rating">
-            <div class="main-rating-score" id="overallRating">-</div>
-            <div class="main-rating-label">Overall Rating</div>
-          </div>
-          <div class="ofsted-rating">
-            <div class="ofsted-score" id="ofstedRating">-</div>
-            <div style="font-size:.75rem;color:#6b7280;">Ofsted</div>
-            <div style="font-size:.75rem;color:#9ca3af;" id="ofstedDate">-</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- School Header Section - loaded via component -->
+  <div id="schoolHeader"></div>
 
-  <section class="key-stats-bar">
-    <div class="container">
-      <div class="key-stats-grid">
-        <div class="key-stat"><div class="key-stat-value" id="statStudents">-</div><div class="key-stat-label">Students</div></div>
-        <div class="key-stat"><div class="key-stat-value" id="statFSM">-</div><div class="key-stat-label">Free School Meals</div></div>
-        <div class="key-stat"><div class="key-stat-value" id="statEnglish">-</div><div class="key-stat-label">English Score</div></div>
-        <div class="key-stat"><div class="key-stat-value" id="statMath">-</div><div class="key-stat-label">Math Score</div></div>
-        <div class="key-stat"><div class="key-stat-value" id="statAttendance">-</div><div class="key-stat-label">Attendance</div></div>
-      </div>
-    </div>
-  </section>
+  <!-- Key Stats Bar - loaded via component -->
+  <div id="keyStats"></div>
 
   <section class="container" style="margin-top:2rem;">
     <div class="profile-content">
       <div class="main-content">
         
-        <!-- New Test Scores Section -->
-        <div class="section-card">
-          <div class="section-header">
-            <h2 class="section-title">Test Scores</h2>
-            <span style="font-size:.875rem;color:#6b7280;">2023/2024</span>
-          </div>
-          
-          <p style="color:#374151; margin-bottom:1.5rem; font-size:0.875rem;">
-            These scores reflect how well students at this school perform on state-required tests.
-          </p>
-          
-          <div class="test-scores-container" id="testScoresContainer">
-            <!-- English -->
-            <div class="test-score-row">
-              <div class="test-subject">
-                <span class="subject-name">English</span>
-                <button class="info-btn" onclick="showSubjectInfo('english')" aria-label="More info about English scores">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                  </svg>
-                </button>
-              </div>
-              <div class="score-display">
-                <span class="score-percentage" id="englishScore">-</span>
-                <div class="score-bar">
-                  <div class="score-fill" id="englishBar" style="width: 0%"></div>
-                  <div class="average-marker" id="englishAvg" style="left: 50%; display: none;">
-                    <span class="avg-label">▼ <span id="englishAvgLabel">-</span></span>
-                  </div>
-                </div>
-              </div>
-              <button class="expand-btn" onclick="toggleDetails('english')">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                </svg>
-              </button>
-            </div>
-            
-            <!-- Math -->
-            <div class="test-score-row">
-              <div class="test-subject">
-                <span class="subject-name">Math</span>
-                <button class="info-btn" onclick="showSubjectInfo('math')" aria-label="More info about Math scores">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                  </svg>
-                </button>
-              </div>
-              <div class="score-display">
-                <span class="score-percentage" id="mathScore">-</span>
-                <div class="score-bar">
-                  <div class="score-fill" id="mathBar" style="width: 0%"></div>
-                  <div class="average-marker" id="mathAvg" style="left: 50%; display: none;">
-                    <span class="avg-label">▼ <span id="mathAvgLabel">-</span></span>
-                  </div>
-                </div>
-              </div>
-              <button class="expand-btn" onclick="toggleDetails('math')">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                </svg>
-              </button>
-            </div>
-            
-            <!-- Science -->
-            <div class="test-score-row">
-              <div class="test-subject">
-                <span class="subject-name">Science</span>
-                <button class="info-btn" onclick="showSubjectInfo('science')" aria-label="More info about Science scores">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                  </svg>
-                </button>
-              </div>
-              <div class="score-display">
-                <span class="score-percentage" id="scienceScore">-</span>
-                <div class="score-bar">
-                  <div class="score-fill" id="scienceBar" style="width: 0%"></div>
-                  <div class="average-marker" id="scienceAvg" style="left: 50%; display: none;">
-                    <span class="avg-label">▼ <span id="scienceAvgLabel">-</span></span>
-                  </div>
-                </div>
-              </div>
-              <button class="expand-btn" onclick="toggleDetails('science')">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-          
-          <div class="average-legend">
-            <span class="legend-item">▼ Local Authority Avg.</span>
-          </div>
-          
-          <!-- Parent Tip Box -->
-          <div class="parent-tip-box">
-            <div class="tip-icon">🦉</div>
-            <div class="tip-content">
-              <h4 class="tip-title">Parent Tip</h4>
-              <p class="tip-text">
-                Even high-performing schools can have disparities between student groups. Understand what 
-                <a href="https://www.gov.uk/national-curriculum" target="_blank" style="color:#2563eb;">on-track learning looks like</a> 
-                for your child and how you can help at home.
-              </p>
-            </div>
-          </div>
-          
-          <!-- Original detailed performance data (hidden by default) -->
-          <div id="detailedPerformance" style="display:none; margin-top:1.5rem;">
-            <h3 style="font-size:1rem; font-weight:600; margin-bottom:1rem;">Detailed Performance Metrics</h3>
-            <div class="performance-grid" id="performanceGrid"></div>
-          </div>
-        </div>
+        <!-- Test Scores Section - loaded via component -->
+        <div id="testScores"></div>
 
-        <div class="section-card">
-          <div class="section-header"><h2 class="section-title">School Information</h2></div>
-          <div class="info-list">
-            <div class="info-row"><span class="info-label">School Type</span><span class="info-value" id="infoType">-</span></div>
-            <div class="info-row"><span class="info-label">Gender</span><span class="info-value" id="infoGender">-</span></div>
-            <div class="info-row"><span class="info-label">Age Range</span><span class="info-value" id="infoAgeRange">-</span></div>
-            <div class="info-row"><span class="info-label">Religious Character</span><span class="info-value" id="infoReligious">-</span></div>
-            <div class="info-row"><span class="info-label">Admissions Policy</span><span class="info-value" id="infoAdmissions">-</span></div>
-            <div class="info-row"><span class="info-label">Local Authority</span><span class="info-value" id="infoLA">-</span></div>
-            <div class="info-row"><span class="info-label">URN</span><span class="info-value" id="infoURN">-</span></div>
-          </div>
-        </div>
+        <!-- School Information Section -->
+        <div id="schoolInfo" class="section-card"></div>
 
-        <div class="section-card">
-          <div class="section-header">
-            <h2 class="section-title">Ofsted Inspection</h2>
-            <span style="font-size:.875rem;color:#6b7280;" id="inspectionDate">-</span>
-          </div>
-          <div class="performance-grid" id="ofstedGrid"></div>
-          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-            <a id="ofsted-report-link" href="#" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: none; font-size: 0.875rem;">
-              View full Ofsted report →
-            </a>
-          </div>
-        </div>
+        <!-- Ofsted Inspection Section -->
+        <div id="ofstedSection" class="section-card"></div>
 
+        <!-- Contact & Location Section -->
         <div class="section-card">
           <div class="section-header">
             <h2 class="section-title">Contact & Location</h2>
           </div>
-
           <div class="neighborhood">
-            <div class="contact-card">
-              <div class="contact-header">
-                <div class="contact-address" id="nh-address">Loading...</div>
-                <div class="contact-la" id="nh-la"></div>
-              </div>
-
-              <div class="contact-row">
-                <div class="contact-icon">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-                <div class="contact-content">
-                  <div class="contact-label">School Leader</div>
-                  <div class="contact-value" id="nh-leader">—</div>
-                </div>
-              </div>
-
-              <div class="contact-row">
-                <div class="contact-icon">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-                  </svg>
-                </div>
-                <div class="contact-content">
-                  <div class="contact-label">Phone</div>
-                  <a id="nh-phone" href="#" rel="nofollow">—</a>
-                </div>
-              </div>
-
-              <div class="contact-row">
-                <div class="contact-icon">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M14.243 5.757a6 6 0 10-.986 9.284 1 1 0 111.087 1.678A8 8 0 1118 10a3 3 0 01-4.8 2.401A4 4 0 1114 10a1 1 0 102 0c0-1.537-.586-3.07-1.757-4.243zM12 10a2 2 0 10-4 0 2 2 0 004 0z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-                <div class="contact-content">
-                  <div class="contact-label">Website</div>
-                  <a id="nh-website" href="#" target="_blank" rel="noopener">—</a>
-                </div>
-              </div>
-
-              <div class="map-actions">
-                <a id="nh-maps-link" href="#" target="_blank" rel="noopener" class="map-link">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                  </svg>
-                  Open in Google Maps
-                </a>
-              </div>
-            </div>
-
+            <div id="contactCard"></div>
             <div>
-              <div id="schoolMap"></div>
+              <div id="schoolMap" style="height: 400px; border-radius: 8px; border: 1px solid #e5e7eb;"></div>
               <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280;">
                 Map showing school location
               </div>
@@ -614,476 +62,300 @@
 
       </div>
 
+      <!-- Sidebar -->
       <aside class="sidebar">
-        <div class="sidebar-section">
+        <div id="actionButtons" class="sidebar-section"></div>
+        <div id="nearbySchools" class="sidebar-section"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Footer will be loaded dynamically -->
+  <div id="footer" style="margin-top:4rem;"></div>
+
+  <!-- Load component scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/schoolComponents.js"></script>
+  
+  <script>
+    // Main initialization
+    class SchoolPage {
+      constructor() {
+        this.urn = this.getURNFromPath();
+        this.school = null;
+        this.init();
+      }
+
+      getURNFromPath() {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        if (parts[0] === 'school' && parts[1]) {
+          return parts[1];
+        } else if (parts.length === 2 && !isNaN(Number(parts[1]))) {
+          return parts[1];
+        }
+        return null;
+      }
+
+      async init() {
+        if (!this.urn) {
+          this.showError('Invalid school URL');
+          return;
+        }
+
+        // Load header and footer
+        this.loadCommonComponents();
+        
+        // Load school data
+        await this.loadSchoolData();
+        
+        // Render components
+        if (this.school) {
+          this.renderSchoolComponents();
+          this.loadAdditionalData();
+        }
+      }
+
+      loadCommonComponents() {
+        // Load header
+        fetch('/components/header.html')
+          .then(r => r.text())
+          .then(html => document.getElementById('header').innerHTML = html)
+          .catch(console.error);
+        
+        // Load footer
+        fetch('/components/footer.html')
+          .then(r => r.text())
+          .then(html => document.getElementById('footer').innerHTML = html)
+          .catch(console.error);
+        
+        // Render breadcrumb
+        this.renderBreadcrumb();
+      }
+
+      renderBreadcrumb() {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        let city = null;
+        
+        if (parts.length === 2 && !isNaN(Number(parts[1]))) {
+          city = parts[0];
+        }
+        
+        const breadcrumb = `
+          <div class="breadcrumb">
+            <div class="container">
+              <ol class="breadcrumb-list">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-separator">/</li>
+                <li class="breadcrumb-item"><a href="/search">Search</a></li>
+                ${city ? `
+                <li class="breadcrumb-separator">/</li>
+                <li class="breadcrumb-item"><a href="/${city}">${city.charAt(0).toUpperCase() + city.slice(1).replace(/-/g,' ')}</a></li>
+                ` : ''}
+                <li class="breadcrumb-separator">/</li>
+                <li class="breadcrumb-item active" id="schoolCrumb">School</li>
+              </ol>
+            </div>
+          </div>
+        `;
+        document.getElementById('breadcrumb').innerHTML = breadcrumb;
+      }
+
+      async loadSchoolData() {
+        try {
+          const response = await fetch(`/api/schools/${this.urn}`);
+          const data = await response.json();
+          
+          if (!data.success || !data.school) {
+            this.showError('School not found');
+            return;
+          }
+          
+          this.school = data.school;
+          
+          // Update page title and breadcrumb
+          document.getElementById('pageTitle').textContent = `${this.school.name} - Better School UK`;
+          const crumb = document.getElementById('schoolCrumb');
+          if (crumb) crumb.textContent = this.school.name;
+          
+        } catch (error) {
+          console.error('Error loading school:', error);
+          this.showError('Error loading school data');
+        }
+      }
+
+      renderSchoolComponents() {
+        // Render header section
+        document.getElementById('schoolHeader').innerHTML = 
+          SchoolComponents.renderSchoolHeader(this.school);
+        
+        // Render key stats
+        document.getElementById('keyStats').innerHTML = 
+          SchoolComponents.renderKeyStats(this.school);
+        
+        // Render test scores
+        document.getElementById('testScores').innerHTML = 
+          SchoolComponents.renderTestScores(this.school);
+        
+        // Render school info
+        this.renderSchoolInfo();
+        
+        // Render Ofsted section
+        this.renderOfstedSection();
+        
+        // Render contact card
+        document.getElementById('contactCard').innerHTML = 
+          SchoolComponents.renderContactCard(this.school);
+        
+        // Initialize map
+        setTimeout(() => {
+          SchoolComponents.renderMap('schoolMap', this.school);
+        }, 100);
+        
+        // Render sidebar
+        this.renderSidebar();
+      }
+
+      renderSchoolInfo() {
+        const info = `
+          <div class="section-header">
+            <h2 class="section-title">School Information</h2>
+          </div>
+          <div class="info-list">
+            <div class="info-row">
+              <span class="info-label">School Type</span>
+              <span class="info-value">${this.school.type || '-'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Gender</span>
+              <span class="info-value">${this.school.characteristics?.gender || '-'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Age Range</span>
+              <span class="info-value">${this.school.characteristics?.age_range || '-'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Religious Character</span>
+              <span class="info-value">${this.school.characteristics?.religious_character || 'None'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Admissions Policy</span>
+              <span class="info-value">${this.school.characteristics?.admissions_policy || 'Standard'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Local Authority</span>
+              <span class="info-value">${this.school.address?.local_authority || '-'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">URN</span>
+              <span class="info-value">${this.school.urn || '-'}</span>
+            </div>
+          </div>
+        `;
+        document.getElementById('schoolInfo').innerHTML = info;
+      }
+
+      renderOfstedSection() {
+        if (!this.school.ofsted) {
+          document.getElementById('ofstedSection').style.display = 'none';
+          return;
+        }
+        
+        const ratings = [
+          { label: 'Overall Effectiveness', value: this.school.ofsted.overall_label },
+          { label: 'Quality of Education', value: this.getOfstedLabel(this.school.ofsted.quality_of_education) },
+          { label: 'Behaviour & Attitudes', value: this.getOfstedLabel(this.school.ofsted.behaviour_and_attitudes) },
+          { label: 'Personal Development', value: this.getOfstedLabel(this.school.ofsted.personal_development) },
+          { label: 'Leadership & Management', value: this.getOfstedLabel(this.school.ofsted.leadership_and_management) },
+          { label: 'Safeguarding', value: this.school.ofsted.safeguarding_effective || '-' }
+        ];
+        
+        const ofsted = `
+          <div class="section-header">
+            <h2 class="section-title">Ofsted Inspection</h2>
+            <span style="font-size:.875rem;color:#6b7280;">
+              ${this.school.ofsted.inspection_date ? new Date(this.school.ofsted.inspection_date).toLocaleDateString() : '-'}
+            </span>
+          </div>
+          <div class="performance-grid">
+            ${ratings.map(r => `
+              <div class="performance-item">
+                <div class="performance-label">${r.label}</div>
+                <div class="performance-value" style="font-size:1rem;">${r.value || '-'}</div>
+              </div>
+            `).join('')}
+          </div>
+          ${this.school.ofsted.web_link ? `
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+            <a href="${this.school.ofsted.web_link}" target="_blank" rel="noopener" style="color: #2563eb; text-decoration: none; font-size: 0.875rem;">
+              View full Ofsted report →
+            </a>
+          </div>` : ''}
+        `;
+        document.getElementById('ofstedSection').innerHTML = ofsted;
+      }
+
+      renderSidebar() {
+        // Action buttons
+        const actions = `
           <div class="action-buttons" style="display:flex;flex-direction:column;gap:.75rem">
             <button class="action-btn primary" onclick="alert('Save coming soon')">⭐ Save School</button>
             <button class="action-btn" onclick="alert('Compare coming soon')">📊 Compare</button>
             <button class="action-btn" onclick="navigator.share ? navigator.share({title:document.title,url:location.href}) : alert('Share coming soon')">🔗 Share</button>
             <button class="action-btn" onclick="window.print()">🖨️ Print</button>
           </div>
-        </div>
-
-        <div class="sidebar-section">
+        `;
+        document.getElementById('actionButtons').innerHTML = actions;
+        
+        // Nearby schools will be loaded separately
+        document.getElementById('nearbySchools').innerHTML = `
           <h3 class="sidebar-title">Nearby Schools</h3>
-          <div id="nearbySchools"></div>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <div id="footer" style="margin-top:4rem;"></div>
-
-  <script src="/js/main.js"></script>
-
-  <script>
-    // Global variables
-    let leafletMap = null;
-    let leafletMarker = null;
-
-    // Helper function to format address
-    function formatAddress(addr) {
-      const parts = [];
-      if (addr?.street) parts.push(addr.street);
-      if (addr?.locality) parts.push(addr.locality);
-      if (addr?.town) parts.push(addr.town);
-      if (addr?.postcode) parts.push(addr.postcode);
-      return parts.join(', ');
-    }
-
-    // Initialize or update map
-    function initMap(lat, lon, name) {
-      const mapContainer = document.getElementById('schoolMap');
-      if (!mapContainer) {
-        console.error('Map container not found');
-        return;
+          <div id="nearbySchoolsList">Loading...</div>
+        `;
       }
 
-      // If map already exists, just update the view
-      if (leafletMap) {
-        leafletMap.setView([lat, lon], 15);
-        if (leafletMarker) {
-          leafletMarker.setLatLng([lat, lon]);
-          leafletMarker.setPopupContent(name || 'School');
-        } else {
-          leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
-        }
-        leafletMap.invalidateSize();
-        return;
-      }
-
-      // Create new map
-      try {
-        leafletMap = L.map('schoolMap', { 
-          scrollWheelZoom: false,
-          zoomControl: true 
-        }).setView([lat, lon], 15);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(leafletMap);
-        
-        leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
-        
-        setTimeout(() => {
-          leafletMap.invalidateSize();
-        }, 100);
-        
-      } catch (error) {
-        console.error('Error initializing map:', error);
-      }
-    }
-
-    // Geocode address fallback
-    async function geocodeAddress(address) {
-      if (!address) return null;
-      const key = 'geo:' + address.toLowerCase();
-      const cached = sessionStorage.getItem(key);
-      if (cached) { 
-        try { return JSON.parse(cached); } catch {} 
-      }
-
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=gb&q=${encodeURIComponent(address)}`;
-      try {
-        const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
-        if (!resp.ok) return null;
-        const data = await resp.json();
-        if (Array.isArray(data) && data.length) {
-          const { lat, lon } = data[0];
-          const result = { lat: parseFloat(lat), lon: parseFloat(lon) };
-          sessionStorage.setItem(key, JSON.stringify(result));
-          return result;
-        }
-      } catch (e) {
-        console.warn('Geocoding failed', e);
-      }
-      return null;
-    }
-
-    // Render test scores
-    function renderTestScores(school) {
-      if (!school.test_scores) {
-        console.log('No test scores available, falling back to performance data');
-        return;
-      }
-      
-      const subjects = ['english', 'math', 'science'];
-      
-      subjects.forEach(subject => {
-        const score = school.test_scores[subject].score;
-        const average = school.test_scores[subject].average;
-        
-        if (score !== null && score !== undefined) {
-          // Update score text
-          document.getElementById(`${subject}Score`).textContent = Math.round(score) + '%';
-          
-          // Update progress bar
-          const bar = document.getElementById(`${subject}Bar`);
-          bar.style.width = Math.min(100, Math.max(0, score)) + '%';
-          
-          // Set color based on performance
-          if (score >= 70) {
-            bar.className = 'score-fill high-performing';
-          } else if (score >= 50) {
-            bar.className = 'score-fill average-performing';
-          } else {
-            bar.className = 'score-fill low-performing';
-          }
-          
-          // Update average marker if available
-          if (average !== null && average !== undefined) {
-            const avgElement = document.getElementById(`${subject}Avg`);
-            avgElement.style.left = Math.min(100, Math.max(0, average)) + '%';
-            avgElement.style.display = 'flex';
-            document.getElementById(`${subject}AvgLabel`).textContent = Math.round(average) + '%';
-          }
-        } else {
-          document.getElementById(`${subject}Score`).textContent = 'N/A';
-        }
-      });
-    }
-
-    // Show info modal for subject
-    function showSubjectInfo(subject) {
-      const info = {
-        english: 'This shows the percentage of students meeting expected standards in English/Reading assessments.',
-        math: 'This shows the percentage of students meeting expected standards in Mathematics assessments.',
-        science: 'This shows the percentage of students meeting expected standards in Science assessments.'
-      };
-      
-      alert(info[subject] || 'Information not available');
-    }
-
-    // Toggle detailed performance view
-    function toggleDetails(subject) {
-      const detailed = document.getElementById('detailedPerformance');
-      if (detailed.style.display === 'none') {
-        detailed.style.display = 'block';
-      } else {
-        detailed.style.display = 'none';
-      }
-    }
-
-    // Render neighborhood/contact section
-    function renderNeighborhood(school) {
-      // Address
-      const addressParts = [];
-      if (school.address?.street) addressParts.push(school.address.street);
-      if (school.address?.locality) addressParts.push(school.address.locality);
-      if (school.address?.town) addressParts.push(school.address.town);
-      if (school.address?.postcode) addressParts.push(school.address.postcode);
-      
-      const addressText = addressParts.join(', ');
-      document.getElementById('nh-address').textContent = addressText || '—';
-      document.getElementById('nh-la').textContent = school.address?.local_authority ? 
-        `${school.address.local_authority}${school.address.region ? ', ' + school.address.region : ''}` : '';
-
-      // School Leader
-      let leaderDisplay = '—';
-      if (school.headteacher_name) {
-        leaderDisplay = school.headteacher_name;
-        if (school.headteacher_job_title) {
-          leaderDisplay += ` (${school.headteacher_job_title})`;
-        }
-      } else if (school.headteacher_job_title) {
-        leaderDisplay = school.headteacher_job_title;
-      }
-      document.getElementById('nh-leader').textContent = leaderDisplay;
-
-      // Phone
-      const tel = school.telephone || null;
-      const phoneEl = document.getElementById('nh-phone');
-      if (tel) {
-        phoneEl.textContent = tel;
-        phoneEl.href = `tel:${tel.replace(/\s+/g,'')}`;
-        phoneEl.style.color = '#2563eb';
-      } else {
-        phoneEl.textContent = 'Not available';
-        phoneEl.removeAttribute('href');
-        phoneEl.style.color = '#6b7280';
-        phoneEl.style.cursor = 'default';
-      }
-
-      // Website
-      const site = school.website || null;
-      const webEl = document.getElementById('nh-website');
-      if (site) {
-        let url = site;
-        if (!site.startsWith('http://') && !site.startsWith('https://')) {
-          url = 'http://' + site;
-        }
+      async loadAdditionalData() {
+        // Load nearby schools
         try {
-          webEl.href = url;
-          const urlObj = new URL(url);
-          webEl.textContent = urlObj.host.replace(/^www\./,'');
-          webEl.style.color = '#2563eb';
-        } catch {
-          webEl.href = url;
-          webEl.textContent = site;
-          webEl.style.color = '#2563eb';
-        }
-      } else {
-        webEl.textContent = 'Not available';
-        webEl.removeAttribute('href');
-        webEl.style.color = '#6b7280';
-        webEl.style.cursor = 'default';
-      }
-
-      // Google Maps link
-      const mapsLink = document.getElementById('nh-maps-link');
-      if (mapsLink) {
-        if (typeof school.latitude === 'number' && typeof school.longitude === 'number' && 
-            !isNaN(school.latitude) && !isNaN(school.longitude)) {
-          mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${school.latitude},${school.longitude}`;
-        } else if (addressText) {
-          mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}`;
-        }
-      }
-
-      // Initialize map with coordinates
-      const lat = parseFloat(school.latitude);
-      const lon = parseFloat(school.longitude);
-      
-      console.log('School coordinates:', { lat, lon, name: school.name });
-
-      if (!isNaN(lat) && !isNaN(lon)) {
-        // Use database coordinates
-        setTimeout(() => {
-          console.log('Initializing map with DB coordinates:', lat, lon);
-          initMap(lat, lon, school.name);
-        }, 200);
-      } else if (addressText) {
-        // Fallback to geocoding
-        console.log('No DB coordinates, geocoding:', addressText);
-        geocodeAddress(addressText).then(coords => {
-          if (coords && !isNaN(coords.lat) && !isNaN(coords.lon)) {
-            console.log('Geocoding successful:', coords);
-            initMap(coords.lat, coords.lon, school.name);
-          } else {
-            console.log('Geocoding failed, showing UK overview');
-            initMap(52.5, -1.5, school.name);
-            if (leafletMap) leafletMap.setZoom(6);
-          }
-        }).catch(err => {
-          console.error('Geocoding error:', err);
-        });
-      }
-    }
-
-    // Initialize page
-    (function init() {
-      const parts = window.location.pathname.split('/').filter(Boolean);
-      let urn = null, city = null;
-
-      if (parts[0] === 'school' && parts[1]) {
-        urn = parts[1];
-      } else if (parts.length === 2 && !isNaN(Number(parts[1]))) {
-        city = parts[0];
-        urn = parts[1];
-      }
-
-      if (city) {
-        const pretty = city.charAt(0).toUpperCase() + city.slice(1).replace(/-/g,' ');
-        const crumb = document.getElementById('cityCrumb');
-        crumb.textContent = pretty;
-        crumb.href = `/${city}`;
-      }
-
-      if (!urn) {
-        document.getElementById('schoolName').textContent = 'Error Loading School';
-        return;
-      }
-
-      loadAll(urn);
-    })();
-
-    // Load all school data
-    async function loadAll(urn) {
-      try {
-        const schoolRes = await fetch(`/api/schools/${urn}`);
-        const schoolData = await schoolRes.json();
-        
-        if (!(schoolData && schoolData.success && schoolData.school)) {
-          document.getElementById('schoolName').textContent = 'School Not Found';
-          return;
-        }
-        
-        const s = schoolData.school;
-
-        // Update header
-        document.getElementById('schoolName').textContent = s.name || '-';
-        document.getElementById('schoolType').textContent = s.type || '-';
-        document.getElementById('schoolPhase').textContent = s.phase || '-';
-        document.getElementById('ageRange').textContent = s.characteristics ? `Ages ${s.characteristics.age_range}` : 'Ages -';
-
-        const addr = formatAddress(s.address || {});
-        document.getElementById('schoolAddress').textContent = addr || '-';
-
-        document.getElementById('overallRating').textContent = s.overall_rating ? `${s.overall_rating}/10` : '-';
-        
-        // Ofsted info
-        if (s.ofsted) {
-          document.getElementById('ofstedRating').textContent = s.ofsted.overall_label || '-';
-          document.getElementById('ofstedDate').textContent = s.ofsted.inspection_date ? 
-            new Date(s.ofsted.inspection_date).toLocaleDateString() : 'Not available';
-          document.getElementById('inspectionDate').textContent = s.ofsted.inspection_date ? 
-            new Date(s.ofsted.inspection_date).toLocaleDateString() : '-';
+          const response = await fetch(`/api/schools/${this.urn}/nearby?limit=5`);
+          const data = await response.json();
           
-          // Ofsted report link
-          const ofstedLink = document.getElementById('ofsted-report-link');
-          if (ofstedLink && s.ofsted.web_link) {
-            ofstedLink.href = s.ofsted.web_link;
-            ofstedLink.style.display = '';
-          } else if (ofstedLink) {
-            ofstedLink.style.display = 'none';
-          }
-
-          // Ofsted grid
-          const ofstedGrid = document.getElementById('ofstedGrid');
-          if (ofstedGrid) {
-            const ratings = [
-              { label: 'Overall Effectiveness', value: s.ofsted.overall_label },
-              { label: 'Quality of Education', value: getOfstedLabel(s.ofsted.quality_of_education) },
-              { label: 'Behaviour & Attitudes', value: getOfstedLabel(s.ofsted.behaviour_and_attitudes) },
-              { label: 'Personal Development', value: getOfstedLabel(s.ofsted.personal_development) },
-              { label: 'Leadership & Management', value: getOfstedLabel(s.ofsted.leadership_and_management) },
-              { label: 'Safeguarding', value: s.ofsted.safeguarding_effective || '-' }
-            ];
-            
-            ofstedGrid.innerHTML = ratings.map(r => `
-              <div class="performance-item">
-                <div class="performance-label">${r.label}</div>
-                <div class="performance-value" style="font-size:1rem;">${r.value || '-'}</div>
+          if (data.success && data.nearby_schools) {
+            const nearbyHtml = data.nearby_schools.slice(0,5).map(school => `
+              <div class="nearby-school" onclick="window.location.href='/school/${school.urn}'" 
+                   style="cursor:pointer; padding:0.75rem 0; border-bottom:1px solid #f3f4f6;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-weight:600; color:#111827; font-size:0.875rem;">${school.name}</div>
+                    <div style="color:#6b7280; font-size:0.75rem;">${school.type_of_establishment || ''}</div>
+                  </div>
+                  <div style="font-weight:700; color:#2563eb; font-size:0.875rem;">${school.overall_rating || '-'}/10</div>
+                </div>
               </div>
             `).join('');
+            
+            document.getElementById('nearbySchoolsList').innerHTML = nearbyHtml;
           }
+        } catch (error) {
+          console.error('Error loading nearby schools:', error);
         }
+      }
 
-        // Stats
-        document.getElementById('statStudents').textContent = s.demographics?.total_students || '-';
-        const fsm = s.demographics?.fsm_percentage;
-        document.getElementById('statFSM').textContent = (fsm !== null && fsm !== undefined) ? (fsm + '%') : '-';
-        
-        // Update test score stats in key stats bar
-        if (s.test_scores) {
-          const englishScore = s.test_scores.english?.score;
-          const mathScore = s.test_scores.math?.score;
-          
-          document.getElementById('statEnglish').textContent = 
-            englishScore !== null && englishScore !== undefined ? Math.round(englishScore) + '%' : '-';
-          document.getElementById('statMath').textContent = 
-            mathScore !== null && mathScore !== undefined ? Math.round(mathScore) + '%' : '-';
-        }
+      getOfstedLabel(rating) {
+        const labels = { 1: 'Outstanding', 2: 'Good', 3: 'Requires Improvement', 4: 'Inadequate' };
+        return labels[rating] || '-';
+      }
 
-        if (s.attendance?.overall_absence_rate != null) {
-          const att = (100 - s.attendance.overall_absence_rate).toFixed(1);
-          document.getElementById('statAttendance').textContent = att + '%';
-        }
-
-        // Breadcrumb and title
-        document.getElementById('schoolCrumb').textContent = s.name || 'School';
-        document.getElementById('pageTitle').textContent = `${s.name} - Better School UK`;
-
-        // Info panel
-        document.getElementById('infoType').textContent = s.type || '-';
-        document.getElementById('infoGender').textContent = s.characteristics?.gender || '-';
-        document.getElementById('infoAgeRange').textContent = s.characteristics?.age_range || '-';
-        document.getElementById('infoReligious').textContent = s.characteristics?.religious_character || 'None';
-        document.getElementById('infoAdmissions').textContent = s.characteristics?.admissions_policy || 'Standard';
-        document.getElementById('infoLA').textContent = s.address?.local_authority || '-';
-        document.getElementById('infoURN').textContent = s.urn || '-';
-
-        // Render test scores
-        renderTestScores(s);
-
-        // Render contact and map
-        renderNeighborhood(s);
-
-        // Load performance data (for detailed view)
-        const perfRes = await fetch(`/api/schools/${urn}/performance`);
-        const perf = await perfRes.json();
-        if (perf.success && perf.performance) {
-          renderPerformance(perf.performance);
-        }
-
-        // Load nearby schools
-        const nearRes = await fetch(`/api/schools/${urn}/nearby?limit=5`);
-        const near = await nearRes.json();
-        if (near.success && near.nearby_schools) {
-          document.getElementById('nearbySchools').innerHTML = near.nearby_schools.slice(0,5).map(n => `
-            <div class="nearby-school" onclick="window.location.href='/school/${n.urn}'" style="cursor:pointer; padding:0.75rem 0; border-bottom:1px solid #f3f4f6;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-weight:600; color:#111827; font-size:0.875rem;">${n.name}</div>
-                  <div style="color:#6b7280; font-size:0.75rem;">${n.type_of_establishment || ''}</div>
-                </div>
-                <div style="font-weight:700; color:#2563eb; font-size:0.875rem;">${n.overall_rating || '-'}/10</div>
-              </div>
-            </div>
-          `).join('');
-        }
-        
-      } catch(e) {
-        console.error('Error loading school:', e);
-        document.getElementById('schoolName').textContent = 'Error Loading School';
+      showError(message) {
+        document.getElementById('schoolHeader').innerHTML = `
+          <div class="container" style="padding: 2rem; text-align: center;">
+            <h1 style="color: #ef4444;">${message}</h1>
+          </div>
+        `;
       }
     }
 
-    // Render performance data (for detailed view)
-    function renderPerformance(p) {
-      const grid = document.getElementById('performanceGrid');
-      if (!grid) return;
-      
-      grid.innerHTML = '';
-      
-      if (p.ks2) {
-        grid.innerHTML += `
-          <div class="performance-item"><div class="performance-label">Reading Progress</div><div class="performance-value">${p.ks2.reading_progress ?? '-'}</div></div>
-          <div class="performance-item"><div class="performance-label">Writing Progress</div><div class="performance-value">${p.ks2.writing_progress ?? '-'}</div></div>
-          <div class="performance-item"><div class="performance-label">Maths Progress</div><div class="performance-value">${p.ks2.maths_progress ?? '-'}</div></div>
-          <div class="performance-item"><div class="performance-label">Expected Standard (R/W/M)</div><div class="performance-value">${p.ks2.rwm_expected_percentage ?? '-'}%</div></div>`;
-      }
-      
-      if (p.ks4) {
-        grid.innerHTML += `
-          <div class="performance-item"><div class="performance-label">Progress 8</div><div class="performance-value">${p.ks4.progress_8_score ?? '-'}</div></div>
-          <div class="performance-item"><div class="performance-label">Attainment 8</div><div class="performance-value">${p.ks4.attainment_8_score ?? '-'}</div></div>
-          <div class="performance-item"><div class="performance-label">Grade 5+ Eng & Maths</div><div class="performance-value">${p.ks4.basics_9_5_percentage ?? '-'}%</div></div>`;
-      }
-      
-      if (p.ks5) {
-        grid.innerHTML += `
-          <div class="performance-item"><div class="performance-label">A Level Grade</div><div class="performance-value">${p.ks5.a_level_average_grade ?? '-'}</div></div>
-          <div class="performance-item"><div class="performance-label">A Level Points</div><div class="performance-value">${p.ks5.a_level_points_per_entry ?? '-'}</div></div>`;
-      }
-    }
-
-    // Helper for Ofsted labels
-    function getOfstedLabel(rating) {
-      const labels = { 1: 'Outstanding', 2: 'Good', 3: 'Requires Improvement', 4: 'Inadequate' };
-      return labels[rating] || '-';
-    }
+    // Initialize the page
+    new SchoolPage();
   </script>
 </body>
 </html>
