@@ -106,9 +106,9 @@ function renderDemographics(school) {
     const ealCircle = document.getElementById('ealCircle');
     if (ealEl) ealEl.textContent = Math.round(ealPercent) + '%';
     if (ealCircle) {
-      const circumference = 2 * Math.PI * 40;
+      const circumference = 2 * Math.PI * 25; // ~157
       const offset = circumference - (ealPercent / 100) * circumference;
-      ealCircle.style.strokeDashoffset = offset;
+      ealCircle.style.strokeDashoffset = offset.toString();
     }
   }
   
@@ -118,11 +118,11 @@ function renderDemographics(school) {
     const fsmEl = document.getElementById('fsmPercentage');
     const fsmCircle = document.getElementById('fsmCircle');
     if (fsmEl) fsmEl.textContent = Math.round(fsmPercent) + '%';
-    if (fsmCircle) {
-      const circumference = 2 * Math.PI * 40;
-      const offset = circumference - (fsmPercent / 100) * circumference;
-      fsmCircle.style.strokeDashoffset = offset;
-    }
+  if (fsmCircle) {
+    const circumference = 2 * Math.PI * 25; // ~157
+    const offset = circumference - (fsmPercent / 100) * circumference;
+    fsmCircle.style.strokeDashoffset = offset.toString();
+  }
   }
   
   // Gender breakdown
@@ -140,9 +140,9 @@ function renderDemographics(school) {
     if (femaleEl) femaleEl.textContent = femalePercent + '%';
     if (maleEl) maleEl.textContent = malePercent + '%';
     if (genderCircle) {
-      const circumference = 2 * Math.PI * 40;
+      const circumference = 2 * Math.PI * 25; // ~157
       const offset = circumference - (malePercent / 100) * circumference;
-      genderCircle.style.strokeDashoffset = offset;
+      genderCircle.style.strokeDashoffset = offset.toString();
     }
   }
   
@@ -537,7 +537,7 @@ async function loadAll(urn) {
     if (infoURNEl) infoURNEl.textContent = s.urn || '-';
 
     // Render test scores
-    
+
     renderTestScores(s);
     // renderDemographics
     renderDemographics(s);
