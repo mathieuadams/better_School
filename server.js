@@ -90,9 +90,18 @@ app.get('/api', (_req, res) => {
 app.use('/api/schools', schoolRoutes);
 app.use('/api/search', searchRoutes);
 
-// ---- HTML pages
+// ---- HTML pages helper function
 const sendPublic = (res, file) => res.sendFile(path.join(PUBLIC_DIR, file));
 
+// ---- Review API routes
+const reviewRoutes = require('./src/routes/reviewRoutes');
+app.use('/api', reviewRoutes);
+
+// ---- Review HTML pages
+app.get('/review', (_req, res) => sendPublic(res, 'review.html'));
+app.get('/write-review', (_req, res) => sendPublic(res, 'write-review.html'));
+
+// ---- Other HTML pages
 app.get('/', (_req, res) => sendPublic(res, 'index.html'));
 app.get('/search', (_req, res) => sendPublic(res, 'search.html'));
 app.get('/compare', (_req, res) => sendPublic(res, 'compare.html'));
