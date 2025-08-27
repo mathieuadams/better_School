@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review a School - Better School UK</title>
+    <title>Write a Review - Better School UK</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
     <style>
@@ -14,282 +14,111 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #ffffff;
-            color: #1a1a1a;
+            color: #333;
+            line-height: 1.6;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 3rem 1rem;
+            padding: 2rem 1rem;
         }
 
-        .page-title {
-            font-size: 3rem;
-            font-weight: 400;
+        .page-header {
             text-align: center;
             margin-bottom: 2rem;
-            color: #1a1a1a;
         }
 
-        .hero-image {
-            width: 250px;
-            height: 250px;
-            margin: 2rem auto;
-            display: block;
-            opacity: 0.1;
+        h1 {
+            font-size: 2rem;
+            font-weight: 400;
+            color: #333;
+            margin-bottom: 1rem;
         }
 
-        .review-box {
+        .school-name {
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .change-school-btn {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.5rem 1.5rem;
             background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 0 auto 2rem;
-            max-width: 400px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #007bff;
+            color: #007bff;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
-        .review-header {
+        .change-school-btn:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Two Column Layout */
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .form-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-title {
             font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #374151;
+            margin-bottom: 1rem;
+            color: #333;
         }
 
-        .review-subtitle {
-            color: #6b7280;
-            margin-bottom: 1rem;
+        .required {
+            color: #e74c3c;
             font-size: 0.875rem;
         }
 
+        /* Star Rating */
         .star-rating {
             display: flex;
             gap: 0.25rem;
-            margin-bottom: 1rem;
-        }
-
-        .star {
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            fill: #d1d5db;
-            transition: fill 0.2s;
-        }
-
-        .star:hover {
-            fill: #fbbf24;
-        }
-
-        .star.filled {
-            fill: #fbbf24;
-        }
-
-        .quick-buttons {
-            margin-top: 1rem;
-        }
-
-        .quick-btn {
-            padding: 0.5rem 1rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            display: inline-block;
-        }
-
-        .quick-btn:hover {
-            background: #f9fafb;
-            border-color: #9ca3af;
-        }
-
-        .info-text {
-            text-align: center;
-            color: #4b5563;
-            margin: 2rem 0;
-            font-size: 1.125rem;
-            line-height: 1.6;
-        }
-
-        .tips-link {
-            color: #2563eb;
-        }
-
-        .school-search {
-            width: 100%;
-            max-width: 600px;
-            padding: 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin: 2rem auto;
-            display: block;
-        }
-
-        .school-search:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .recent-reviews {
-            margin-top: 4rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .reviews-title {
-            font-size: 2rem;
-            font-weight: 500;
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #1a1a1a;
-        }
-
-        .review-item {
-            border-bottom: 1px solid #e5e7eb;
-            padding: 1.5rem 0;
-        }
-
-        .review-item:last-child {
-            border-bottom: none;
-        }
-
-        .review-meta {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .review-stars {
-            display: flex;
-            gap: 0.125rem;
-        }
-
-        .review-star {
-            width: 16px;
-            height: 16px;
-            fill: #fbbf24;
-        }
-
-        .review-star.empty {
-            fill: #e5e7eb;
-        }
-
-        .review-date {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-left: auto;
-        }
-
-        .review-school-name {
-            color: #2563eb;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .review-location {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .review-text {
-            color: #374151;
-            line-height: 1.6;
-            margin-bottom: 0.5rem;
-        }
-
-        .review-author {
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-
-        /* Write Review Form - Hidden by default */
-        .review-form {
-            display: none;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .review-form.active {
-            display: block;
-        }
-
-        .form-section {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #e5e7eb;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #111827;
-        }
-
-        .rating-scale {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             margin: 1rem 0;
         }
 
-        .scale-label {
-            font-size: 0.875rem;
-            color: #6b7280;
-            min-width: 100px;
-        }
-
-        .scale-dots {
-            display: flex;
-            gap: 2rem;
-            flex: 1;
-            align-items: center;
-        }
-
-        .scale-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid #d1d5db;
-            background: white;
+        .star {
+            font-size: 1.75rem;
+            color: #ddd;
             cursor: pointer;
-            position: relative;
+            transition: color 0.2s;
         }
 
-        .scale-dot:hover {
-            border-color: #2563eb;
+        .star:hover,
+        .star.filled {
+            color: #ffc107;
         }
 
-        .scale-dot.selected {
-            background: #2563eb;
-            border-color: #2563eb;
-        }
-
-        .scale-endpoints {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            padding-left: 100px;
-            font-size: 0.75rem;
-            color: #9ca3af;
-            text-transform: uppercase;
-        }
-
+        /* Radio Buttons */
         .radio-group {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
             margin: 1rem 0;
         }
 
@@ -297,86 +126,176 @@
             display: flex;
             align-items: center;
             cursor: pointer;
+            font-size: 0.95rem;
         }
 
         .radio-label input {
-            width: 18px;
-            height: 18px;
             margin-right: 0.5rem;
         }
 
+        /* Scale Rating */
+        .scale-container {
+            margin: 1rem 0;
+        }
+
+        .scale-question {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .scale-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .scale-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .scale-dots {
+            display: flex;
+            gap: 0.75rem;
+            flex: 1;
+            justify-content: center;
+            margin: 0 1rem;
+        }
+
+        .scale-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scale-dot:hover {
+            border-color: #007bff;
+            transform: scale(1.1);
+        }
+
+        .scale-dot.selected {
+            background: #007bff;
+            border-color: #007bff;
+        }
+
+        /* Textarea */
         .review-textarea {
             width: 100%;
-            min-height: 200px;
-            padding: 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 1rem;
+            min-height: 150px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-family: inherit;
+            font-size: 0.95rem;
             resize: vertical;
         }
 
         .review-textarea:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #007bff;
         }
 
         .char-counter {
             text-align: right;
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #777;
+            margin-top: 0.25rem;
         }
 
-        .relationship-select {
+        .char-counter.error {
+            color: #e74c3c;
+        }
+
+        /* Select Dropdown */
+        .select-dropdown {
             width: 100%;
-            max-width: 400px;
             padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
             background: white;
+            cursor: pointer;
+        }
+
+        .select-dropdown:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        /* Submit Section */
+        .submit-section {
+            grid-column: span 2;
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 2rem;
         }
 
         .submit-btn {
-            background: #2563eb;
+            background: #007bff;
             color: white;
-            padding: 0.75rem 2rem;
+            padding: 0.875rem 2.5rem;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 4px;
+            font-size: 1.125rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background 0.2s;
         }
 
-        .submit-btn:hover:not(:disabled) {
-            background: #1d4ed8;
+        .submit-btn:hover {
+            background: #0056b3;
         }
 
         .submit-btn:disabled {
-            background: #9ca3af;
+            background: #ccc;
             cursor: not-allowed;
         }
 
+        /* Terms */
         .terms-text {
-            color: #6b7280;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
+            color: #777;
             margin-bottom: 1rem;
         }
 
         .terms-text a {
-            color: #2563eb;
+            color: #007bff;
+            text-decoration: none;
         }
 
-        @media (max-width: 640px) {
-            .page-title {
-                font-size: 2rem;
+        .guidelines-link {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Full width cards */
+        .full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 768px) {
+            .review-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
             }
             
-            .scale-dots {
-                gap: 1rem;
+            .submit-section,
+            .full-width {
+                grid-column: span 1;
             }
         }
     </style>
@@ -384,240 +303,187 @@
 <body>
     <div id="header"></div>
 
-    <div class="container">
-        <h1 class="page-title">Review a school</h1>
-
-        <svg class="hero-image" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
-            <g opacity="0.3">
-                <path d="M125 50 L175 75 L175 150 L125 175 L75 150 L75 75 Z" fill="#e5e7eb"/>
-                <circle cx="125" cy="125" r="80" fill="none" stroke="#e5e7eb" stroke-width="2"/>
-            </g>
-        </svg>
-
-        <!-- Initial review box - shown before school selection -->
-        <div class="review-box" id="initialReviewBox">
-            <div class="review-header">Leave a review</div>
-            <div class="review-subtitle">Please review this school:</div>
-            
-            <div class="star-rating" id="quickRating">
-                <svg class="star" data-value="1" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <svg class="star" data-value="2" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <svg class="star" data-value="3" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <svg class="star" data-value="4" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <svg class="star" data-value="5" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>Write a review of <span class="school-name" id="schoolNameDisplay">a school</span></h1>
+                <a href="/review" class="change-school-btn" id="changeSchoolBtn">Search for a different school</a>
             </div>
-            
-            <div class="review-subtitle">Do you have any thoughts to share?</div>
-            
-            <div class="quick-buttons">
-                <button class="quick-btn" onclick="setQuickFeedback('love')">We love the teachers at this school ❤️</button>
-                <button class="quick-btn" onclick="setQuickFeedback('recommend')">Highly recommend!</button>
-            </div>
-        </div>
 
-        <p class="info-text">
-            Leaving a review of your school helps other<br>
-            families find the right fit for their child.
-        </p>
-        
-        <p class="info-text">
-            Check out <a href="#" class="tips-link">these tips</a> before you get started.
-        </p>
+            <form id="reviewForm">
+                <!-- Overall Experience and Recommendation (Full Width) -->
+                <div class="form-card full-width">
+                    <div class="form-title">Overall experience <span class="required">(required)</span></div>
+                    <div class="star-rating" id="overallRating">
+                        <span class="star" data-value="1">☆</span>
+                        <span class="star" data-value="2">☆</span>
+                        <span class="star" data-value="3">☆</span>
+                        <span class="star" data-value="4">☆</span>
+                        <span class="star" data-value="5">☆</span>
+                    </div>
 
-        <input type="text" class="school-search" placeholder="Find your school" id="schoolSearch">
-
-        <!-- Full review form - hidden initially -->
-        <form class="review-form" id="reviewForm">
-            <div class="form-section">
-                <div class="section-title">Overall experience (required)</div>
-                <div class="star-rating" id="overallRating">
-                    <svg class="star" data-value="1" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <svg class="star" data-value="2" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <svg class="star" data-value="3" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <svg class="star" data-value="4" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <svg class="star" data-value="5" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                </div>
-                
-                <div style="margin-top: 2rem;">
-                    <strong>Would you recommend this school?</strong>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="recommend" value="yes" required>
-                            Yes
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="recommend" value="no" required>
-                            No
-                        </label>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="font-weight: 500; margin-bottom: 0.5rem;">Would you recommend this school?</div>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="recommend" value="yes" required>
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="recommend" value="no" required>
+                                <span>No</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-section">
-                <div class="section-title">Learning</div>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
-                    In my experience, students at this school feel excited about what they're learning
-                </p>
-                <div class="rating-scale">
-                    <span class="scale-label">DISAGREE</span>
-                    <div class="scale-dots" data-category="learning">
-                        <div class="scale-dot" data-value="1"></div>
-                        <div class="scale-dot" data-value="2"></div>
-                        <div class="scale-dot" data-value="3"></div>
-                        <div class="scale-dot" data-value="4"></div>
-                        <div class="scale-dot" data-value="5"></div>
+                <div class="review-grid">
+                    <!-- Left Column -->
+                    <div>
+                        <!-- Learning -->
+                        <div class="form-card">
+                            <div class="form-title">Learning</div>
+                            <div class="scale-question">In my experience, students at this school feel excited about what they're learning</div>
+                            <div class="scale-wrapper">
+                                <span class="scale-label">DISAGREE</span>
+                                <div class="scale-dots" data-category="learning">
+                                    <span class="scale-dot" data-value="1"></span>
+                                    <span class="scale-dot" data-value="2"></span>
+                                    <span class="scale-dot" data-value="3"></span>
+                                    <span class="scale-dot" data-value="4"></span>
+                                    <span class="scale-dot" data-value="5"></span>
+                                </div>
+                                <span class="scale-label">AGREE</span>
+                            </div>
+                        </div>
+
+                        <!-- Teaching -->
+                        <div class="form-card">
+                            <div class="form-title">Teaching</div>
+                            <div class="scale-question">In my experience, teachers at this school are respectful, supportive, and motivate their students to learn</div>
+                            <div class="scale-wrapper">
+                                <span class="scale-label">DISAGREE</span>
+                                <div class="scale-dots" data-category="teaching">
+                                    <span class="scale-dot" data-value="1"></span>
+                                    <span class="scale-dot" data-value="2"></span>
+                                    <span class="scale-dot" data-value="3"></span>
+                                    <span class="scale-dot" data-value="4"></span>
+                                    <span class="scale-dot" data-value="5"></span>
+                                </div>
+                                <span class="scale-label">AGREE</span>
+                            </div>
+                        </div>
+
+                        <!-- Social-emotional support -->
+                        <div class="form-card">
+                            <div class="form-title">Social-emotional support</div>
+                            <div class="scale-question">In my experience, this school supports students' mental health and emotional well-being</div>
+                            <div class="scale-wrapper">
+                                <span class="scale-label">DISAGREE</span>
+                                <div class="scale-dots" data-category="social_emotional">
+                                    <span class="scale-dot" data-value="1"></span>
+                                    <span class="scale-dot" data-value="2"></span>
+                                    <span class="scale-dot" data-value="3"></span>
+                                    <span class="scale-dot" data-value="4"></span>
+                                    <span class="scale-dot" data-value="5"></span>
+                                </div>
+                                <span class="scale-label">AGREE</span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="scale-label">AGREE</span>
-                </div>
-            </div>
 
-            <div class="form-section">
-                <div class="section-title">Teaching</div>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
-                    In my experience, teachers at this school are respectful, supportive, and motivate their students to learn
-                </p>
-                <div class="rating-scale">
-                    <span class="scale-label">DISAGREE</span>
-                    <div class="scale-dots" data-category="teaching">
-                        <div class="scale-dot" data-value="1"></div>
-                        <div class="scale-dot" data-value="2"></div>
-                        <div class="scale-dot" data-value="3"></div>
-                        <div class="scale-dot" data-value="4"></div>
-                        <div class="scale-dot" data-value="5"></div>
+                    <!-- Right Column -->
+                    <div>
+                        <!-- Special Education -->
+                        <div class="form-card">
+                            <div class="form-title">Special Education</div>
+                            <div class="scale-question">This school provides students with disabilities the support and accommodations they require</div>
+                            <div class="scale-wrapper">
+                                <span class="scale-label">DISAGREE</span>
+                                <div class="scale-dots" data-category="special_education">
+                                    <span class="scale-dot" data-value="1"></span>
+                                    <span class="scale-dot" data-value="2"></span>
+                                    <span class="scale-dot" data-value="3"></span>
+                                    <span class="scale-dot" data-value="4"></span>
+                                    <span class="scale-dot" data-value="5"></span>
+                                </div>
+                                <span class="scale-label">AGREE</span>
+                            </div>
+                        </div>
+
+                        <!-- Safety -->
+                        <div class="form-card">
+                            <div class="form-title">Safety</div>
+                            <div class="scale-question">In my experience, this school provides an environment safe from violence, discrimination, and harsh punishment</div>
+                            <div class="scale-wrapper">
+                                <span class="scale-label">DISAGREE</span>
+                                <div class="scale-dots" data-category="safety">
+                                    <span class="scale-dot" data-value="1"></span>
+                                    <span class="scale-dot" data-value="2"></span>
+                                    <span class="scale-dot" data-value="3"></span>
+                                    <span class="scale-dot" data-value="4"></span>
+                                    <span class="scale-dot" data-value="5"></span>
+                                </div>
+                                <span class="scale-label">AGREE</span>
+                            </div>
+                        </div>
+
+                        <!-- Family Engagement -->
+                        <div class="form-card">
+                            <div class="form-title">Family Engagement</div>
+                            <div class="scale-question">In my experience, the school welcomes and includes families as partners in their children's learning</div>
+                            <div class="scale-wrapper">
+                                <span class="scale-label">DISAGREE</span>
+                                <div class="scale-dots" data-category="family_engagement">
+                                    <span class="scale-dot" data-value="1"></span>
+                                    <span class="scale-dot" data-value="2"></span>
+                                    <span class="scale-dot" data-value="3"></span>
+                                    <span class="scale-dot" data-value="4"></span>
+                                    <span class="scale-dot" data-value="5"></span>
+                                </div>
+                                <span class="scale-label">AGREE</span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="scale-label">AGREE</span>
                 </div>
-            </div>
 
-            <div class="form-section">
-                <div class="section-title">Social-emotional support</div>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
-                    In my experience, this school supports students' mental health and emotional well-being
-                </p>
-                <div class="rating-scale">
-                    <span class="scale-label">DISAGREE</span>
-                    <div class="scale-dots" data-category="social_emotional">
-                        <div class="scale-dot" data-value="1"></div>
-                        <div class="scale-dot" data-value="2"></div>
-                        <div class="scale-dot" data-value="3"></div>
-                        <div class="scale-dot" data-value="4"></div>
-                        <div class="scale-dot" data-value="5"></div>
-                    </div>
-                    <span class="scale-label">AGREE</span>
+                <!-- Written Review (Full Width) -->
+                <div class="form-card full-width">
+                    <div class="form-title">Write your review <span class="required">(required)</span></div>
+                    <textarea class="review-textarea" id="reviewText" 
+                        placeholder="Example: What is your experience like at this school? How would you describe the community? What is it like in the classroom? Please explain."
+                        required minlength="50" maxlength="2500"></textarea>
+                    <div class="char-counter" id="charCounter">0 / 2500</div>
+                    
+                    <a href="#" class="guidelines-link">
+                        ℹ️ Editors check your review using these guidelines.
+                    </a>
                 </div>
-            </div>
 
-            <div class="form-section">
-                <div class="section-title">Special Education</div>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
-                    This school provides students with disabilities the support and accommodations they require
-                </p>
-                <div class="rating-scale">
-                    <span class="scale-label">DISAGREE</span>
-                    <div class="scale-dots" data-category="special_education">
-                        <div class="scale-dot" data-value="1"></div>
-                        <div class="scale-dot" data-value="2"></div>
-                        <div class="scale-dot" data-value="3"></div>
-                        <div class="scale-dot" data-value="4"></div>
-                        <div class="scale-dot" data-value="5"></div>
-                    </div>
-                    <span class="scale-label">AGREE</span>
+                <!-- Your Relationship (Full Width) -->
+                <div class="form-card full-width">
+                    <div class="form-title">Your relationship with this school:</div>
+                    <select class="select-dropdown" id="relationship" required>
+                        <option value="" disabled selected>I am a...</option>
+                        <option value="parent_guardian">Parent/guardian</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="current_student">Current student</option>
+                        <option value="school_leader">School leader</option>
+                        <option value="other_staff">Other (school staff, family member, recent alum, etc.)</option>
+                    </select>
                 </div>
-            </div>
 
-            <div class="form-section">
-                <div class="section-title">Safety</div>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
-                    In my experience, this school provides an environment safe from violence, discrimination, and harsh punishment
-                </p>
-                <div class="rating-scale">
-                    <span class="scale-label">DISAGREE</span>
-                    <div class="scale-dots" data-category="safety">
-                        <div class="scale-dot" data-value="1"></div>
-                        <div class="scale-dot" data-value="2"></div>
-                        <div class="scale-dot" data-value="3"></div>
-                        <div class="scale-dot" data-value="4"></div>
-                        <div class="scale-dot" data-value="5"></div>
-                    </div>
-                    <span class="scale-label">AGREE</span>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <div class="section-title">Family Engagement</div>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
-                    In my experience, the school welcomes and includes families as partners in their children's learning
-                </p>
-                <div class="rating-scale">
-                    <span class="scale-label">DISAGREE</span>
-                    <div class="scale-dots" data-category="family_engagement">
-                        <div class="scale-dot" data-value="1"></div>
-                        <div class="scale-dot" data-value="2"></div>
-                        <div class="scale-dot" data-value="3"></div>
-                        <div class="scale-dot" data-value="4"></div>
-                        <div class="scale-dot" data-value="5"></div>
-                    </div>
-                    <span class="scale-label">AGREE</span>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <div class="section-title">Write your review (required)</div>
-                <textarea class="review-textarea" id="reviewText" 
-                    placeholder="Example: What is your experience like at this school? How would you describe the community? What is it like in the classroom? Please explain."
-                    required minlength="50" maxlength="2500"></textarea>
-                <div class="char-counter" id="charCounter">0 / 2500</div>
-            </div>
-
-            <div class="form-section">
-                <div class="section-title">Your relationship with this school:</div>
-                <select class="relationship-select" id="relationship" required>
-                    <option value="" disabled selected>I am a...</option>
-                    <option value="parent_guardian">Parent/guardian</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="current_student">Current student</option>
-                    <option value="school_leader">School leader</option>
-                    <option value="other_staff">Other (school staff, family member, recent alum, etc.)</option>
-                </select>
-                
-                <div style="margin-top: 2rem;">
+                <!-- Submit Section -->
+                <div class="submit-section">
                     <p class="terms-text">
                         Authentication only - we never sell personal information. By submitting a review, you agree to Better School UK's 
                         <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.
                     </p>
                     <button type="submit" class="submit-btn">Submit your review</button>
                 </div>
-            </div>
-        </form>
-
-        <!-- Recent Reviews Section -->
-        <section class="recent-reviews">
-            <h2 class="reviews-title">Recent reviews</h2>
-            <div id="recentReviewsList">
-                <!-- Reviews will be loaded here dynamically -->
-            </div>
-        </section>
-    </div>
+            </form>
+        </div>
+    </main>
 
     <div id="footer"></div>
 
@@ -626,100 +492,91 @@
         let selectedSchool = null;
         let overallRating = 0;
         let categoryRatings = {};
-        let quickFeedback = null;
 
-        // Initialize star ratings
-        function initStarRating(containerId, callback) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            const stars = container.querySelectorAll('.star');
-            
-            stars.forEach(star => {
-                star.addEventListener('click', () => {
-                    const rating = parseInt(star.dataset.value);
-                    updateStars(stars, rating);
-                    if (callback) callback(rating);
-                });
-                
-                star.addEventListener('mouseenter', () => {
-                    const rating = parseInt(star.dataset.value);
-                    updateStars(stars, rating);
-                });
-            });
-            
-            container.addEventListener('mouseleave', () => {
-                updateStars(stars, containerId === 'overallRating' ? overallRating : 0);
-            });
+        // Get school info from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const schoolUrn = urlParams.get('urn');
+        const schoolName = urlParams.get('name');
+        const schoolTown = urlParams.get('town');
+
+        // Set school name if provided
+        if (schoolUrn && schoolName) {
+            selectedSchool = { urn: schoolUrn, name: decodeURIComponent(schoolName), town: decodeURIComponent(schoolTown || '') };
+            document.getElementById('schoolNameDisplay').textContent = selectedSchool.name;
+        } else {
+            // Redirect to review search page if no school selected
+            window.location.href = '/review';
         }
 
-        function updateStars(stars, rating) {
+        // Star rating functionality
+        const stars = document.querySelectorAll('#overallRating .star');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                overallRating = parseInt(this.dataset.value);
+                updateStars();
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = parseInt(this.dataset.value);
+                updateStarsPreview(hoverRating);
+            });
+        });
+
+        document.getElementById('overallRating').addEventListener('mouseleave', updateStars);
+
+        function updateStars() {
             stars.forEach((star, index) => {
-                star.classList.toggle('filled', index < rating);
+                star.textContent = index < overallRating ? '★' : '☆';
+                star.classList.toggle('filled', index < overallRating);
             });
         }
 
-        // Initialize scale ratings
+        function updateStarsPreview(rating) {
+            stars.forEach((star, index) => {
+                star.textContent = index < rating ? '★' : '☆';
+            });
+        }
+
+        // Scale rating functionality
         document.querySelectorAll('.scale-dots').forEach(container => {
             const category = container.dataset.category;
             const dots = container.querySelectorAll('.scale-dot');
             
             dots.forEach(dot => {
-                dot.addEventListener('click', () => {
-                    const value = parseInt(dot.dataset.value);
+                dot.addEventListener('click', function() {
+                    const value = parseInt(this.dataset.value);
                     categoryRatings[category] = value;
-                    updateScale(dots, value);
+                    updateScale(container, value);
                 });
             });
         });
 
-        function updateScale(dots, value) {
+        function updateScale(container, value) {
+            const dots = container.querySelectorAll('.scale-dot');
             dots.forEach((dot, index) => {
                 dot.classList.toggle('selected', index < value);
             });
         }
 
-        // Quick feedback buttons
-        function setQuickFeedback(type) {
-            quickFeedback = type;
-            // Could highlight the selected button here
-        }
-
-        // School search with simple simulation
-        const schoolSearch = document.getElementById('schoolSearch');
-        const reviewForm = document.getElementById('reviewForm');
-        const initialBox = document.getElementById('initialReviewBox');
-
-        schoolSearch.addEventListener('input', (e) => {
-            if (e.target.value.length > 2) {
-                // Simulate selecting a school
-                setTimeout(() => {
-                    selectedSchool = { urn: 146871, name: 'Sample School' };
-                    reviewForm.classList.add('active');
-                    initialBox.style.display = 'none';
-                }, 500);
-            }
-        });
-
         // Character counter
         const reviewText = document.getElementById('reviewText');
         const charCounter = document.getElementById('charCounter');
-
-        reviewText.addEventListener('input', () => {
-            const length = reviewText.value.length;
+        
+        reviewText.addEventListener('input', function() {
+            const length = this.value.length;
             charCounter.textContent = `${length} / 2500`;
-            charCounter.style.color = length < 50 ? '#ef4444' : '#6b7280';
-        });
-
-        // Initialize ratings
-        initStarRating('quickRating');
-        initStarRating('overallRating', (rating) => {
-            overallRating = rating;
+            charCounter.classList.toggle('error', length < 50);
         });
 
         // Form submission
-        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+        document.getElementById('reviewForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            if (!selectedSchool) {
+                alert('Please select a school');
+                window.location.href = '/review';
+                return;
+            }
             
             if (!overallRating) {
                 alert('Please provide an overall rating');
@@ -731,7 +588,19 @@
                 return;
             }
             
-            const formData = {
+            const recommend = document.querySelector('input[name="recommend"]:checked');
+            if (!recommend) {
+                alert('Please indicate if you would recommend this school');
+                return;
+            }
+            
+            const relationship = document.getElementById('relationship').value;
+            if (!relationship) {
+                alert('Please select your relationship to the school');
+                return;
+            }
+            
+            const reviewData = {
                 overall_rating: overallRating,
                 learning_rating: categoryRatings.learning || null,
                 teaching_rating: categoryRatings.teaching || null,
@@ -739,113 +608,29 @@
                 special_education_rating: categoryRatings.special_education || null,
                 safety_rating: categoryRatings.safety || null,
                 family_engagement_rating: categoryRatings.family_engagement || null,
-                would_recommend: document.querySelector('input[name="recommend"]:checked')?.value === 'yes',
+                would_recommend: recommend.value === 'yes',
                 review_text: reviewText.value,
-                reviewer_type: document.getElementById('relationship').value
+                reviewer_type: relationship
             };
             
             try {
-                const response = await fetch(`/api/schools/${selectedSchool?.urn || 146871}/reviews`, {
+                const response = await fetch(`/api/schools/${selectedSchool.urn}/reviews`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(reviewData)
                 });
                 
                 if (response.ok) {
                     alert('Thank you for your review!');
-                    window.location.href = `/school/${selectedSchool?.urn || 146871}`;
+                    window.location.href = `/school/${selectedSchool.urn}`;
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to submit review');
                 }
             } catch (error) {
-                console.error('Error submitting review:', error);
+                console.error('Submit error:', error);
                 alert('Failed to submit review. Please try again.');
             }
-        });
-
-        // Load recent reviews from database
-        async function loadRecentReviews() {
-            const reviewsList = document.getElementById('recentReviewsList');
-            
-            try {
-                // Load reviews from multiple schools to show variety
-                const schoolUrns = [146871, 143307, 151337, 151346, 151308];
-                const allReviews = [];
-                
-                // Fetch reviews from different schools
-                for (const urn of schoolUrns) {
-                    try {
-                        const response = await fetch(`/api/schools/${urn}/reviews?limit=3`);
-                        const data = await response.json();
-                        if (data.reviews && data.reviews.length > 0) {
-                            allReviews.push(...data.reviews);
-                        }
-                    } catch (error) {
-                        console.error(`Failed to load reviews for school ${urn}:`, error);
-                    }
-                }
-                
-                // Sort by date and take most recent
-                allReviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                const recentReviews = allReviews.slice(0, 10);
-                
-                if (recentReviews.length === 0) {
-                    reviewsList.innerHTML = '<p style="text-align: center; color: #6b7280;">No reviews available yet.</p>';
-                    return;
-                }
-                
-                // Display reviews
-                reviewsList.innerHTML = recentReviews.map(review => {
-                    // Generate star HTML
-                    const starsHtml = Array(5).fill(0).map((_, i) => 
-                        `<svg class="review-star ${i >= review.overall_rating ? 'empty' : ''}" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>`
-                    ).join('');
-                    
-                    // Format date
-                    const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric'
-                    });
-                    
-                    // Format reviewer type
-                    const reviewerType = review.reviewer_type
-                        .replace('_', ' ')
-                        .replace(/\b\w/g, l => l.toUpperCase());
-                    
-                    // Truncate review text if too long
-                    let reviewText = review.review_text;
-                    if (reviewText.length > 300) {
-                        reviewText = reviewText.substring(0, 297) + '...';
-                    }
-                    
-                    return `
-                        <div class="review-item">
-                            <div class="review-meta">
-                                <div class="review-stars">${starsHtml}</div>
-                                <span class="review-date">${reviewDate}</span>
-                            </div>
-                            <div class="review-school-name">
-                                <a href="/school/${review.urn}" style="color: inherit; text-decoration: none;">
-                                    ${review.school_name || 'Unknown School'}
-                                </a>
-                            </div>
-                            <div class="review-location">in ${review.town || 'United Kingdom'}</div>
-                            <div class="review-text">${reviewText}</div>
-                            <div class="review-author">- ${reviewerType}</div>
-                        </div>
-                    `;
-                }).join('');
-                
-            } catch (error) {
-                console.error('Failed to load recent reviews:', error);
-                reviewsList.innerHTML = '<p style="text-align: center; color: #6b7280;">Failed to load reviews. Please try again later.</p>';
-            }
-        }
-        
-        // Load reviews when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            loadRecentReviews();
         });
     </script>
 </body>
