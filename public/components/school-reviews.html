@@ -1,0 +1,761 @@
+<!-- School Reviews Component -->
+<style>
+  .reviews-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+  }
+
+  .reviews-summary {
+    display: flex;
+    gap: 2rem;
+    flex: 1;
+  }
+
+  .rating-box {
+    background: #2c5282;
+    color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .rating-number {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .rating-stars {
+    display: flex;
+    gap: 0.125rem;
+    justify-content: center;
+    margin: 0.5rem 0;
+  }
+
+  .rating-star {
+    color: #fbbf24;
+    font-size: 0.875rem;
+  }
+
+  .reviews-count {
+    font-size: 0.75rem;
+    opacity: 0.9;
+  }
+
+  .rating-breakdown {
+    flex: 1;
+  }
+
+  .rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .rating-label {
+    min-width: 3rem;
+    color: #666;
+  }
+
+  .rating-bar {
+    flex: 1;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .rating-fill {
+    height: 100%;
+    background: #22c55e;
+  }
+
+  .rating-count {
+    min-width: 2rem;
+    text-align: right;
+    color: #666;
+    font-size: 0.75rem;
+  }
+
+  .write-review-btn {
+    background: #06b6d4;
+    color: white;
+    padding: 0.625rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+  }
+
+  .write-review-btn:hover {
+    background: #0891b2;
+  }
+
+  .category-ratings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .category-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .category-score {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .category-dots {
+    display: flex;
+    gap: 0.125rem;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e5e7eb;
+  }
+
+  .dot.filled {
+    background: #22c55e;
+  }
+
+  .category-name {
+    font-size: 0.75rem;
+    color: #666;
+  }
+
+  .category-count {
+    font-size: 0.625rem;
+    color: #999;
+  }
+
+  /* Individual Reviews */
+  .review-item {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .review-item:last-child {
+    border-bottom: none;
+  }
+
+  .review-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .reviewer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #06b6d4;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .reviewer-details {
+    flex: 1;
+  }
+
+  .reviewer-type {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .review-date {
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  .review-stars {
+    display: flex;
+    gap: 0.125rem;
+  }
+
+  .review-star {
+    color: #fbbf24;
+    font-size: 0.875rem;
+  }
+
+  .review-star.empty {
+    color: #e5e7eb;
+  }
+
+  .review-text {
+    color: #333;
+    line-height: 1.6;
+    margin: 1rem 0;
+  }
+
+  .review-text.truncated {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .read-more {
+    color: #06b6d4;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .read-more:hover {
+    text-decoration: underline;
+  }
+
+  .review-ratings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .review-rating-item {
+    font-size: 0.75rem;
+  }
+
+  .review-rating-label {
+    color: #666;
+    margin-bottom: 0.25rem;
+  }
+
+  .review-rating-value {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 500;
+  }
+
+  .review-rating-dots {
+    display: flex;
+    gap: 0.125rem;
+  }
+
+  .review-recommendation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: #f0fdf4;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #166534;
+  }
+
+  .review-recommendation.not-recommended {
+    background: #fef2f2;
+    color: #991b1b;
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .review-action {
+    color: #06b6d4;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .review-action:hover {
+    text-decoration: underline;
+  }
+
+  .load-more-btn {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    color: #06b6d4;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .load-more-btn:hover {
+    background: #f9fafb;
+  }
+
+  .no-reviews {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+  }
+</style>
+
+<div class="reviews-section">
+  <div class="reviews-header">
+    <div class="reviews-summary">
+      <div class="rating-box">
+        <div class="rating-number" id="avgRating">4.0</div>
+        <div class="rating-stars" id="avgStars">
+          <span class="rating-star">★</span>
+          <span class="rating-star">★</span>
+          <span class="rating-star">★</span>
+          <span class="rating-star">★</span>
+          <span class="rating-star">☆</span>
+        </div>
+        <div class="reviews-count" id="reviewsCount">0 Reviews</div>
+      </div>
+      
+      <div class="rating-breakdown">
+        <div class="rating-row">
+          <span class="rating-label">5 stars</span>
+          <div class="rating-bar">
+            <div class="rating-fill" id="star5Bar" style="width: 0%"></div>
+          </div>
+          <span class="rating-count" id="star5Count">0</span>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">4 stars</span>
+          <div class="rating-bar">
+            <div class="rating-fill" id="star4Bar" style="width: 0%"></div>
+          </div>
+          <span class="rating-count" id="star4Count">0</span>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">3 stars</span>
+          <div class="rating-bar">
+            <div class="rating-fill" id="star3Bar" style="width: 0%"></div>
+          </div>
+          <span class="rating-count" id="star3Count">0</span>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">2 stars</span>
+          <div class="rating-bar">
+            <div class="rating-fill" id="star2Bar" style="width: 0%"></div>
+          </div>
+          <span class="rating-count" id="star2Count">0</span>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">1 star</span>
+          <div class="rating-bar">
+            <div class="rating-fill" id="star1Bar" style="width: 0%"></div>
+          </div>
+          <span class="rating-count" id="star1Count">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <a href="#" class="write-review-btn" id="writeReviewBtn">Write a Review</a>
+  </div>
+
+  <div class="category-ratings" id="categoryRatings">
+    <div class="category-item">
+      <div class="category-header">
+        <span class="category-score" id="familyScore">5.0</span>
+        <div class="category-dots" id="familyDots"></div>
+      </div>
+      <div class="category-name">Family Engagement</div>
+      <div class="category-count" id="familyCount">(0)</div>
+    </div>
+    
+    <div class="category-item">
+      <div class="category-header">
+        <span class="category-score" id="learningScore">5.0</span>
+        <div class="category-dots" id="learningDots"></div>
+      </div>
+      <div class="category-name">Learning</div>
+      <div class="category-count" id="learningCount">(0)</div>
+    </div>
+    
+    <div class="category-item">
+      <div class="category-header">
+        <span class="category-score" id="safetyScore">5.0</span>
+        <div class="category-dots" id="safetyDots"></div>
+      </div>
+      <div class="category-name">Safety</div>
+      <div class="category-count" id="safetyCount">(0)</div>
+    </div>
+    
+    <div class="category-item">
+      <div class="category-header">
+        <span class="category-score" id="socialScore">5.0</span>
+        <div class="category-dots" id="socialDots"></div>
+      </div>
+      <div class="category-name">Social Emotional Support</div>
+      <div class="category-count" id="socialCount">(0)</div>
+    </div>
+    
+    <div class="category-item">
+      <div class="category-header">
+        <span class="category-score" id="specialScore">5.0</span>
+        <div class="category-dots" id="specialDots"></div>
+      </div>
+      <div class="category-name">Special Education</div>
+      <div class="category-count" id="specialCount">(0)</div>
+    </div>
+    
+    <div class="category-item">
+      <div class="category-header">
+        <span class="category-score" id="teachingScore">5.0</span>
+        <div class="category-dots" id="teachingDots"></div>
+      </div>
+      <div class="category-name">Teaching</div>
+      <div class="category-count" id="teachingCount">(0)</div>
+    </div>
+  </div>
+
+  <div id="reviewsList">
+    <!-- Reviews will be loaded here -->
+  </div>
+
+  <button class="load-more-btn" id="loadMoreReviews" style="display: none;">See All Reviews</button>
+</div>
+
+<script>
+(function() {
+  let currentSchoolUrn = null;
+  let currentPage = 1;
+  let allReviewsLoaded = false;
+  let schoolData = null;
+
+  // Wait for school data to be available
+  function waitForSchoolData() {
+    if (window.currentSchoolData) {
+      schoolData = window.currentSchoolData;
+      currentSchoolUrn = schoolData.urn;
+      initializeReviews();
+    } else {
+      setTimeout(waitForSchoolData, 100);
+    }
+  }
+
+  function initializeReviews() {
+    // Set up write review button
+    const writeBtn = document.getElementById('writeReviewBtn');
+    if (writeBtn && schoolData) {
+      writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(schoolData.name)}&town=${encodeURIComponent(schoolData.address?.town || '')}`;
+    }
+
+    // Load reviews
+    loadReviews();
+  }
+
+  async function loadReviews() {
+    if (!currentSchoolUrn) return;
+
+    try {
+      const response = await fetch(`/api/schools/${currentSchoolUrn}/reviews?limit=5&page=${currentPage}`);
+      const data = await response.json();
+
+      if (currentPage === 1) {
+        // Display stats
+        displayStats(data.stats);
+        
+        // Display initial reviews
+        displayReviews(data.reviews, false);
+      } else {
+        // Append more reviews
+        displayReviews(data.reviews, true);
+      }
+
+      // Show/hide load more button
+      const loadMoreBtn = document.getElementById('loadMoreReviews');
+      if (data.pagination && data.pagination.page < data.pagination.totalPages) {
+        loadMoreBtn.style.display = 'block';
+      } else {
+        loadMoreBtn.style.display = 'none';
+        allReviewsLoaded = true;
+      }
+
+    } catch (error) {
+      console.error('Failed to load reviews:', error);
+      displayNoReviews();
+    }
+  }
+
+  function displayStats(stats) {
+    if (!stats) {
+      displayNoReviews();
+      return;
+    }
+
+    // Update average rating
+    const avgRating = stats.avg_overall_rating || 0;
+    document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+    document.getElementById('reviewsCount').textContent = `${stats.total_reviews || 0} Reviews`;
+
+    // Update star display
+    const starsContainer = document.getElementById('avgStars');
+    starsContainer.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('span');
+      star.className = 'rating-star';
+      star.textContent = i <= Math.round(avgRating) ? '★' : '☆';
+      starsContainer.appendChild(star);
+    }
+
+    // Calculate rating distribution
+    const distribution = {
+      5: 0, 4: 0, 3: 0, 2: 0, 1: 0
+    };
+
+    // This would come from the stats if we had it
+    // For now, using placeholder logic
+    const total = stats.total_reviews || 0;
+
+    // Update rating bars (would need actual distribution data from API)
+    for (let i = 5; i >= 1; i--) {
+      const count = distribution[i] || 0;
+      const percentage = total > 0 ? (count / total) * 100 : 0;
+      document.getElementById(`star${i}Bar`).style.width = percentage + '%';
+      document.getElementById(`star${i}Count`).textContent = count;
+    }
+
+    // Update category ratings
+    updateCategoryRating('family', stats.avg_family_engagement_rating);
+    updateCategoryRating('learning', stats.avg_learning_rating);
+    updateCategoryRating('safety', stats.avg_safety_rating);
+    updateCategoryRating('social', stats.avg_social_emotional_rating);
+    updateCategoryRating('special', stats.avg_special_education_rating);
+    updateCategoryRating('teaching', stats.avg_teaching_rating);
+  }
+
+  function updateCategoryRating(category, rating) {
+    const score = rating || 0;
+    const scoreEl = document.getElementById(`${category}Score`);
+    const dotsEl = document.getElementById(`${category}Dots`);
+    
+    if (scoreEl) scoreEl.textContent = score.toFixed(1);
+    
+    if (dotsEl) {
+      dotsEl.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const dot = document.createElement('span');
+        dot.className = i <= Math.round(score) ? 'dot filled' : 'dot';
+        dotsEl.appendChild(dot);
+      }
+    }
+  }
+
+  function displayReviews(reviews, append = false) {
+    const container = document.getElementById('reviewsList');
+    
+    if (!append) {
+      container.innerHTML = '';
+    }
+
+    if (!reviews || reviews.length === 0) {
+      if (!append) {
+        displayNoReviews();
+      }
+      return;
+    }
+
+    reviews.forEach(review => {
+      const reviewEl = createReviewElement(review);
+      container.appendChild(reviewEl);
+    });
+  }
+
+  function createReviewElement(review) {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+
+    const reviewerType = (review.reviewer_type || 'parent_guardian')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+
+    const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    const initials = review.reviewer_name ? 
+      review.reviewer_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 
+      reviewerType.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    const stars = Array(5).fill(0).map((_, i) => 
+      i < review.overall_rating ? '★' : '☆'
+    ).join('');
+
+    const reviewHtml = `
+      <div class="review-header-info">
+        <div class="reviewer-info">
+          <div class="reviewer-avatar">${initials}</div>
+          <div class="reviewer-details">
+            <div class="reviewer-type">${reviewerType}</div>
+            <div class="review-date">${reviewDate}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-stars">
+        ${stars.split('').map(s => `<span class="review-star ${s === '☆' ? 'empty' : ''}">${s}</span>`).join('')}
+      </div>
+
+      <div class="review-text">
+        ${review.review_text}
+      </div>
+
+      <div class="review-ratings">
+        ${review.learning_rating ? `
+          <div class="review-rating-item">
+            <div class="review-rating-label">Learning</div>
+            <div class="review-rating-value">
+              <span>${review.learning_rating}.0</span>
+              <div class="review-rating-dots">
+                ${createDots(review.learning_rating)}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+        ${review.teaching_rating ? `
+          <div class="review-rating-item">
+            <div class="review-rating-label">Teaching</div>
+            <div class="review-rating-value">
+              <span>${review.teaching_rating}.0</span>
+              <div class="review-rating-dots">
+                ${createDots(review.teaching_rating)}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+        ${review.safety_rating ? `
+          <div class="review-rating-item">
+            <div class="review-rating-label">Safety</div>
+            <div class="review-rating-value">
+              <span>${review.safety_rating}.0</span>
+              <div class="review-rating-dots">
+                ${createDots(review.safety_rating)}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+        ${review.social_emotional_rating ? `
+          <div class="review-rating-item">
+            <div class="review-rating-label">Social Emotional</div>
+            <div class="review-rating-value">
+              <span>${review.social_emotional_rating}.0</span>
+              <div class="review-rating-dots">
+                ${createDots(review.social_emotional_rating)}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="review-recommendation ${review.would_recommend ? '' : 'not-recommended'}">
+        ${review.would_recommend ? '✓ Would recommend this school' : '✗ Would not recommend this school'}
+      </div>
+
+      <div class="review-actions">
+        <a href="#" class="review-action" onclick="markHelpful(${review.id}); return false;">
+          Helpful (${review.helpful_count || 0})
+        </a>
+        <a href="#" class="review-action" onclick="reportReview(${review.id}); return false;">
+          Report
+        </a>
+      </div>
+    `;
+
+    div.innerHTML = reviewHtml;
+    return div;
+  }
+
+  function createDots(rating) {
+    return Array(5).fill(0).map((_, i) => 
+      `<span class="dot ${i < rating ? 'filled' : ''}"></span>`
+    ).join('');
+  }
+
+  function displayNoReviews() {
+    const container = document.getElementById('reviewsList');
+    container.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this school!</div>';
+    document.getElementById('loadMoreReviews').style.display = 'none';
+  }
+
+  // Event listeners
+  document.getElementById('loadMoreReviews').addEventListener('click', function() {
+    currentPage++;
+    loadReviews();
+  });
+
+  // Global functions for review actions
+  window.markHelpful = async function(reviewId) {
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
+        method: 'POST'
+      });
+      if (response.ok) {
+        loadReviews(); // Reload to update count
+      }
+    } catch (error) {
+      console.error('Error marking helpful:', error);
+    }
+  };
+
+  window.reportReview = async function(reviewId) {
+    if (confirm('Are you sure you want to report this review?')) {
+      try {
+        const response = await fetch(`/api/reviews/${reviewId}/report`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'inappropriate_content', details: 'User reported' })
+        });
+        if (response.ok) {
+          alert('Review has been reported. Thank you.');
+        }
+      } catch (error) {
+        console.error('Error reporting review:', error);
+      }
+    }
+  };
+
+  // Initialize
+  waitForSchoolData();
+})();
+</script>
