@@ -490,13 +490,28 @@
     try {
       const response = await fetch(`/api/schools/${currentSchoolUrn}/reviews?limit=5&page=${currentPage}`);
       const data = await response.json();
+      
+      console.log('Reviews data received:', data); // Debug log
 
       if (currentPage === 1) {
-        // Display stats
-        displayStats(data.stats);
-        
-        // Display initial reviews
-        displayReviews(data.reviews, false);
+        // Calculate stats from the reviews if not provided by API
+        if (data.reviews && data.reviews.length > 0) {
+          const stats = calculateStatsFromReviews(data.reviews, data.stats);
+          displayStats(stats);
+          // Display initial reviews
+          displayReviews(data.reviews, false);
+        } else if (data.stats) {
+          displayStats(data.stats);
+          // Still try to display reviews even if stats exist
+          if (data.reviews && data.reviews.length > 0) {
+            displayReviews(data.reviews, false);
+          } else {
+            displayNoReviews();
+          }
+        } else {
+          displayNoReviews();
+          return;
+        }
       } else {
         // Append more reviews
         displayReviews(data.reviews, true);
@@ -515,6 +530,74 @@
       console.error('Failed to load reviews:', error);
       displayNoReviews();
     }
+  }
+
+  function calculateStatsFromReviews(reviews, existingStats) {
+    // Calculate rating distribution
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let totalRating = 0;
+    let categoryTotals = {
+      family: { sum: 0, count: 0 },
+      learning: { sum: 0, count: 0 },
+      teaching: { sum: 0, count: 0 },
+      safety: { sum: 0, count: 0 },
+      social: { sum: 0, count: 0 },
+      special: { sum: 0, count: 0 }
+    };
+
+    reviews.forEach(review => {
+      // Overall rating distribution
+      if (review.overall_rating) {
+        distribution[review.overall_rating]++;
+        totalRating += review.overall_rating;
+      }
+
+      // Category ratings
+      if (review.family_engagement_rating) {
+        categoryTotals.family.sum += review.family_engagement_rating;
+        categoryTotals.family.count++;
+      }
+      if (review.learning_rating) {
+        categoryTotals.learning.sum += review.learning_rating;
+        categoryTotals.learning.count++;
+      }
+      if (review.teaching_rating) {
+        categoryTotals.teaching.sum += review.teaching_rating;
+        categoryTotals.teaching.count++;
+      }
+      if (review.safety_rating) {
+        categoryTotals.safety.sum += review.safety_rating;
+        categoryTotals.safety.count++;
+      }
+      if (review.social_emotional_rating) {
+        categoryTotals.social.sum += review.social_emotional_rating;
+        categoryTotals.social.count++;
+      }
+      if (review.special_education_rating) {
+        categoryTotals.special.sum += review.special_education_rating;
+        categoryTotals.special.count++;
+      }
+    });
+
+    const avgRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+
+    return {
+      total_reviews: existingStats?.total_reviews || reviews.length,
+      avg_overall_rating: existingStats?.avg_overall_rating || avgRating,
+      distribution: distribution,
+      avg_family_engagement_rating: categoryTotals.family.count > 0 ? categoryTotals.family.sum / categoryTotals.family.count : null,
+      avg_learning_rating: categoryTotals.learning.count > 0 ? categoryTotals.learning.sum / categoryTotals.learning.count : null,
+      avg_teaching_rating: categoryTotals.teaching.count > 0 ? categoryTotals.teaching.sum / categoryTotals.teaching.count : null,
+      avg_safety_rating: categoryTotals.safety.count > 0 ? categoryTotals.safety.sum / categoryTotals.safety.count : null,
+      avg_social_emotional_rating: categoryTotals.social.count > 0 ? categoryTotals.social.sum / categoryTotals.social.count : null,
+      avg_special_education_rating: categoryTotals.special.count > 0 ? categoryTotals.special.sum / categoryTotals.special.count : null,
+      family_count: categoryTotals.family.count,
+      learning_count: categoryTotals.learning.count,
+      teaching_count: categoryTotals.teaching.count,
+      safety_count: categoryTotals.safety.count,
+      social_count: categoryTotals.social.count,
+      special_count: categoryTotals.special.count
+    };
   }
 
   function displayStats(stats) {
@@ -543,38 +626,36 @@
       starsContainer.appendChild(star);
     }
 
-    // Calculate rating distribution
-    const distribution = {
-      5: 0, 4: 0, 3: 0, 2: 0, 1: 0
-    };
-
-    // This would come from the stats if we had it
-    // For now, using placeholder logic
+    // Update rating bars with actual distribution
     const total = stats.total_reviews || 0;
-
-    // Update rating bars (would need actual distribution data from API)
-    for (let i = 5; i >= 1; i--) {
-      const count = distribution[i] || 0;
-      const percentage = total > 0 ? (count / total) * 100 : 0;
-      document.getElementById(`star${i}Bar`).style.width = percentage + '%';
-      document.getElementById(`star${i}Count`).textContent = count;
+    if (stats.distribution) {
+      for (let i = 5; i >= 1; i--) {
+        const count = stats.distribution[i] || 0;
+        const percentage = total > 0 ? (count / total) * 100 : 0;
+        const barEl = document.getElementById(`star${i}Bar`);
+        const countEl = document.getElementById(`star${i}Count`);
+        if (barEl) barEl.style.width = percentage + '%';
+        if (countEl) countEl.textContent = count;
+      }
     }
 
     // Update category ratings
-    updateCategoryRating('family', stats.avg_family_engagement_rating);
-    updateCategoryRating('learning', stats.avg_learning_rating);
-    updateCategoryRating('safety', stats.avg_safety_rating);
-    updateCategoryRating('social', stats.avg_social_emotional_rating);
-    updateCategoryRating('special', stats.avg_special_education_rating);
-    updateCategoryRating('teaching', stats.avg_teaching_rating);
+    updateCategoryRating('family', stats.avg_family_engagement_rating, stats.family_count);
+    updateCategoryRating('learning', stats.avg_learning_rating, stats.learning_count);
+    updateCategoryRating('safety', stats.avg_safety_rating, stats.safety_count);
+    updateCategoryRating('social', stats.avg_social_emotional_rating, stats.social_count);
+    updateCategoryRating('special', stats.avg_special_education_rating, stats.special_count);
+    updateCategoryRating('teaching', stats.avg_teaching_rating, stats.teaching_count);
   }
 
-  function updateCategoryRating(category, rating) {
+  function updateCategoryRating(category, rating, count) {
     const score = rating || 0;
     const scoreEl = document.getElementById(`${category}Score`);
     const dotsEl = document.getElementById(`${category}Dots`);
+    const countEl = document.getElementById(`${category}Count`);
     
-    if (scoreEl) scoreEl.textContent = score.toFixed(1);
+    if (scoreEl) scoreEl.textContent = score > 0 ? score.toFixed(1) : '-';
+    if (countEl) countEl.textContent = `(${count || 0})`;
     
     if (dotsEl) {
       dotsEl.innerHTML = '';
@@ -588,6 +669,8 @@
 
   function displayReviews(reviews, append = false) {
     const container = document.getElementById('reviewsList');
+    
+    console.log('Displaying reviews:', reviews); // Debug log
     
     if (!append) {
       container.innerHTML = '';
