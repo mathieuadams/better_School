@@ -808,14 +808,7 @@
     currentPage++;
     loadReviews();
   });
-  setTimeout(initializeReviews, 0);
-  // Initialize on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeReviews);
-  } else {
-    initializeReviews();
-  }
-  window.addEventListener('schoolDataLoaded', function(e) {
+    window.addEventListener('schoolDataLoaded', function(e) {
   console.log('School data event received in reviews component:', e.detail);
   if (!initialized && e.detail && e.detail.urn) {
     currentSchoolUrn = parseInt(e.detail.urn, 10);
@@ -832,5 +825,13 @@
     loadReviews();
   }
 });
+  setTimeout(initializeReviews, 0);
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeReviews);
+  } else {
+    initializeReviews();
+  }
+
 })();
 </script>
