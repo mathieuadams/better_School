@@ -815,5 +815,22 @@
   } else {
     initializeReviews();
   }
+  window.addEventListener('schoolDataLoaded', function(e) {
+  console.log('School data event received in reviews component:', e.detail);
+  if (!initialized && e.detail && e.detail.urn) {
+    currentSchoolUrn = parseInt(e.detail.urn, 10);
+    schoolData = e.detail;
+    initialized = true;
+    console.log('Reviews: Setting URN from event:', currentSchoolUrn);
+    
+    // Update write review button
+    const writeBtn = document.getElementById('writeReviewBtn');
+    if (writeBtn) {
+      writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(schoolData.name || '')}&town=${encodeURIComponent(schoolData.address?.town || '')}`;
+    }
+    
+    loadReviews();
+  }
+});
 })();
 </script>

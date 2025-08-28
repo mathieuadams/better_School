@@ -400,6 +400,7 @@ async function loadAll(urn) {
     
     // CRITICAL FIX: Make school data globally available for review component
     window.currentSchoolData = s;
+    window.dispatchEvent(new CustomEvent('schoolDataLoaded', { detail: s }));
     console.log('School data loaded and set globally:', s.urn);
 
     // Update header
@@ -575,6 +576,7 @@ async function loadAll(urn) {
     if (nameEl) nameEl.textContent = 'Error Loading School';
   }
 }
+
 
 // Initialize page
 (function init() {
