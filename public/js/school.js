@@ -22,7 +22,6 @@ function initMap(lat, lon, name) {
     return;
   }
 
-  // If map already exists, just update the view
   if (leafletMap) {
     leafletMap.setView([lat, lon], 15);
     if (leafletMarker) {
@@ -35,7 +34,6 @@ function initMap(lat, lon, name) {
     return;
   }
 
-  // Create new map
   try {
     leafletMap = L.map('schoolMap', { 
       scrollWheelZoom: false,
@@ -86,12 +84,10 @@ async function geocodeAddress(address) {
 
 // Render student demographics
 function renderDemographics(school) {
-  // Get census data if available
   const demographics = school.demographics;
-  const census = school.census_data; // You'll need to add this to the API response
+  const census = school.census_data;
   
   if (!demographics && !census) {
-    // Hide demographics section if no data
     const demoSection = document.querySelector('#demographicsSection');
     if (demoSection) {
       demoSection.style.display = 'none';
@@ -106,23 +102,23 @@ function renderDemographics(school) {
     const ealCircle = document.getElementById('ealCircle');
     if (ealEl) ealEl.textContent = Math.round(ealPercent) + '%';
     if (ealCircle) {
-      const circumference = 2 * Math.PI * 25; // ~157
+      const circumference = 2 * Math.PI * 25;
       const offset = circumference - (ealPercent / 100) * circumference;
       ealCircle.style.strokeDashoffset = offset.toString();
     }
   }
   
-  // FSM (Free School Meals - proxy for low income)
+  // FSM (Free School Meals)
   const fsmPercent = demographics?.fsm_percentage || census?.percentage_fsm_ever6;
   if (fsmPercent !== null && fsmPercent !== undefined) {
     const fsmEl = document.getElementById('fsmPercentage');
     const fsmCircle = document.getElementById('fsmCircle');
     if (fsmEl) fsmEl.textContent = Math.round(fsmPercent) + '%';
-  if (fsmCircle) {
-    const circumference = 2 * Math.PI * 25; // ~157
-    const offset = circumference - (fsmPercent / 100) * circumference;
-    fsmCircle.style.strokeDashoffset = offset.toString();
-  }
+    if (fsmCircle) {
+      const circumference = 2 * Math.PI * 25;
+      const offset = circumference - (fsmPercent / 100) * circumference;
+      fsmCircle.style.strokeDashoffset = offset.toString();
+    }
   }
   
   // Gender breakdown
@@ -140,13 +136,13 @@ function renderDemographics(school) {
     if (femaleEl) femaleEl.textContent = femalePercent + '%';
     if (maleEl) maleEl.textContent = malePercent + '%';
     if (genderCircle) {
-      const circumference = 2 * Math.PI * 25; // ~157
+      const circumference = 2 * Math.PI * 25;
       const offset = circumference - (malePercent / 100) * circumference;
       genderCircle.style.strokeDashoffset = offset.toString();
     }
   }
   
-  // SEN data if available
+  // SEN data - FIX: Add proper type checking
   const senSupport = demographics?.sen_support_percentage || census?.percentage_sen_support;
   const senEhcp = demographics?.sen_ehcp_percentage || census?.percentage_sen_ehcp;
   
@@ -154,18 +150,26 @@ function renderDemographics(school) {
     const additionalDemo = document.getElementById('additionalDemographics');
     if (additionalDemo) additionalDemo.style.display = 'block';
     
-    if (senSupport !== null) {
+    if (senSupport !== null && senSupport !== undefined) {
       const senSupportBar = document.getElementById('senSupportBar');
       const senSupportValue = document.getElementById('senSupportValue');
       if (senSupportBar) senSupportBar.style.width = Math.min(100, senSupport) + '%';
-      if (senSupportValue) senSupportValue.textContent = senSupport.toFixed(1) + '%';
+      if (senSupportValue) {
+        // FIX: Check if it's a number before calling toFixed
+        const value = typeof senSupport === 'number' ? senSupport.toFixed(1) : String(senSupport);
+        senSupportValue.textContent = value + '%';
+      }
     }
     
-    if (senEhcp !== null) {
+    if (senEhcp !== null && senEhcp !== undefined) {
       const senEhcpBar = document.getElementById('senEhcpBar');
       const senEhcpValue = document.getElementById('senEhcpValue');
       if (senEhcpBar) senEhcpBar.style.width = Math.min(100, senEhcp) + '%';
-      if (senEhcpValue) senEhcpValue.textContent = senEhcp.toFixed(1) + '%';
+      if (senEhcpValue) {
+        // FIX: Check if it's a number before calling toFixed
+        const value = typeof senEhcp === 'number' ? senEhcp.toFixed(1) : String(senEhcp);
+        senEhcpValue.textContent = value + '%';
+      }
     }
   }
 }
@@ -174,7 +178,6 @@ function renderDemographics(school) {
 function renderTestScores(school) {
   if (!school.test_scores) {
     console.log('No test scores available');
-    // Hide test scores section if no data
     const testScoresSection = document.querySelector('#testScoresContainer');
     if (testScoresSection) {
       testScoresSection.closest('.section-card').style.display = 'none';
@@ -194,14 +197,11 @@ function renderTestScores(school) {
     const avgLabelEl = document.getElementById(`${subject}AvgLabel`);
     
     if (scoreEl && score !== null && score !== undefined) {
-      // Update score text
       scoreEl.textContent = Math.round(score) + '%';
       
-      // Update progress bar
       if (barEl) {
         barEl.style.width = Math.min(100, Math.max(0, score)) + '%';
         
-        // Set color based on performance
         if (score >= 70) {
           barEl.className = 'score-fill high-performing';
         } else if (score >= 50) {
@@ -211,14 +211,12 @@ function renderTestScores(school) {
         }
       }
       
-      // Update average marker if available
       if (average !== null && average !== undefined && avgEl && avgLabelEl) {
         avgEl.style.left = Math.min(100, Math.max(0, average)) + '%';
         avgEl.style.display = 'flex';
         avgLabelEl.textContent = 'National Avg: ' + Math.round(average) + '%';
         avgLabelEl.style.display = 'inline';
         
-        // Position the label to align with the arrow
         const avgContainer = avgLabelEl.parentElement;
         if (avgContainer) {
           avgContainer.style.paddingLeft = Math.min(100, Math.max(0, average)) + '%';
@@ -252,7 +250,6 @@ function toggleDetails(subject) {
 
 // Render neighborhood/contact section
 function renderNeighborhood(school) {
-  // Address
   const addressText = formatAddress(school.address);
   const addressEl = document.getElementById('nh-address');
   if (addressEl) addressEl.textContent = addressText || '—';
@@ -263,7 +260,6 @@ function renderNeighborhood(school) {
       `${school.address.local_authority}${school.address.region ? ', ' + school.address.region : ''}` : '';
   }
 
-  // School Leader
   let leaderDisplay = '—';
   if (school.headteacher_name) {
     leaderDisplay = school.headteacher_name;
@@ -276,7 +272,6 @@ function renderNeighborhood(school) {
   const leaderEl = document.getElementById('nh-leader');
   if (leaderEl) leaderEl.textContent = leaderDisplay;
 
-  // Phone
   const tel = school.telephone || null;
   const phoneEl = document.getElementById('nh-phone');
   if (phoneEl) {
@@ -292,7 +287,6 @@ function renderNeighborhood(school) {
     }
   }
 
-  // Website
   const site = school.website || null;
   const webEl = document.getElementById('nh-website');
   if (webEl) {
@@ -319,7 +313,6 @@ function renderNeighborhood(school) {
     }
   }
 
-  // Google Maps link
   const mapsLink = document.getElementById('nh-maps-link');
   if (mapsLink) {
     if (typeof school.latitude === 'number' && typeof school.longitude === 'number' && 
@@ -330,20 +323,17 @@ function renderNeighborhood(school) {
     }
   }
 
-  // Initialize map with coordinates
   const lat = parseFloat(school.latitude);
   const lon = parseFloat(school.longitude);
   
   console.log('School coordinates:', { lat, lon, name: school.name });
 
   if (!isNaN(lat) && !isNaN(lon)) {
-    // Use database coordinates
     setTimeout(() => {
       console.log('Initializing map with DB coordinates:', lat, lon);
       initMap(lat, lon, school.name);
     }, 200);
   } else if (addressText) {
-    // Fallback to geocoding
     console.log('No DB coordinates, geocoding:', addressText);
     geocodeAddress(addressText).then(coords => {
       if (coords && !isNaN(coords.lat) && !isNaN(coords.lon)) {
@@ -407,6 +397,10 @@ async function loadAll(urn) {
     }
     
     const s = schoolData.school;
+    
+    // CRITICAL FIX: Make school data globally available for review component
+    window.currentSchoolData = s;
+    console.log('School data loaded and set globally:', s.urn);
 
     // Update header
     const nameEl = document.getElementById('schoolName');
@@ -445,7 +439,6 @@ async function loadAll(urn) {
           new Date(s.ofsted.inspection_date).toLocaleDateString() : '-';
       }
       
-      // Ofsted report link
       const ofstedLink = document.getElementById('ofsted-report-link');
       if (ofstedLink && s.ofsted.web_link) {
         ofstedLink.href = s.ofsted.web_link;
@@ -454,7 +447,6 @@ async function loadAll(urn) {
         ofstedLink.style.display = 'none';
       }
 
-      // Ofsted grid
       const ofstedGrid = document.getElementById('ofstedGrid');
       if (ofstedGrid) {
         const ratings = [
@@ -483,7 +475,6 @@ async function loadAll(urn) {
     const statFSMEl = document.getElementById('statFSM');
     if (statFSMEl) statFSMEl.textContent = (fsm !== null && fsm !== undefined) ? (fsm + '%') : '-';
     
-    // Update test score stats in key stats bar
     if (s.test_scores) {
       const englishScore = s.test_scores.english?.score;
       const mathScore = s.test_scores.math?.score;
@@ -536,16 +527,22 @@ async function loadAll(urn) {
     const infoURNEl = document.getElementById('infoURN');
     if (infoURNEl) infoURNEl.textContent = s.urn || '-';
 
-    // Render test scores
+    // Render sections - wrap in try/catch to prevent crashes
+    try {
+      renderTestScores(s);
+    } catch (e) {
+      console.error('Error rendering test scores:', e);
+    }
+    
+    try {
+      renderDemographics(s);
+    } catch (e) {
+      console.error('Error rendering demographics:', e);
+    }
 
-    renderTestScores(s);
-    // renderDemographics
-    renderDemographics(s);
-
-    // Render contact and map
     renderNeighborhood(s);
 
-    // Load performance data (for detailed view)
+    // Load performance data
     const perfRes = await fetch(`/api/schools/${urn}/performance`);
     const perf = await perfRes.json();
     if (perf.success && perf.performance) {
@@ -584,11 +581,12 @@ async function loadAll(urn) {
   const parts = window.location.pathname.split('/').filter(Boolean);
   let urn = null, city = null;
 
+  // FIX: Clean URN extraction with hash removal
   if (parts[0] === 'school' && parts[1]) {
-    urn = parts[1];
+    urn = parts[1].split('#')[0].split('-')[0]; // Remove hash and slug parts
   } else if (parts.length === 2 && !isNaN(Number(parts[1]))) {
     city = parts[0];
-    urn = parts[1];
+    urn = parts[1].split('#')[0].split('-')[0];
   }
 
   if (city) {
@@ -606,5 +604,6 @@ async function loadAll(urn) {
     return;
   }
 
+  console.log('Initializing school page with URN:', urn);
   loadAll(urn);
 })();
