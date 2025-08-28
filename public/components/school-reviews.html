@@ -160,7 +160,6 @@
     color: #999;
   }
 
-  /* Individual Reviews */
   .review-item {
     padding: 1.5rem 0;
     border-bottom: 1px solid #e5e7eb;
@@ -230,24 +229,6 @@
     margin: 1rem 0;
   }
 
-  .review-text.truncated {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .read-more {
-    color: #06b6d4;
-    cursor: pointer;
-    font-size: 0.875rem;
-    text-decoration: none;
-  }
-
-  .read-more:hover {
-    text-decoration: underline;
-  }
-
   .review-ratings {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -291,23 +272,6 @@
   .review-recommendation.not-recommended {
     background: #fef2f2;
     color: #991b1b;
-  }
-
-  .review-actions {
-    display: flex;
-    gap: 2rem;
-    margin-top: 1rem;
-    font-size: 0.875rem;
-  }
-
-  .review-action {
-    color: #06b6d4;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  .review-action:hover {
-    text-decoration: underline;
   }
 
   .load-more-btn {
@@ -462,55 +426,88 @@
   let allReviewsLoaded = false;
   let schoolData = null;
 
-  // Wait for school data to be available
+  // Get URN from URL or wait for school data
+  function initializeReviews() {
+    // Try to get URN from URL first
+    const urlPath = window.location.pathname;
+    const urlMatch = urlPath.match(/\/school\/(\d+)/);
+    
+    if (urlMatch && urlMatch[1]) {
+      currentSchoolUrn = parseInt(urlMatch[1], 10);
+      console.log('Got URN from URL:', currentSchoolUrn);
+      loadReviews();
+    } else if (window.currentSchoolData) {
+      // Fallback to school data if available
+      schoolData = window.currentSchoolData;
+      currentSchoolUrn = parseInt(schoolData.urn, 10);
+      console.log('Got URN from school data:', currentSchoolUrn);
+      loadReviews();
+    } else {
+      // Wait for school data
+      console.log('Waiting for school data...');
+      setTimeout(waitForSchoolData, 100);
+    }
+    
+    // Set up write review button
+    if (currentSchoolUrn) {
+      const writeBtn = document.getElementById('writeReviewBtn');
+      if (writeBtn) {
+        writeBtn.href = `/write-review?urn=${currentSchoolUrn}`;
+      }
+    }
+  }
+
   function waitForSchoolData() {
     if (window.currentSchoolData) {
       schoolData = window.currentSchoolData;
-      currentSchoolUrn = schoolData.urn;
-      initializeReviews();
+      currentSchoolUrn = parseInt(schoolData.urn, 10);
+      console.log('School data loaded, URN:', currentSchoolUrn);
+      loadReviews();
+      
+      // Update write review button
+      const writeBtn = document.getElementById('writeReviewBtn');
+      if (writeBtn && schoolData) {
+        writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(schoolData.name || '')}&town=${encodeURIComponent(schoolData.address?.town || '')}`;
+      }
     } else {
       setTimeout(waitForSchoolData, 100);
     }
   }
 
-  function initializeReviews() {
-    // Set up write review button
-    const writeBtn = document.getElementById('writeReviewBtn');
-    if (writeBtn && schoolData) {
-      writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(schoolData.name)}&town=${encodeURIComponent(schoolData.address?.town || '')}`;
+  async function loadReviews() {
+    if (!currentSchoolUrn) {
+      console.error('No URN available');
+      return;
     }
 
-    // Load reviews
-    loadReviews();
-  }
-
-  async function loadReviews() {
-    if (!currentSchoolUrn) return;
+    console.log(`Loading reviews for school URN: ${currentSchoolUrn}, page: ${currentPage}`);
 
     try {
       const response = await fetch(`/api/schools/${currentSchoolUrn}/reviews?limit=5&page=${currentPage}`);
-      const data = await response.json();
+      console.log('Response status:', response.status);
       
-      console.log('Reviews data received:', data); // Debug log
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Reviews data received:', data);
 
       if (currentPage === 1) {
-        // Calculate stats from the reviews if not provided by API
+        // First page - set up stats and initial reviews
         if (data.reviews && data.reviews.length > 0) {
           const stats = calculateStatsFromReviews(data.reviews, data.stats);
           displayStats(stats);
-          // Display initial reviews
           displayReviews(data.reviews, false);
-        } else if (data.stats) {
+        } else if (data.stats && data.stats.total_reviews > 0) {
+          // We have stats but no reviews returned - might be a data issue
           displayStats(data.stats);
-          // Still try to display reviews even if stats exist
-          if (data.reviews && data.reviews.length > 0) {
-            displayReviews(data.reviews, false);
-          } else {
-            displayNoReviews();
-          }
-        } else {
+          console.warn('Stats exist but no reviews returned');
           displayNoReviews();
-          return;
+        } else {
+          // No reviews at all
+          displayNoReviews();
+          document.getElementById('categoryRatings').style.display = 'none';
         }
       } else {
         // Append more reviews
@@ -533,9 +530,9 @@
   }
 
   function calculateStatsFromReviews(reviews, existingStats) {
-    // Calculate rating distribution
     const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let totalRating = 0;
+    let ratingCount = 0;
     let categoryTotals = {
       family: { sum: 0, count: 0 },
       learning: { sum: 0, count: 0 },
@@ -547,39 +544,40 @@
 
     reviews.forEach(review => {
       // Overall rating distribution
-      if (review.overall_rating) {
+      if (review.overall_rating != null) {
         distribution[review.overall_rating]++;
         totalRating += review.overall_rating;
+        ratingCount++;
       }
 
-      // Category ratings
-      if (review.family_engagement_rating) {
+      // Category ratings with null checks
+      if (review.family_engagement_rating != null) {
         categoryTotals.family.sum += review.family_engagement_rating;
         categoryTotals.family.count++;
       }
-      if (review.learning_rating) {
+      if (review.learning_rating != null) {
         categoryTotals.learning.sum += review.learning_rating;
         categoryTotals.learning.count++;
       }
-      if (review.teaching_rating) {
+      if (review.teaching_rating != null) {
         categoryTotals.teaching.sum += review.teaching_rating;
         categoryTotals.teaching.count++;
       }
-      if (review.safety_rating) {
+      if (review.safety_rating != null) {
         categoryTotals.safety.sum += review.safety_rating;
         categoryTotals.safety.count++;
       }
-      if (review.social_emotional_rating) {
+      if (review.social_emotional_rating != null) {
         categoryTotals.social.sum += review.social_emotional_rating;
         categoryTotals.social.count++;
       }
-      if (review.special_education_rating) {
+      if (review.special_education_rating != null) {
         categoryTotals.special.sum += review.special_education_rating;
         categoryTotals.special.count++;
       }
     });
 
-    const avgRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+    const avgRating = ratingCount > 0 ? totalRating / ratingCount : 0;
 
     return {
       total_reviews: existingStats?.total_reviews || reviews.length,
@@ -602,16 +600,12 @@
 
   function displayStats(stats) {
     if (!stats || stats.total_reviews === 0) {
-      // Hide category ratings if no reviews
       document.getElementById('categoryRatings').style.display = 'none';
-      displayNoReviews();
       return;
     }
 
-    // Show category ratings
     document.getElementById('categoryRatings').style.display = 'grid';
 
-    // Update average rating
     const avgRating = stats.avg_overall_rating || 0;
     document.getElementById('avgRating').textContent = avgRating.toFixed(1);
     document.getElementById('reviewsCount').textContent = `${stats.total_reviews || 0} Reviews`;
@@ -626,7 +620,7 @@
       starsContainer.appendChild(star);
     }
 
-    // Update rating bars with actual distribution
+    // Update rating bars
     const total = stats.total_reviews || 0;
     if (stats.distribution) {
       for (let i = 5; i >= 1; i--) {
@@ -669,8 +663,6 @@
 
   function displayReviews(reviews, append = false) {
     const container = document.getElementById('reviewsList');
-    
-    console.log('Displaying reviews:', reviews); // Debug log
     
     if (!append) {
       container.innerHTML = '';
@@ -727,11 +719,11 @@
       </div>
 
       <div class="review-text">
-        ${review.review_text}
+        ${review.review_text || ''}
       </div>
 
       <div class="review-ratings">
-        ${review.learning_rating ? `
+        ${review.learning_rating != null ? `
           <div class="review-rating-item">
             <div class="review-rating-label">Learning</div>
             <div class="review-rating-value">
@@ -742,7 +734,7 @@
             </div>
           </div>
         ` : ''}
-        ${review.teaching_rating ? `
+        ${review.teaching_rating != null ? `
           <div class="review-rating-item">
             <div class="review-rating-label">Teaching</div>
             <div class="review-rating-value">
@@ -753,7 +745,7 @@
             </div>
           </div>
         ` : ''}
-        ${review.safety_rating ? `
+        ${review.safety_rating != null ? `
           <div class="review-rating-item">
             <div class="review-rating-label">Safety</div>
             <div class="review-rating-value">
@@ -764,7 +756,7 @@
             </div>
           </div>
         ` : ''}
-        ${review.social_emotional_rating ? `
+        ${review.social_emotional_rating != null ? `
           <div class="review-rating-item">
             <div class="review-rating-label">Social Emotional</div>
             <div class="review-rating-value">
@@ -779,15 +771,6 @@
 
       <div class="review-recommendation ${review.would_recommend ? '' : 'not-recommended'}">
         ${review.would_recommend ? '✓ Would recommend this school' : '✗ Would not recommend this school'}
-      </div>
-
-      <div class="review-actions">
-        <a href="#" class="review-action" onclick="markHelpful(${review.id}); return false;">
-          Helpful (${review.helpful_count || 0})
-        </a>
-        <a href="#" class="review-action" onclick="reportReview(${review.id}); return false;">
-          Report
-        </a>
       </div>
     `;
 
@@ -813,38 +796,11 @@
     loadReviews();
   });
 
-  // Global functions for review actions
-  window.markHelpful = async function(reviewId) {
-    try {
-      const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
-        method: 'POST'
-      });
-      if (response.ok) {
-        loadReviews(); // Reload to update count
-      }
-    } catch (error) {
-      console.error('Error marking helpful:', error);
-    }
-  };
-
-  window.reportReview = async function(reviewId) {
-    if (confirm('Are you sure you want to report this review?')) {
-      try {
-        const response = await fetch(`/api/reviews/${reviewId}/report`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reason: 'inappropriate_content', details: 'User reported' })
-        });
-        if (response.ok) {
-          alert('Review has been reported. Thank you.');
-        }
-      } catch (error) {
-        console.error('Error reporting review:', error);
-      }
-    }
-  };
-
-  // Initialize
-  waitForSchoolData();
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeReviews);
+  } else {
+    initializeReviews();
+  }
 })();
 </script>
