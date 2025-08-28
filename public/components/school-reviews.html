@@ -425,30 +425,43 @@
   let currentPage = 1;
   let allReviewsLoaded = false;
   let schoolData = null;
+  let initialized = false;
 
-  // Get URN from URL or wait for school data
   function initializeReviews() {
-    // Try to get URN from URL first
+    if (initialized) return; // Prevent double initialization
+    
+    // Try multiple methods to get URN
+    // Method 1: From URL
     const urlPath = window.location.pathname;
     const urlMatch = urlPath.match(/\/school\/(\d+)/);
     
     if (urlMatch && urlMatch[1]) {
       currentSchoolUrn = parseInt(urlMatch[1], 10);
+      initialized = true;
       console.log('Got URN from URL:', currentSchoolUrn);
       loadReviews();
-    } else if (window.currentSchoolData) {
-      // Fallback to school data if available
-      schoolData = window.currentSchoolData;
-      currentSchoolUrn = parseInt(schoolData.urn, 10);
-      console.log('Got URN from school data:', currentSchoolUrn);
-      loadReviews();
     } else {
-      // Wait for school data
-      console.log('Waiting for school data...');
-      setTimeout(waitForSchoolData, 100);
+      // Method 2: Wait for school data with timeout
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max wait
+      
+      const checkForData = setInterval(() => {
+        if (window.currentSchoolData) {
+          schoolData = window.currentSchoolData;
+          currentSchoolUrn = parseInt(schoolData.urn, 10);
+          initialized = true;
+          console.log('Got URN from school data:', currentSchoolUrn);
+          clearInterval(checkForData);
+          loadReviews();
+        } else if (attempts >= maxAttempts) {
+          console.error('Timeout waiting for school data');
+          clearInterval(checkForData);
+        }
+        attempts++;
+      }, 100);
     }
     
-    // Set up write review button
+    // Update write review button when we have URN
     if (currentSchoolUrn) {
       const writeBtn = document.getElementById('writeReviewBtn');
       if (writeBtn) {
@@ -795,7 +808,7 @@
     currentPage++;
     loadReviews();
   });
-
+  setTimeout(initializeReviews, 0);
   // Initialize on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeReviews);
