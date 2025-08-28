@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
 
-/* --------------------------------- utils --------------------------------- */
 const toInt = (v, def) => {
   const n = parseInt(v, 10);
   return Number.isFinite(n) ? n : def;
@@ -11,38 +10,19 @@ const toInt = (v, def) => {
 const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 const clientIP = (req) => req.ip || req.connection?.remoteAddress || '';
 
-/* ======================== GET: school reviews list ======================== */
-/**
- * GET /api/schools/:urn/reviews?limit=20&page=1&sort=recent
- * sort ∈ { recent | helpful | rating_high | rating_low }
- * Returns:
- * {
- *   stats: {...}, reviews: [...],
- *   pagination: { page, limit, total, totalPages }
- * }
- */
 router.get('/schools/:urn/reviews', async (req, res) => {
   const { urn } = req.params;
-
-  // sanitize paging/sort
   const page = Math.max(toInt(req.query.page ?? '1', 10), 1);
   const limit = clamp(Math.max(toInt(req.query.limit ?? '20', 10), 1), 1, 50);
   const offset = (page - 1) * limit;
-
   const sort = (req.query.sort || 'recent').toString();
+
   let orderBy = 'r.created_at DESC';
   if (sort === 'helpful') orderBy = 'r.helpful_count DESC, r.created_at DESC';
   else if (sort === 'rating_high') orderBy = 'r.overall_rating DESC, r.created_at DESC';
   else if (sort === 'rating_low') orderBy = 'r.overall_rating ASC, r.created_at DESC';
 
   try {
-    // 1) Try to load precomputed stats row (if you maintain it)
-    const statsRow = await pool.query(
-      'SELECT * FROM uk_school_review_stats WHERE urn = $1',
-      [urn]
-    );
-
-    // 2) Total count (for pagination) — respect publication flag; treat NULL as published
     const countQ = await pool.query(
       `SELECT COUNT(*)::int AS total
        FROM uk_school_reviews
@@ -52,10 +32,9 @@ router.get('/schools/:urn/reviews', async (req, res) => {
     const total = countQ.rows[0]?.total ?? 0;
     const totalPages = Math.max(1, Math.ceil(total / limit));
 
-    // 3) Reviews page
     const reviewsQ = await pool.query(
       `
-      SELECT 
+      SELECT
         r.*,
         s.name AS school_name,
         s.town AS town,
@@ -70,11 +49,19 @@ router.get('/schools/:urn/reviews', async (req, res) => {
       [urn, limit, offset]
     );
 
-    // 4) Fallback stats computed live if no precomputed row
-    let stats = statsRow.rows[0] || null;
+    // Try precomputed stats row
+    const statsRow = await pool.query(
+      'SELECT * FROM uk_school_review_stats WHERE urn = $1',
+      [urn]
+    );
+    const hasPrecomputed = statsRow.rows[0] && Number(statsRow.rows[0].total_reviews) > 0;
 
-    if (!stats) {
-      const distQ = await pool.query(
+    let stats;
+    if (hasPrecomputed) {
+      stats = statsRow.rows[0];
+    } else {
+      // Compute live stats (fallback or always, if you prefer)
+      const live = await pool.query(
         `
         SELECT
           COUNT(*)::int AS total_reviews,
@@ -84,7 +71,7 @@ router.get('/schools/:urn/reviews', async (req, res) => {
           SUM(CASE WHEN overall_rating=3 THEN 1 ELSE 0 END)::int AS star3,
           SUM(CASE WHEN overall_rating=2 THEN 1 ELSE 0 END)::int AS star2,
           SUM(CASE WHEN overall_rating=1 THEN 1 ELSE 0 END)::int AS star1,
-          /* category averages (ignore zeros if you store 0 = not provided) */
+          ROUND(100.0 * AVG(CASE WHEN would_recommend THEN 1 ELSE 0 END)::numeric, 0) AS recommendation_percentage,
           ROUND(AVG(NULLIF(family_engagement_rating,0))::numeric,1) AS family_avg,
           COUNT(NULLIF(family_engagement_rating,0))::int AS family_count,
           ROUND(AVG(NULLIF(learning_rating,0))::numeric,1) AS learning_avg,
@@ -96,24 +83,19 @@ router.get('/schools/:urn/reviews', async (req, res) => {
           ROUND(AVG(NULLIF(social_emotional_rating,0))::numeric,1) AS social_avg,
           COUNT(NULLIF(social_emotional_rating,0))::int AS social_count,
           ROUND(AVG(NULLIF(special_education_rating,0))::numeric,1) AS special_avg,
-          COUNT(NULLIF(special_education_rating,0))::int AS special_count,
-          ROUND(100.0 * AVG(CASE WHEN would_recommend THEN 1 ELSE 0 END)::numeric, 0) AS recommendation_percentage
+          COUNT(NULLIF(special_education_rating,0))::int AS special_count
         FROM uk_school_reviews
         WHERE urn = $1 AND COALESCE(is_published, true) = true
         `,
         [urn]
       );
-      const d = distQ.rows[0] || {};
+      const d = live.rows[0] || {};
       stats = {
         urn: Number(urn),
         total_reviews: d.total_reviews || 0,
         avg_overall_rating: d.avg_overall_rating ?? null,
         recommendation_percentage: d.recommendation_percentage ?? 0,
-        // provide a simple distribution object (optional but handy for UI)
-        distribution: {
-          5: d.star5 || 0, 4: d.star4 || 0, 3: d.star3 || 0, 2: d.star2 || 0, 1: d.star1 || 0
-        },
-        // category mini-stats (optional)
+        distribution: { 5: d.star5||0, 4: d.star4||0, 3: d.star3||0, 2: d.star2||0, 1: d.star1||0 },
         categories: {
           family:  { average: d.family_avg,  count: d.family_count },
           learning:{ average: d.learning_avg,count: d.learning_count },
@@ -136,16 +118,9 @@ router.get('/schools/:urn/reviews', async (req, res) => {
   }
 });
 
-/* ======================== POST: submit a new review ======================= */
-/**
- * POST /api/schools/:urn/reviews
- * Body: overall_rating, would_recommend, review_text, review_title?, ratings..., reviewer_type, reviewer_name?
- * Publishes immediately (is_published = true). Adjust if you need moderation.
- */
 router.post('/schools/:urn/reviews', async (req, res) => {
   const { urn } = req.params;
   const ip = clientIP(req);
-
   const {
     overall_rating,
     learning_rating,
@@ -162,21 +137,13 @@ router.post('/schools/:urn/reviews', async (req, res) => {
   } = req.body || {};
 
   try {
-    // required fields
-    if (
-      overall_rating == null ||
-      would_recommend == null ||
-      !review_text ||
-      !reviewer_type
-    ) {
+    if (overall_rating == null || would_recommend == null || !review_text || !reviewer_type) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-
     if (review_text.length < 50 || review_text.length > 2500) {
       return res.status(400).json({ error: 'Review must be between 50 and 2500 characters' });
     }
 
-    // rate limit: 1 per IP per school per 24h
     const rl = await pool.query(
       `SELECT COUNT(*)::int AS cnt
        FROM uk_school_reviews
@@ -188,7 +155,7 @@ router.post('/schools/:urn/reviews', async (req, res) => {
       return res.status(429).json({ error: 'You can only submit one review per school per day' });
     }
 
-    const insert = await pool.query(
+    const ins = await pool.query(
       `
       INSERT INTO uk_school_reviews (
         urn, overall_rating, learning_rating, teaching_rating,
@@ -207,18 +174,16 @@ router.post('/schools/:urn/reviews', async (req, res) => {
       ]
     );
 
-    res.status(201).json({ success: true, review: insert.rows[0] });
+    res.status(201).json({ success: true, review: ins.rows[0] });
   } catch (err) {
     console.error('Error submitting review:', err);
     res.status(500).json({ error: 'Failed to submit review' });
   }
 });
 
-/* ==================== POST: mark a review as helpful ===================== */
 router.post('/reviews/:reviewId/helpful', async (req, res) => {
   const { reviewId } = req.params;
   const ip = clientIP(req);
-
   try {
     const already = await pool.query(
       `SELECT 1 FROM uk_review_helpful_votes WHERE review_id = $1 AND voter_ip = $2`,
@@ -229,15 +194,9 @@ router.post('/reviews/:reviewId/helpful', async (req, res) => {
     }
 
     await pool.query('BEGIN');
-    await pool.query(
-      `INSERT INTO uk_review_helpful_votes (review_id, voter_ip) VALUES ($1, $2)`,
-      [reviewId, ip]
-    );
+    await pool.query(`INSERT INTO uk_review_helpful_votes (review_id, voter_ip) VALUES ($1, $2)`, [reviewId, ip]);
     const upd = await pool.query(
-      `UPDATE uk_school_reviews
-       SET helpful_count = COALESCE(helpful_count,0) + 1
-       WHERE id = $1
-       RETURNING id, helpful_count`,
+      `UPDATE uk_school_reviews SET helpful_count = COALESCE(helpful_count,0) + 1 WHERE id = $1 RETURNING id, helpful_count`,
       [reviewId]
     );
     await pool.query('COMMIT');
@@ -246,17 +205,15 @@ router.post('/reviews/:reviewId/helpful', async (req, res) => {
     res.json({ success: true, id: upd.rows[0].id, helpful_count: upd.rows[0].helpful_count });
   } catch (err) {
     await pool.query('ROLLBACK');
-    console.error('Error marking review helpful:', err);
+    console.error('Error marking review as helpful:', err);
     res.status(500).json({ error: 'Failed to mark review as helpful' });
   }
 });
 
-/* ========================= POST: report a review ========================= */
 router.post('/reviews/:reviewId/report', async (req, res) => {
   const { reviewId } = req.params;
   const { reason, details } = req.body || {};
   const ip = clientIP(req);
-
   if (!reason) return res.status(400).json({ error: 'Report reason is required' });
 
   try {
@@ -267,14 +224,11 @@ router.post('/reviews/:reviewId/report', async (req, res) => {
     );
 
     const upd = await pool.query(
-      `UPDATE uk_school_reviews
-       SET report_count = COALESCE(report_count,0) + 1
-       WHERE id = $1
-       RETURNING id, report_count`,
+      `UPDATE uk_school_reviews SET report_count = COALESCE(report_count,0) + 1 WHERE id = $1 RETURNING id`,
       [reviewId]
     );
-
     if (!upd.rowCount) return res.status(404).json({ error: 'Review not found' });
+
     res.json({ success: true, message: 'Review has been reported for moderation' });
   } catch (err) {
     console.error('Error reporting review:', err);
@@ -282,11 +236,6 @@ router.post('/reviews/:reviewId/report', async (req, res) => {
   }
 });
 
-/* ===================== GET: standalone review statistics ================== */
-/**
- * GET /api/schools/:urn/review-stats
- * Returns precomputed row if present, otherwise a minimal empty payload.
- */
 router.get('/schools/:urn/review-stats', async (req, res) => {
   const { urn } = req.params;
   try {
