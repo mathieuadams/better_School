@@ -1,3 +1,17 @@
+// src/routes/reviewRoutes.js
+const express = require('express');
+const router = express.Router();
+const { pool } = require('../config/database');
+
+/* --------------------------------- utils --------------------------------- */
+const toInt = (v, def) => {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : def;
+};
+const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
+const clientIP = (req) => req.ip || req.connection?.remoteAddress || '';
+
+/* ======================== GET: school reviews list ======================== */
 router.get('/schools/:urn/reviews', async (req, res) => {
   const { urn } = req.params;
 
@@ -59,7 +73,9 @@ router.get('/schools/:urn/reviews', async (req, res) => {
       
       // Get ALL reviews for accurate distribution (not just current page)
       const allReviewsQ = await pool.query(
-        `SELECT overall_rating FROM uk_school_reviews 
+        `SELECT overall_rating, learning_rating, teaching_rating, safety_rating,
+                social_emotional_rating, special_education_rating, family_engagement_rating
+         FROM uk_school_reviews 
          WHERE urn = $1 AND COALESCE(is_published, true) = true`,
         [urn]
       );
@@ -80,7 +96,7 @@ router.get('/schools/:urn/reviews', async (req, res) => {
         categories: {
           family: {
             average: dbStats.avg_family_engagement_rating,
-            count: parseInt(dbStats.parent_guardian_count || 0)
+            count: allReviewsQ.rows.filter(r => r.family_engagement_rating !== null).length
           },
           learning: {
             average: dbStats.avg_learning_rating,
@@ -172,3 +188,180 @@ router.get('/schools/:urn/reviews', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 });
+
+/* ======================== POST: submit a new review ======================= */
+router.post('/schools/:urn/reviews', async (req, res) => {
+  const { urn } = req.params;
+  const ip = clientIP(req);
+
+  const {
+    overall_rating,
+    learning_rating,
+    teaching_rating,
+    social_emotional_rating,
+    special_education_rating,
+    safety_rating,
+    family_engagement_rating,
+    would_recommend,
+    review_text,
+    review_title,
+    reviewer_type,
+    reviewer_name
+  } = req.body || {};
+
+  try {
+    // required fields
+    if (
+      overall_rating == null ||
+      would_recommend == null ||
+      !review_text ||
+      !reviewer_type
+    ) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (review_text.length < 50 || review_text.length > 2500) {
+      return res.status(400).json({ error: 'Review must be between 50 and 2500 characters' });
+    }
+
+    // rate limit: 1 per IP per school per 24h
+    const rl = await pool.query(
+      `SELECT COUNT(*)::int AS cnt
+       FROM uk_school_reviews
+       WHERE urn = $1 AND reviewer_ip = $2
+         AND created_at > NOW() - INTERVAL '24 hours'`,
+      [urn, ip]
+    );
+    if ((rl.rows[0]?.cnt || 0) > 0) {
+      return res.status(429).json({ error: 'You can only submit one review per school per day' });
+    }
+
+    const insert = await pool.query(
+      `
+      INSERT INTO uk_school_reviews (
+        urn, overall_rating, learning_rating, teaching_rating,
+        social_emotional_rating, special_education_rating, safety_rating,
+        family_engagement_rating, would_recommend, review_text, review_title,
+        reviewer_type, reviewer_name, reviewer_ip, is_published
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14, true)
+      RETURNING *
+      `,
+      [
+        urn, overall_rating, learning_rating, teaching_rating,
+        social_emotional_rating, special_education_rating, safety_rating,
+        family_engagement_rating, would_recommend, review_text, review_title,
+        reviewer_type, reviewer_name, ip
+      ]
+    );
+
+    res.status(201).json({ success: true, review: insert.rows[0] });
+  } catch (err) {
+    console.error('Error submitting review:', err);
+    res.status(500).json({ error: 'Failed to submit review' });
+  }
+});
+
+/* ==================== POST: mark a review as helpful ===================== */
+router.post('/reviews/:reviewId/helpful', async (req, res) => {
+  const { reviewId } = req.params;
+  const ip = clientIP(req);
+
+  try {
+    const already = await pool.query(
+      `SELECT 1 FROM uk_review_helpful_votes WHERE review_id = $1 AND voter_ip = $2`,
+      [reviewId, ip]
+    );
+    if (already.rows.length) {
+      return res.status(400).json({ error: 'You have already marked this review as helpful' });
+    }
+
+    await pool.query('BEGIN');
+    await pool.query(
+      `INSERT INTO uk_review_helpful_votes (review_id, voter_ip) VALUES ($1, $2)`,
+      [reviewId, ip]
+    );
+    const upd = await pool.query(
+      `UPDATE uk_school_reviews
+       SET helpful_count = COALESCE(helpful_count,0) + 1
+       WHERE id = $1
+       RETURNING id, helpful_count`,
+      [reviewId]
+    );
+    await pool.query('COMMIT');
+
+    if (!upd.rowCount) return res.status(404).json({ error: 'Review not found' });
+    res.json({ success: true, id: upd.rows[0].id, helpful_count: upd.rows[0].helpful_count });
+  } catch (err) {
+    await pool.query('ROLLBACK');
+    console.error('Error marking review helpful:', err);
+    res.status(500).json({ error: 'Failed to mark review as helpful' });
+  }
+});
+
+/* ========================= POST: report a review ========================= */
+router.post('/reviews/:reviewId/report', async (req, res) => {
+  const { reviewId } = req.params;
+  const { reason, details } = req.body || {};
+  const ip = clientIP(req);
+
+  if (!reason) return res.status(400).json({ error: 'Report reason is required' });
+
+  try {
+    await pool.query(
+      `INSERT INTO uk_review_reports (review_id, report_reason, report_details, reporter_ip)
+       VALUES ($1, $2, $3, $4)`,
+      [reviewId, reason, details || null, ip]
+    );
+
+    const upd = await pool.query(
+      `UPDATE uk_school_reviews
+       SET report_count = COALESCE(report_count,0) + 1
+       WHERE id = $1
+       RETURNING id, report_count`,
+      [reviewId]
+    );
+
+    if (!upd.rowCount) return res.status(404).json({ error: 'Review not found' });
+    res.json({ success: true, message: 'Review has been reported for moderation' });
+  } catch (err) {
+    console.error('Error reporting review:', err);
+    res.status(500).json({ error: 'Failed to report review' });
+  }
+});
+
+/* ===================== GET: standalone review statistics ================== */
+router.get('/schools/:urn/review-stats', async (req, res) => {
+  const { urn } = req.params;
+  try {
+    const q = await pool.query(
+      `
+      SELECT 
+        rs.*,
+        s.name AS school_name,
+        s.postcode,
+        s.town
+      FROM uk_school_review_stats rs
+      JOIN uk_schools s ON rs.urn = s.urn
+      WHERE rs.urn = $1
+      `,
+      [urn]
+    );
+
+    if (!q.rows.length) {
+      return res.json({
+        urn: Number(urn),
+        total_reviews: 0,
+        avg_overall_rating: null,
+        recommendation_percentage: 0
+      });
+    }
+
+    res.json(q.rows[0]);
+  } catch (err) {
+    console.error('Error fetching review stats:', err);
+    res.status(500).json({ error: 'Failed to fetch review statistics' });
+  }
+});
+
+module.exports = router;
