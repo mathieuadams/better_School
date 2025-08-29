@@ -229,34 +229,6 @@
     margin: 1rem 0;
   }
 
-  .review-ratings {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
-  }
-
-  .review-rating-item {
-    font-size: 0.75rem;
-  }
-
-  .review-rating-label {
-    color: #666;
-    margin-bottom: 0.25rem;
-  }
-
-  .review-rating-value {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: 500;
-  }
-
-  .review-rating-dots {
-    display: flex;
-    gap: 0.125rem;
-  }
-
   .review-recommendation {
     display: flex;
     align-items: center;
@@ -303,12 +275,12 @@
   <div class="reviews-header">
     <div class="reviews-summary">
       <div class="rating-box">
-        <div class="rating-number" id="avgRating">4.0</div>
+        <div class="rating-number" id="avgRating">0.0</div>
         <div class="rating-stars" id="avgStars">
-          <span class="rating-star">★</span>
-          <span class="rating-star">★</span>
-          <span class="rating-star">★</span>
-          <span class="rating-star">★</span>
+          <span class="rating-star">☆</span>
+          <span class="rating-star">☆</span>
+          <span class="rating-star">☆</span>
+          <span class="rating-star">☆</span>
           <span class="rating-star">☆</span>
         </div>
         <div class="reviews-count" id="reviewsCount">0 Reviews</div>
@@ -359,7 +331,7 @@
   <div class="category-ratings" id="categoryRatings">
     <div class="category-item">
       <div class="category-header">
-        <span class="category-score" id="familyScore">5.0</span>
+        <span class="category-score" id="familyScore">-</span>
         <div class="category-dots" id="familyDots"></div>
       </div>
       <div class="category-name">Family Engagement</div>
@@ -368,7 +340,7 @@
     
     <div class="category-item">
       <div class="category-header">
-        <span class="category-score" id="learningScore">5.0</span>
+        <span class="category-score" id="learningScore">-</span>
         <div class="category-dots" id="learningDots"></div>
       </div>
       <div class="category-name">Learning</div>
@@ -377,7 +349,7 @@
     
     <div class="category-item">
       <div class="category-header">
-        <span class="category-score" id="safetyScore">5.0</span>
+        <span class="category-score" id="safetyScore">-</span>
         <div class="category-dots" id="safetyDots"></div>
       </div>
       <div class="category-name">Safety</div>
@@ -386,7 +358,7 @@
     
     <div class="category-item">
       <div class="category-header">
-        <span class="category-score" id="socialScore">5.0</span>
+        <span class="category-score" id="socialScore">-</span>
         <div class="category-dots" id="socialDots"></div>
       </div>
       <div class="category-name">Social Emotional Support</div>
@@ -395,7 +367,7 @@
     
     <div class="category-item">
       <div class="category-header">
-        <span class="category-score" id="specialScore">5.0</span>
+        <span class="category-score" id="specialScore">-</span>
         <div class="category-dots" id="specialDots"></div>
       </div>
       <div class="category-name">Special Education</div>
@@ -404,7 +376,7 @@
     
     <div class="category-item">
       <div class="category-header">
-        <span class="category-score" id="teachingScore">5.0</span>
+        <span class="category-score" id="teachingScore">-</span>
         <div class="category-dots" id="teachingDots"></div>
       </div>
       <div class="category-name">Teaching</div>
@@ -423,15 +395,11 @@
 (function() {
   let currentSchoolUrn = null;
   let currentPage = 1;
-  let allReviewsLoaded = false;
-  let schoolData = null;
   let initialized = false;
 
   function initializeReviews() {
-    if (initialized) return; // Prevent double initialization
+    if (initialized) return;
     
-    // Try multiple methods to get URN
-    // Method 1: From URL
     const urlPath = window.location.pathname;
     const urlMatch = urlPath.match(/\/school\/(\d+)/);
     
@@ -439,176 +407,49 @@
       currentSchoolUrn = parseInt(urlMatch[1], 10);
       initialized = true;
       console.log('Got URN from URL:', currentSchoolUrn);
-      loadReviews();
-    } else {
-      // Method 2: Wait for school data with timeout
-      let attempts = 0;
-      const maxAttempts = 50; // 5 seconds max wait
       
-      const checkForData = setInterval(() => {
-        if (window.currentSchoolData) {
-          schoolData = window.currentSchoolData;
-          currentSchoolUrn = parseInt(schoolData.urn, 10);
-          initialized = true;
-          console.log('Got URN from school data:', currentSchoolUrn);
-          clearInterval(checkForData);
-          loadReviews();
-        } else if (attempts >= maxAttempts) {
-          console.error('Timeout waiting for school data');
-          clearInterval(checkForData);
-        }
-        attempts++;
-      }, 100);
-    }
-    
-    // Update write review button when we have URN
-    if (currentSchoolUrn) {
       const writeBtn = document.getElementById('writeReviewBtn');
       if (writeBtn) {
         writeBtn.href = `/write-review?urn=${currentSchoolUrn}`;
       }
-    }
-  }
-
-  function waitForSchoolData() {
-    if (window.currentSchoolData) {
-      schoolData = window.currentSchoolData;
-      currentSchoolUrn = parseInt(schoolData.urn, 10);
-      console.log('School data loaded, URN:', currentSchoolUrn);
-      loadReviews();
       
-      // Update write review button
-      const writeBtn = document.getElementById('writeReviewBtn');
-      if (writeBtn && schoolData) {
-        writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(schoolData.name || '')}&town=${encodeURIComponent(schoolData.address?.town || '')}`;
-      }
-    } else {
-      setTimeout(waitForSchoolData, 100);
+      loadReviews();
     }
   }
 
   async function loadReviews() {
-    if (!currentSchoolUrn) {
-      console.error('No URN available');
-      return;
-    }
-
-    console.log(`Loading reviews for school URN: ${currentSchoolUrn}, page: ${currentPage}`);
+    if (!currentSchoolUrn) return;
 
     try {
       const response = await fetch(`/api/schools/${currentSchoolUrn}/reviews?limit=5&page=${currentPage}`);
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
       const data = await response.json();
-      console.log('Reviews data received:', data);
+      console.log('Reviews data:', data);
 
       if (currentPage === 1) {
-        // First page - set up stats and initial reviews
-        if (data.reviews && data.reviews.length > 0) {
-          const stats = calculateStatsFromReviews(data.reviews, data.stats);
-          displayStats(stats);
-          displayReviews(data.reviews, false);
-        } else if (data.stats && data.stats.total_reviews > 0) {
-          // We have stats but no reviews returned - might be a data issue
+        if (data.stats) {
           displayStats(data.stats);
-          console.warn('Stats exist but no reviews returned');
-          displayNoReviews();
+        }
+        
+        if (data.reviews && data.reviews.length > 0) {
+          displayReviews(data.reviews, false);
         } else {
-          // No reviews at all
           displayNoReviews();
           document.getElementById('categoryRatings').style.display = 'none';
         }
       } else {
-        // Append more reviews
         displayReviews(data.reviews, true);
       }
 
-      // Show/hide load more button
       const loadMoreBtn = document.getElementById('loadMoreReviews');
       if (data.pagination && data.pagination.page < data.pagination.totalPages) {
         loadMoreBtn.style.display = 'block';
       } else {
         loadMoreBtn.style.display = 'none';
-        allReviewsLoaded = true;
       }
-
     } catch (error) {
       console.error('Failed to load reviews:', error);
       displayNoReviews();
     }
-  }
-
-  function calculateStatsFromReviews(reviews, existingStats) {
-    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    let totalRating = 0;
-    let ratingCount = 0;
-    let categoryTotals = {
-      family: { sum: 0, count: 0 },
-      learning: { sum: 0, count: 0 },
-      teaching: { sum: 0, count: 0 },
-      safety: { sum: 0, count: 0 },
-      social: { sum: 0, count: 0 },
-      special: { sum: 0, count: 0 }
-    };
-
-    reviews.forEach(review => {
-      // Overall rating distribution
-      if (review.overall_rating != null) {
-        distribution[review.overall_rating]++;
-        totalRating += review.overall_rating;
-        ratingCount++;
-      }
-
-      // Category ratings with null checks
-      if (review.family_engagement_rating != null) {
-        categoryTotals.family.sum += review.family_engagement_rating;
-        categoryTotals.family.count++;
-      }
-      if (review.learning_rating != null) {
-        categoryTotals.learning.sum += review.learning_rating;
-        categoryTotals.learning.count++;
-      }
-      if (review.teaching_rating != null) {
-        categoryTotals.teaching.sum += review.teaching_rating;
-        categoryTotals.teaching.count++;
-      }
-      if (review.safety_rating != null) {
-        categoryTotals.safety.sum += review.safety_rating;
-        categoryTotals.safety.count++;
-      }
-      if (review.social_emotional_rating != null) {
-        categoryTotals.social.sum += review.social_emotional_rating;
-        categoryTotals.social.count++;
-      }
-      if (review.special_education_rating != null) {
-        categoryTotals.special.sum += review.special_education_rating;
-        categoryTotals.special.count++;
-      }
-    });
-
-    const avgRating = ratingCount > 0 ? totalRating / ratingCount : 0;
-
-    return {
-      total_reviews: existingStats?.total_reviews || reviews.length,
-      avg_overall_rating: existingStats?.avg_overall_rating || avgRating,
-      distribution: distribution,
-      avg_family_engagement_rating: categoryTotals.family.count > 0 ? categoryTotals.family.sum / categoryTotals.family.count : null,
-      avg_learning_rating: categoryTotals.learning.count > 0 ? categoryTotals.learning.sum / categoryTotals.learning.count : null,
-      avg_teaching_rating: categoryTotals.teaching.count > 0 ? categoryTotals.teaching.sum / categoryTotals.teaching.count : null,
-      avg_safety_rating: categoryTotals.safety.count > 0 ? categoryTotals.safety.sum / categoryTotals.safety.count : null,
-      avg_social_emotional_rating: categoryTotals.social.count > 0 ? categoryTotals.social.sum / categoryTotals.social.count : null,
-      avg_special_education_rating: categoryTotals.special.count > 0 ? categoryTotals.special.sum / categoryTotals.special.count : null,
-      family_count: categoryTotals.family.count,
-      learning_count: categoryTotals.learning.count,
-      teaching_count: categoryTotals.teaching.count,
-      safety_count: categoryTotals.safety.count,
-      social_count: categoryTotals.social.count,
-      special_count: categoryTotals.special.count
-    };
   }
 
   function displayStats(stats) {
@@ -619,11 +460,10 @@
 
     document.getElementById('categoryRatings').style.display = 'grid';
 
-    const avgRating = stats.avg_overall_rating || 0;
+    const avgRating = parseFloat(stats.avg_overall_rating) || 0;
     document.getElementById('avgRating').textContent = avgRating.toFixed(1);
     document.getElementById('reviewsCount').textContent = `${stats.total_reviews || 0} Reviews`;
 
-    // Update star display
     const starsContainer = document.getElementById('avgStars');
     starsContainer.innerHTML = '';
     for (let i = 1; i <= 5; i++) {
@@ -633,44 +473,41 @@
       starsContainer.appendChild(star);
     }
 
-    // Update rating bars
     const total = stats.total_reviews || 0;
     if (stats.distribution) {
       for (let i = 5; i >= 1; i--) {
         const count = stats.distribution[i] || 0;
         const percentage = total > 0 ? (count / total) * 100 : 0;
-        const barEl = document.getElementById(`star${i}Bar`);
-        const countEl = document.getElementById(`star${i}Count`);
-        if (barEl) barEl.style.width = percentage + '%';
-        if (countEl) countEl.textContent = count;
+        document.getElementById(`star${i}Bar`).style.width = percentage + '%';
+        document.getElementById(`star${i}Count`).textContent = count;
       }
     }
 
-    // Update category ratings
-    updateCategoryRating('family', stats.avg_family_engagement_rating, stats.family_count);
-    updateCategoryRating('learning', stats.avg_learning_rating, stats.learning_count);
-    updateCategoryRating('safety', stats.avg_safety_rating, stats.safety_count);
-    updateCategoryRating('social', stats.avg_social_emotional_rating, stats.social_count);
-    updateCategoryRating('special', stats.avg_special_education_rating, stats.special_count);
-    updateCategoryRating('teaching', stats.avg_teaching_rating, stats.teaching_count);
+    if (stats.categories) {
+      updateCategoryRating('family', stats.categories.family);
+      updateCategoryRating('learning', stats.categories.learning);
+      updateCategoryRating('safety', stats.categories.safety);
+      updateCategoryRating('social', stats.categories.social);
+      updateCategoryRating('special', stats.categories.special);
+      updateCategoryRating('teaching', stats.categories.teaching);
+    }
   }
 
-  function updateCategoryRating(category, rating, count) {
-    const score = rating || 0;
-    const scoreEl = document.getElementById(`${category}Score`);
+  function updateCategoryRating(category, data) {
+    if (!data) return;
+    
+    const score = parseFloat(data.average) || 0;
+    const count = data.count || 0;
+    
+    document.getElementById(`${category}Score`).textContent = score > 0 ? score.toFixed(1) : '-';
+    document.getElementById(`${category}Count`).textContent = `(${count})`;
+    
     const dotsEl = document.getElementById(`${category}Dots`);
-    const countEl = document.getElementById(`${category}Count`);
-    
-    if (scoreEl) scoreEl.textContent = score > 0 ? score.toFixed(1) : '-';
-    if (countEl) countEl.textContent = `(${count || 0})`;
-    
-    if (dotsEl) {
-      dotsEl.innerHTML = '';
-      for (let i = 1; i <= 5; i++) {
-        const dot = document.createElement('span');
-        dot.className = i <= Math.round(score) ? 'dot filled' : 'dot';
-        dotsEl.appendChild(dot);
-      }
+    dotsEl.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const dot = document.createElement('span');
+      dot.className = i <= Math.round(score) ? 'dot filled' : 'dot';
+      dotsEl.appendChild(dot);
     }
   }
 
@@ -689,117 +526,54 @@
     }
 
     reviews.forEach(review => {
-      const reviewEl = createReviewElement(review);
-      container.appendChild(reviewEl);
-    });
-  }
+      const div = document.createElement('div');
+      div.className = 'review-item';
 
-  function createReviewElement(review) {
-    const div = document.createElement('div');
-    div.className = 'review-item';
+      const reviewerType = (review.reviewer_type || 'parent_guardian')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
 
-    const reviewerType = (review.reviewer_type || 'parent_guardian')
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
+      const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
 
-    const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
+      const initials = reviewerType.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
-    const initials = review.reviewer_name ? 
-      review.reviewer_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 
-      reviewerType.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-
-    const stars = Array(5).fill(0).map((_, i) => 
-      i < review.overall_rating ? '★' : '☆'
-    ).join('');
-
-    const reviewHtml = `
-      <div class="review-header-info">
-        <div class="reviewer-info">
-          <div class="reviewer-avatar">${initials}</div>
-          <div class="reviewer-details">
-            <div class="reviewer-type">${reviewerType}</div>
-            <div class="review-date">${reviewDate}</div>
+      div.innerHTML = `
+        <div class="review-header-info">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">${initials}</div>
+            <div class="reviewer-details">
+              <div class="reviewer-type">${reviewerType}</div>
+              <div class="review-date">${reviewDate}</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-stars">
-        ${stars.split('').map(s => `<span class="review-star ${s === '☆' ? 'empty' : ''}">${s}</span>`).join('')}
-      </div>
+        <div class="review-stars">
+          ${Array(5).fill(0).map((_, i) => 
+            `<span class="review-star ${i >= review.overall_rating ? 'empty' : ''}">★</span>`
+          ).join('')}
+        </div>
 
-      <div class="review-text">
-        ${review.review_text || ''}
-      </div>
+        <div class="review-text">${review.review_text || ''}</div>
 
-      <div class="review-ratings">
-        ${review.learning_rating != null ? `
-          <div class="review-rating-item">
-            <div class="review-rating-label">Learning</div>
-            <div class="review-rating-value">
-              <span>${review.learning_rating}.0</span>
-              <div class="review-rating-dots">
-                ${createDots(review.learning_rating)}
-              </div>
-            </div>
+        ${review.would_recommend !== null ? `
+          <div class="review-recommendation ${review.would_recommend ? '' : 'not-recommended'}">
+            ${review.would_recommend ? '✓ Would recommend this school' : '✗ Would not recommend this school'}
           </div>
         ` : ''}
-        ${review.teaching_rating != null ? `
-          <div class="review-rating-item">
-            <div class="review-rating-label">Teaching</div>
-            <div class="review-rating-value">
-              <span>${review.teaching_rating}.0</span>
-              <div class="review-rating-dots">
-                ${createDots(review.teaching_rating)}
-              </div>
-            </div>
-          </div>
-        ` : ''}
-        ${review.safety_rating != null ? `
-          <div class="review-rating-item">
-            <div class="review-rating-label">Safety</div>
-            <div class="review-rating-value">
-              <span>${review.safety_rating}.0</span>
-              <div class="review-rating-dots">
-                ${createDots(review.safety_rating)}
-              </div>
-            </div>
-          </div>
-        ` : ''}
-        ${review.social_emotional_rating != null ? `
-          <div class="review-rating-item">
-            <div class="review-rating-label">Social Emotional</div>
-            <div class="review-rating-value">
-              <span>${review.social_emotional_rating}.0</span>
-              <div class="review-rating-dots">
-                ${createDots(review.social_emotional_rating)}
-              </div>
-            </div>
-          </div>
-        ` : ''}
-      </div>
+      `;
 
-      <div class="review-recommendation ${review.would_recommend ? '' : 'not-recommended'}">
-        ${review.would_recommend ? '✓ Would recommend this school' : '✗ Would not recommend this school'}
-      </div>
-    `;
-
-    div.innerHTML = reviewHtml;
-    return div;
-  }
-
-  function createDots(rating) {
-    return Array(5).fill(0).map((_, i) => 
-      `<span class="dot ${i < rating ? 'filled' : ''}"></span>`
-    ).join('');
+      container.appendChild(div);
+    });
   }
 
   function displayNoReviews() {
-    const container = document.getElementById('reviewsList');
-    container.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this school!</div>';
+    document.getElementById('reviewsList').innerHTML = 
+      '<div class="no-reviews">No reviews yet. Be the first to review this school!</div>';
     document.getElementById('loadMoreReviews').style.display = 'none';
   }
 
@@ -808,30 +582,31 @@
     currentPage++;
     loadReviews();
   });
-    window.addEventListener('schoolDataLoaded', function(e) {
-  console.log('School data event received in reviews component:', e.detail);
-  if (!initialized && e.detail && e.detail.urn) {
-    currentSchoolUrn = parseInt(e.detail.urn, 10);
-    schoolData = e.detail;
-    initialized = true;
-    console.log('Reviews: Setting URN from event:', currentSchoolUrn);
-    
-    // Update write review button
-    const writeBtn = document.getElementById('writeReviewBtn');
-    if (writeBtn) {
-      writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(schoolData.name || '')}&town=${encodeURIComponent(schoolData.address?.town || '')}`;
+
+  // Listen for school data loaded event
+  window.addEventListener('schoolDataLoaded', function(e) {
+    console.log('School data event received:', e.detail);
+    if (!initialized && e.detail && e.detail.urn) {
+      currentSchoolUrn = parseInt(e.detail.urn, 10);
+      initialized = true;
+      
+      const writeBtn = document.getElementById('writeReviewBtn');
+      if (writeBtn && e.detail.name && e.detail.address) {
+        writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(e.detail.name)}&town=${encodeURIComponent(e.detail.address.town || '')}`;
+      }
+      
+      loadReviews();
     }
-    
-    loadReviews();
-  }
-});
-  setTimeout(initializeReviews, 0);
-  // Initialize on DOM ready
+  });
+
+  // Initialize
+  setTimeout(initializeReviews, 100);
+  
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeReviews);
   } else {
     initializeReviews();
   }
 
-})();
+})(); // Closure ends here - everything must be inside
 </script>
