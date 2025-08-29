@@ -78,20 +78,39 @@
   <script src="/js/school.js"></script>
   
   <script>
-    // Component loader
-    async function loadComponent(componentName, targetId) {
-      try {
-        const response = await fetch(`/components/${componentName}.html`);
-        if (response.ok) {
-          const html = await response.text();
-          document.getElementById(targetId).innerHTML = html;
-        } else {
-          console.error(`Failed to load ${componentName}:`, response.status);
-        }
-      } catch (error) {
-        console.error(`Error loading ${componentName}:`, error);
+  async function loadComponent(componentName, targetId) {
+    try {
+      const res = await fetch(`/components/${componentName}.html`);
+      if (!res.ok) {
+        console.error(`Failed to load ${componentName}:`, res.status);
+        return;
       }
+
+      const html = await res.text();
+      const target = document.getElementById(targetId);
+
+      // 1) Inject HTML
+      target.innerHTML = html;
+
+      // 2) Execute any <script> tags from the injected fragment
+      const scripts = Array.from(target.querySelectorAll('script'));
+      for (const old of scripts) {
+        const s = document.createElement('script');
+        // preserve inline vs external scripts
+        if (old.src) s.src = old.src;
+        if (old.type) s.type = old.type;
+        if (old.noModule) s.noModule = true;
+        if (old.defer) s.defer = true;
+        if (!old.src) s.textContent = old.textContent;
+        // execute by adding to DOM
+        document.body.appendChild(s);
+        // remove the original to avoid duplicates
+        old.parentNode.removeChild(old);
+      }
+    } catch (e) {
+      console.error(`Error loading ${componentName}:`, e);
     }
+  }
 
     // Load all components
     async function loadAllComponents() {
