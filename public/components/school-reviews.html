@@ -246,6 +246,23 @@
     color: #991b1b;
   }
 
+  .review-actions {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .review-action {
+    color: #06b6d4;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .review-action:hover {
+    text-decoration: underline;
+  }
+
   .load-more-btn {
     display: block;
     width: 100%;
@@ -395,26 +412,29 @@
 (function() {
   let currentSchoolUrn = null;
   let currentPage = 1;
-  let initialized = false;
+  let allReviewsLoaded = false;
+  let schoolData = null;
+
+  // Wait for school data to be available
+  function waitForSchoolData() {
+    if (window.currentSchoolData) {
+      schoolData = window.currentSchoolData;
+      currentSchoolUrn = schoolData.urn;
+      initializeReviews();
+    } else {
+      setTimeout(waitForSchoolData, 100);
+    }
+  }
 
   function initializeReviews() {
-    if (initialized) return;
-    
-    const urlPath = window.location.pathname;
-    const urlMatch = urlPath.match(/\/school\/(\d+)/);
-    
-    if (urlMatch && urlMatch[1]) {
-      currentSchoolUrn = parseInt(urlMatch[1], 10);
-      initialized = true;
-      console.log('Got URN from URL:', currentSchoolUrn);
-      
-      const writeBtn = document.getElementById('writeReviewBtn');
-      if (writeBtn) {
-        writeBtn.href = `/write-review?urn=${currentSchoolUrn}`;
-      }
-      
-      loadReviews();
+    // Set up write review button
+    const writeBtn = document.getElementById('writeReviewBtn');
+    if (writeBtn && schoolData) {
+      writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(schoolData.name)}&town=${encodeURIComponent(schoolData.address?.town || '')}`;
     }
+
+    // Load reviews
+    loadReviews();
   }
 
   async function loadReviews() {
@@ -423,29 +443,35 @@
     try {
       const response = await fetch(`/api/schools/${currentSchoolUrn}/reviews?limit=5&page=${currentPage}`);
       const data = await response.json();
-      console.log('Reviews data:', data);
+      
+      console.log('Reviews data received:', data);
 
       if (currentPage === 1) {
-        if (data.stats) {
+        if (data.stats && data.stats.total_reviews > 0) {
           displayStats(data.stats);
+          document.getElementById('categoryRatings').style.display = 'grid';
+        } else {
+          document.getElementById('categoryRatings').style.display = 'none';
         }
         
         if (data.reviews && data.reviews.length > 0) {
           displayReviews(data.reviews, false);
         } else {
           displayNoReviews();
-          document.getElementById('categoryRatings').style.display = 'none';
         }
       } else {
         displayReviews(data.reviews, true);
       }
 
+      // Show/hide load more button
       const loadMoreBtn = document.getElementById('loadMoreReviews');
       if (data.pagination && data.pagination.page < data.pagination.totalPages) {
         loadMoreBtn.style.display = 'block';
       } else {
         loadMoreBtn.style.display = 'none';
+        allReviewsLoaded = true;
       }
+
     } catch (error) {
       console.error('Failed to load reviews:', error);
       displayNoReviews();
@@ -458,12 +484,11 @@
       return;
     }
 
-    document.getElementById('categoryRatings').style.display = 'grid';
-
     const avgRating = parseFloat(stats.avg_overall_rating) || 0;
     document.getElementById('avgRating').textContent = avgRating.toFixed(1);
     document.getElementById('reviewsCount').textContent = `${stats.total_reviews || 0} Reviews`;
 
+    // Update star display
     const starsContainer = document.getElementById('avgStars');
     starsContainer.innerHTML = '';
     for (let i = 1; i <= 5; i++) {
@@ -473,16 +498,20 @@
       starsContainer.appendChild(star);
     }
 
+    // Update rating bars with distribution
     const total = stats.total_reviews || 0;
     if (stats.distribution) {
       for (let i = 5; i >= 1; i--) {
         const count = stats.distribution[i] || 0;
         const percentage = total > 0 ? (count / total) * 100 : 0;
-        document.getElementById(`star${i}Bar`).style.width = percentage + '%';
-        document.getElementById(`star${i}Count`).textContent = count;
+        const barEl = document.getElementById(`star${i}Bar`);
+        const countEl = document.getElementById(`star${i}Count`);
+        if (barEl) barEl.style.width = percentage + '%';
+        if (countEl) countEl.textContent = count;
       }
     }
 
+    // Update category ratings
     if (stats.categories) {
       updateCategoryRating('family', stats.categories.family);
       updateCategoryRating('learning', stats.categories.learning);
@@ -499,15 +528,20 @@
     const score = parseFloat(data.average) || 0;
     const count = data.count || 0;
     
-    document.getElementById(`${category}Score`).textContent = score > 0 ? score.toFixed(1) : '-';
-    document.getElementById(`${category}Count`).textContent = `(${count})`;
-    
+    const scoreEl = document.getElementById(`${category}Score`);
+    const countEl = document.getElementById(`${category}Count`);
     const dotsEl = document.getElementById(`${category}Dots`);
-    dotsEl.innerHTML = '';
-    for (let i = 1; i <= 5; i++) {
-      const dot = document.createElement('span');
-      dot.className = i <= Math.round(score) ? 'dot filled' : 'dot';
-      dotsEl.appendChild(dot);
+    
+    if (scoreEl) scoreEl.textContent = score > 0 ? score.toFixed(1) : '-';
+    if (countEl) countEl.textContent = `(${count})`;
+    
+    if (dotsEl) {
+      dotsEl.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const dot = document.createElement('span');
+        dot.className = i <= Math.round(score) ? 'dot filled' : 'dot';
+        dotsEl.appendChild(dot);
+      }
     }
   }
 
@@ -519,61 +553,82 @@
     }
 
     if (!reviews || reviews.length === 0) {
-      if (!append) {
+      if (!append && container.innerHTML === '') {
         displayNoReviews();
       }
       return;
     }
 
     reviews.forEach(review => {
-      const div = document.createElement('div');
-      div.className = 'review-item';
-
-      const reviewerType = (review.reviewer_type || 'parent_guardian')
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, l => l.toUpperCase());
-
-      const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      });
-
-      const initials = reviewerType.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-
-      div.innerHTML = `
-        <div class="review-header-info">
-          <div class="reviewer-info">
-            <div class="reviewer-avatar">${initials}</div>
-            <div class="reviewer-details">
-              <div class="reviewer-type">${reviewerType}</div>
-              <div class="review-date">${reviewDate}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="review-stars">
-          ${Array(5).fill(0).map((_, i) => 
-            `<span class="review-star ${i >= review.overall_rating ? 'empty' : ''}">★</span>`
-          ).join('')}
-        </div>
-
-        <div class="review-text">${review.review_text || ''}</div>
-
-        ${review.would_recommend !== null ? `
-          <div class="review-recommendation ${review.would_recommend ? '' : 'not-recommended'}">
-            ${review.would_recommend ? '✓ Would recommend this school' : '✗ Would not recommend this school'}
-          </div>
-        ` : ''}
-      `;
-
-      container.appendChild(div);
+      const reviewEl = createReviewElement(review);
+      container.appendChild(reviewEl);
     });
   }
 
+  function createReviewElement(review) {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+
+    const reviewerType = (review.reviewer_type || 'parent_guardian')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+
+    const reviewDate = review.formatted_date || new Date(review.created_at).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    const initials = review.reviewer_name ? 
+      review.reviewer_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 
+      reviewerType.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    const reviewHtml = `
+      <div class="review-header-info">
+        <div class="reviewer-info">
+          <div class="reviewer-avatar">${initials}</div>
+          <div class="reviewer-details">
+            <div class="reviewer-type">${reviewerType}</div>
+            <div class="review-date">${reviewDate}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-stars">
+        ${Array(5).fill(0).map((_, i) => 
+          `<span class="review-star ${i >= review.overall_rating ? 'empty' : ''}">★</span>`
+        ).join('')}
+      </div>
+
+      ${review.review_title ? `<h4 style="margin: 1rem 0 0.5rem; font-weight: 600;">${review.review_title}</h4>` : ''}
+
+      <div class="review-text">
+        ${review.review_text || ''}
+      </div>
+
+      ${review.would_recommend !== null && review.would_recommend !== undefined ? `
+        <div class="review-recommendation ${review.would_recommend ? '' : 'not-recommended'}">
+          ${review.would_recommend ? '✓ Would recommend this school' : '✗ Would not recommend this school'}
+        </div>
+      ` : ''}
+
+      <div class="review-actions">
+        <a href="#" class="review-action" onclick="markHelpful(event, ${review.id}); return false;">
+          Helpful (${review.helpful_count || 0})
+        </a>
+        <a href="#" class="review-action" onclick="reportReview(event, ${review.id}); return false;">
+          Report
+        </a>
+      </div>
+    `;
+
+    div.innerHTML = reviewHtml;
+    return div;
+  }
+
   function displayNoReviews() {
-    document.getElementById('reviewsList').innerHTML = 
-      '<div class="no-reviews">No reviews yet. Be the first to review this school!</div>';
+    const container = document.getElementById('reviewsList');
+    container.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this school!</div>';
     document.getElementById('loadMoreReviews').style.display = 'none';
   }
 
@@ -583,30 +638,56 @@
     loadReviews();
   });
 
+  // Global functions for review actions
+  window.markHelpful = async function(event, reviewId) {
+    event.preventDefault();
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
+        method: 'POST'
+      });
+      if (response.ok) {
+        // Reload the current page of reviews to update count
+        loadReviews();
+      } else {
+        const error = await response.json();
+        if (error.error && error.error.includes('already marked')) {
+          alert('You have already marked this review as helpful');
+        }
+      }
+    } catch (error) {
+      console.error('Error marking helpful:', error);
+    }
+  };
+
+  window.reportReview = async function(event, reviewId) {
+    event.preventDefault();
+    if (confirm('Are you sure you want to report this review?')) {
+      try {
+        const response = await fetch(`/api/reviews/${reviewId}/report`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'inappropriate_content', details: 'User reported' })
+        });
+        if (response.ok) {
+          alert('Review has been reported. Thank you.');
+        }
+      } catch (error) {
+        console.error('Error reporting review:', error);
+      }
+    }
+  };
+
   // Listen for school data loaded event
   window.addEventListener('schoolDataLoaded', function(e) {
     console.log('School data event received:', e.detail);
-    if (!initialized && e.detail && e.detail.urn) {
+    if (e.detail && e.detail.urn) {
       currentSchoolUrn = parseInt(e.detail.urn, 10);
-      initialized = true;
-      
-      const writeBtn = document.getElementById('writeReviewBtn');
-      if (writeBtn && e.detail.name && e.detail.address) {
-        writeBtn.href = `/write-review?urn=${currentSchoolUrn}&name=${encodeURIComponent(e.detail.name)}&town=${encodeURIComponent(e.detail.address.town || '')}`;
-      }
-      
-      loadReviews();
+      schoolData = e.detail;
+      initializeReviews();
     }
   });
 
   // Initialize
-  setTimeout(initializeReviews, 100);
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeReviews);
-  } else {
-    initializeReviews();
-  }
-
-})(); // Closure ends here - everything must be inside
+  waitForSchoolData();
+})();
 </script>
