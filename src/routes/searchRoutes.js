@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
       });
     }
 
-    // Build the SQL query
+    // Build the SQL query - now using stored overall_rating
     let sqlQuery = `
       SELECT 
         s.urn,
@@ -40,18 +40,12 @@ router.get('/', async (req, res) => {
         s.street,
         s.religious_character,
         s.gender,
+        s.overall_rating,
+        s.rating_percentile,
         o.overall_effectiveness as ofsted_rating,
         o.inspection_date,
-        o.overall_effectiveness as ofsted_score,
         c.number_on_roll,
-        c.percentage_fsm_ever6 as fsm_percentage,
-        CASE 
-          WHEN o.overall_effectiveness = 1 THEN 9
-          WHEN o.overall_effectiveness = 2 THEN 7
-          WHEN o.overall_effectiveness = 3 THEN 5
-          WHEN o.overall_effectiveness = 4 THEN 3
-          ELSE 5
-        END as overall_rating
+        c.percentage_fsm_ever6 as fsm_percentage
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn
@@ -75,7 +69,6 @@ router.get('/', async (req, res) => {
     } else if (type === 'location') {
       paramCount++;
       paramCount++;
-      // Search in both town and local_authority fields
       sqlQuery += ` AND (LOWER(s.town) LIKE LOWER($${paramCount-1}) OR LOWER(s.local_authority) LIKE LOWER($${paramCount}))`;
       params.push(searchTerm);
       params.push(searchTerm);
@@ -116,8 +109,8 @@ router.get('/', async (req, res) => {
       params.push(la);
     }
 
-    // Add ordering and pagination
-    sqlQuery += ` ORDER BY s.name ASC`;
+    // Order by overall_rating if available, otherwise by name
+    sqlQuery += ` ORDER BY s.overall_rating DESC NULLS LAST, s.name ASC`;
     
     paramCount++;
     sqlQuery += ` LIMIT $${paramCount}`;
@@ -129,8 +122,6 @@ router.get('/', async (req, res) => {
 
     // Execute search query
     console.log('Executing search for:', q, 'Type:', type);
-    console.log('SQL Query:', sqlQuery);
-    console.log('Parameters:', params);
     
     const result = await query(sqlQuery, params);
 
@@ -190,7 +181,9 @@ router.get('/', async (req, res) => {
       schools: result.rows.map(school => ({
         ...school,
         ofsted_label: getOfstedLabel(school.ofsted_rating),
-        overall_rating: school.overall_rating || 5
+        overall_rating: school.overall_rating ? parseFloat(school.overall_rating) : null,
+        rating_display: school.overall_rating ? `${parseFloat(school.overall_rating).toFixed(1)}/10` : 'N/A',
+        percentile_text: school.rating_percentile ? `Top ${100 - school.rating_percentile}%` : null
       }))
     });
 
@@ -213,24 +206,17 @@ router.get('/postcode/:postcode', async (req, res) => {
     const { postcode } = req.params;
     const { radius = 3 } = req.query;
 
-    // For now, simple postcode matching (in production, use PostGIS for radius search)
+    // Now using stored overall_rating
     const sqlQuery = `
       SELECT 
         s.*,
         o.overall_effectiveness as ofsted_rating,
-        c.number_on_roll,
-        CASE 
-          WHEN o.overall_effectiveness = 1 THEN 9
-          WHEN o.overall_effectiveness = 2 THEN 7
-          WHEN o.overall_effectiveness = 3 THEN 5
-          WHEN o.overall_effectiveness = 4 THEN 3
-          ELSE 5
-        END as overall_rating
+        c.number_on_roll
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn
       WHERE UPPER(SUBSTRING(s.postcode, 1, 4)) = UPPER(SUBSTRING($1, 1, 4))
-      ORDER BY s.name
+      ORDER BY s.overall_rating DESC NULLS LAST, s.name
       LIMIT 50
     `;
     
@@ -243,7 +229,9 @@ router.get('/postcode/:postcode', async (req, res) => {
       total: result.rows.length,
       schools: result.rows.map(school => ({
         ...school,
-        ofsted_label: getOfstedLabel(school.ofsted_rating)
+        ofsted_label: getOfstedLabel(school.ofsted_rating),
+        overall_rating: school.overall_rating ? parseFloat(school.overall_rating) : null,
+        rating_display: school.overall_rating ? `${parseFloat(school.overall_rating).toFixed(1)}/10` : 'N/A'
       }))
     });
 
@@ -251,6 +239,92 @@ router.get('/postcode/:postcode', async (req, res) => {
     console.error('Postcode search error:', error);
     res.status(500).json({ 
       error: 'Failed to search by postcode',
+      message: error.message 
+    });
+  }
+});
+
+/**
+ * @route   GET /api/search/city/:city
+ * @desc    Get top schools for a city/town
+ * @example /api/search/city/london?limit=10
+ */
+router.get('/city/:city', async (req, res) => {
+  try {
+    const { city } = req.params;
+    const { limit = 10, phase } = req.query;
+
+    let sqlQuery = `
+      SELECT 
+        s.urn,
+        s.name,
+        s.postcode,
+        s.town,
+        s.phase_of_education,
+        s.type_of_establishment,
+        s.overall_rating,
+        s.rating_percentile,
+        o.overall_effectiveness as ofsted_rating,
+        c.number_on_roll
+      FROM uk_schools s
+      LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
+      LEFT JOIN uk_census_data c ON s.urn = c.urn
+      WHERE LOWER(s.town) = LOWER($1) OR LOWER(s.local_authority) = LOWER($1)
+    `;
+
+    const params = [city];
+    
+    if (phase) {
+      sqlQuery += ` AND s.phase_of_education = $2`;
+      params.push(phase);
+    }
+
+    sqlQuery += ` ORDER BY s.overall_rating DESC NULLS LAST, o.overall_effectiveness ASC NULLS LAST`;
+    sqlQuery += ` LIMIT $${params.length + 1}`;
+    params.push(parseInt(limit));
+
+    const result = await query(sqlQuery, params);
+
+    // Get city statistics
+    const statsSql = `
+      SELECT 
+        COUNT(DISTINCT s.urn) as total_schools,
+        COUNT(DISTINCT CASE WHEN s.phase_of_education = 'Primary' THEN s.urn END) as primary_count,
+        COUNT(DISTINCT CASE WHEN s.phase_of_education = 'Secondary' THEN s.urn END) as secondary_count,
+        COUNT(DISTINCT CASE WHEN o.overall_effectiveness = 1 THEN s.urn END) as outstanding_count,
+        COUNT(DISTINCT CASE WHEN o.overall_effectiveness = 2 THEN s.urn END) as good_count,
+        AVG(s.overall_rating) as avg_rating
+      FROM uk_schools s
+      LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
+      WHERE LOWER(s.town) = LOWER($1) OR LOWER(s.local_authority) = LOWER($1)
+    `;
+
+    const statsResult = await query(statsSql, [city]);
+    const stats = statsResult.rows[0];
+
+    res.json({
+      success: true,
+      city: city,
+      statistics: {
+        total_schools: parseInt(stats.total_schools) || 0,
+        primary_schools: parseInt(stats.primary_count) || 0,
+        secondary_schools: parseInt(stats.secondary_count) || 0,
+        outstanding_schools: parseInt(stats.outstanding_count) || 0,
+        good_schools: parseInt(stats.good_count) || 0,
+        average_rating: stats.avg_rating ? parseFloat(stats.avg_rating).toFixed(1) : null
+      },
+      top_schools: result.rows.map(school => ({
+        ...school,
+        ofsted_label: getOfstedLabel(school.ofsted_rating),
+        overall_rating: school.overall_rating ? parseFloat(school.overall_rating) : null,
+        rating_display: school.overall_rating ? `${parseFloat(school.overall_rating).toFixed(1)}/10` : 'N/A'
+      }))
+    });
+
+  } catch (error) {
+    console.error('City search error:', error);
+    res.status(500).json({ 
+      error: 'Failed to get schools for city',
       message: error.message 
     });
   }
@@ -275,9 +349,11 @@ router.get('/suggestions', async (req, res) => {
         SELECT DISTINCT 
           name as suggestion,
           'school' as type,
-          urn as id
+          urn as id,
+          overall_rating
         FROM uk_schools
         WHERE LOWER(name) LIKE LOWER($1)
+        ORDER BY overall_rating DESC NULLS LAST
         LIMIT 5
       )
       UNION ALL
@@ -285,7 +361,8 @@ router.get('/suggestions', async (req, res) => {
         SELECT DISTINCT 
           town as suggestion,
           'town' as type,
-          NULL as id
+          NULL as id,
+          NULL as overall_rating
         FROM uk_schools
         WHERE LOWER(town) LIKE LOWER($1)
         AND town IS NOT NULL
@@ -296,7 +373,8 @@ router.get('/suggestions', async (req, res) => {
         SELECT DISTINCT 
           local_authority as suggestion,
           'la' as type,
-          NULL as id
+          NULL as id,
+          NULL as overall_rating
         FROM uk_schools
         WHERE LOWER(local_authority) LIKE LOWER($1)
         AND local_authority IS NOT NULL
@@ -309,7 +387,10 @@ router.get('/suggestions', async (req, res) => {
     
     res.json({
       success: true,
-      suggestions: result.rows
+      suggestions: result.rows.map(row => ({
+        ...row,
+        rating_display: row.overall_rating ? `${parseFloat(row.overall_rating).toFixed(1)}/10` : null
+      }))
     });
 
   } catch (error) {

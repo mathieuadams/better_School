@@ -7,19 +7,141 @@ function getOfstedLabel(rating) {
   const labels = { 1: 'Outstanding', 2: 'Good', 3: 'Requires Improvement', 4: 'Inadequate' };
   return labels[rating] || 'Not Inspected';
 }
+
 const toNum = v => {
   if (v === null || v === undefined || v === '') return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 };
 
+/* ---------------- Rating Calculation Functions ---------------- */
+function calculateRatingWithFallbacks(school, laAverages) {
+  let components = [];
+  let totalWeight = 0;
+  
+  // 1. Ofsted component (target 40% weight)
+  if (school.ofsted_overall_effectiveness) {
+    const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
+    const ofstedScore = ofstedMap[school.ofsted_overall_effectiveness] || 5;
+    components.push({
+      name: 'ofsted',
+      score: ofstedScore,
+      weight: 40,
+      label: getOfstedLabel(school.ofsted_overall_effectiveness)
+    });
+    totalWeight += 40;
+  }
+  
+  // 2. Academic component (target 40% weight)
+  let academicScores = [];
+  let academicDetails = {};
+  
+  if (school.english_score !== null && laAverages.avg_english !== null) {
+    const engScore = compareToLA(school.english_score, laAverages.avg_english);
+    academicScores.push(engScore);
+    academicDetails.english = {
+      school: school.english_score,
+      la_avg: laAverages.avg_english,
+      score: engScore
+    };
+  }
+  
+  if (school.math_score !== null && laAverages.avg_math !== null) {
+    const mathScore = compareToLA(school.math_score, laAverages.avg_math);
+    academicScores.push(mathScore);
+    academicDetails.math = {
+      school: school.math_score,
+      la_avg: laAverages.avg_math,
+      score: mathScore
+    };
+  }
+  
+  if (school.science_score !== null && laAverages.avg_science !== null) {
+    const sciScore = compareToLA(school.science_score, laAverages.avg_science);
+    academicScores.push(sciScore);
+    academicDetails.science = {
+      school: school.science_score,
+      la_avg: laAverages.avg_science,
+      score: sciScore
+    };
+  }
+  
+  if (academicScores.length > 0) {
+    const avgAcademicScore = academicScores.reduce((a, b) => a + b, 0) / academicScores.length;
+    components.push({
+      name: 'academic',
+      score: avgAcademicScore,
+      weight: 40,
+      details: academicDetails,
+      subjects_available: academicScores.length
+    });
+    totalWeight += 40;
+  }
+  
+  // 3. Attendance component (target 20% weight)
+  if (school.attendance_rate !== null && laAverages.avg_attendance !== null) {
+    const attendanceScore = compareToLA(school.attendance_rate, laAverages.avg_attendance);
+    components.push({
+      name: 'attendance',
+      score: attendanceScore,
+      weight: 20,
+      school_rate: school.attendance_rate,
+      la_avg: laAverages.avg_attendance
+    });
+    totalWeight += 20;
+  }
+  
+  // Check minimum data threshold
+  if (totalWeight < 40) {
+    return {
+      rating: null,
+      message: "Insufficient data for rating",
+      available_components: components,
+      data_completeness: totalWeight
+    };
+  }
+  
+  // Calculate normalized score
+  const normalizedScore = components.reduce((sum, c) => 
+    sum + (c.score * (c.weight / totalWeight)), 0
+  );
+  
+  // Calculate percentile (how many schools in LA this school outperforms)
+  const percentile = calculatePercentile(normalizedScore, laAverages.all_ratings || []);
+  
+  return {
+    rating: Math.round(normalizedScore * 10) / 10,
+    components: components,
+    data_completeness: totalWeight,
+    percentile: percentile,
+    la_comparison: totalWeight === 100 ? 'Complete data' : 'Partial data'
+  };
+}
+
+function compareToLA(schoolValue, laAverage) {
+  if (!schoolValue || !laAverage) return 5;
+  
+  const ratio = schoolValue / laAverage;
+  
+  // Convert ratio to 1-10 scale
+  if (ratio >= 1.2) return 9;      // 20% above average
+  if (ratio >= 1.1) return 8;      // 10% above average
+  if (ratio >= 1.05) return 7;     // 5% above average
+  if (ratio >= 0.95) return 6;     // Within 5% of average
+  if (ratio >= 0.9) return 5;      // 5-10% below average
+  if (ratio >= 0.8) return 4;      // 10-20% below average
+  return 3;                         // More than 20% below average
+}
+
+function calculatePercentile(score, allScores) {
+  if (!allScores || allScores.length === 0) return null;
+  const below = allScores.filter(s => s < score).length;
+  return Math.round((below / allScores.length) * 100);
+}
+
 /* =======================================================================
  * GET /api/schools/:urn
- * Returns a robust object even when optional tables are missing.
- * Pulls telephone, website, head names, lat/lon (if any) from uk_schools.
- * Also merges latest Ofsted + optional census/attendance.
- * Includes new test scores fields.
- * Optional: ?debug=1 reveals which tables returned data.
+ * Returns a robust object with calculated rating
  * ======================================================================= */
 router.get('/:urn', async (req, res) => {
   try {
@@ -30,7 +152,7 @@ router.get('/:urn', async (req, res) => {
       return res.status(400).json({ error: 'Invalid URN provided' });
     }
 
-    // 1) Base row from uk_schools - now includes test scores
+    // 1) Base row from uk_schools - includes new rating columns
     const baseSql = `
       SELECT
         s.id, s.urn, s.la_code, s.establishment_number, s.name, s.name_lower, s.slug,
@@ -46,10 +168,10 @@ router.get('/:urn', async (req, res) => {
         s.religious_character, s.religious_ethos, s.diocese, s.percentage_fsm,
         s.is_part_of_trust, s.trust_name, s.ukprn, s.uprn,
         s.date_opened, s.last_changed_date, s.created_at, s.updated_at,
-        -- New test score fields
         s.english_score, s.english_avg,
         s.math_score, s.math_avg,
-        s.science_score, s.science_avg
+        s.science_score, s.science_avg,
+        s.overall_rating, s.rating_components, s.rating_percentile, s.rating_updated_at
       FROM uk_schools s
       WHERE s.urn = $1
       LIMIT 1
@@ -60,7 +182,7 @@ router.get('/:urn', async (req, res) => {
     }
     const s = baseR.rows[0];
 
-    // 2) Optional merges (latest rows)
+    // 2) Get latest Ofsted and other data
     const ofstedSql = `
       SELECT
         overall_effectiveness,
@@ -96,6 +218,7 @@ router.get('/:urn', async (req, res) => {
       ORDER BY academic_year DESC NULLS LAST
       LIMIT 1
     `;
+    
     const [oR, cR, aR] = await Promise.all([
       query(ofstedSql, [urn]),
       query(censusSql, [urn]),
@@ -106,23 +229,82 @@ router.get('/:urn', async (req, res) => {
     const c = cR.rows[0] || {};
     const a = aR.rows[0] || {};
 
+    // 3) Calculate LA averages for comparison
+    const laAvgSql = `
+      SELECT 
+        AVG(s.english_score) as avg_english,
+        AVG(s.math_score) as avg_math,
+        AVG(s.science_score) as avg_science,
+        AVG(CASE WHEN a.overall_absence_rate IS NOT NULL 
+            THEN (100 - a.overall_absence_rate) 
+            ELSE NULL END) as avg_attendance,
+        COUNT(DISTINCT s.urn) as school_count,
+        ARRAY_AGG(s.overall_rating) FILTER (WHERE s.overall_rating IS NOT NULL) as all_ratings
+      FROM uk_schools s
+      LEFT JOIN uk_absence_data a ON s.urn = a.urn
+      WHERE s.local_authority = $1 
+        AND s.phase_of_education = $2
+        AND s.urn != $3
+    `;
+    
+    const laAvgR = await query(laAvgSql, [s.local_authority, s.phase_of_education, urn]);
+    const laAverages = laAvgR.rows[0] || {};
+
+    // 4) Check if rating needs update (null or older than 30 days)
+    const needsRatingUpdate = !s.rating_updated_at || 
+      (Date.now() - new Date(s.rating_updated_at) > 30 * 24 * 60 * 60 * 1000);
+
+    let calculatedRating = null;
+    
+    if (needsRatingUpdate || debug) {
+      // Prepare data for rating calculation
+      const schoolForRating = {
+        ofsted_overall_effectiveness: o.overall_effectiveness,
+        english_score: toNum(s.english_score),
+        math_score: toNum(s.math_score),
+        science_score: toNum(s.science_score),
+        attendance_rate: a.overall_absence_rate ? (100 - a.overall_absence_rate) : null
+      };
+      
+      // Calculate rating
+      calculatedRating = calculateRatingWithFallbacks(schoolForRating, laAverages);
+      
+      // Update database if we got a valid rating and not in debug mode
+      if (calculatedRating.rating !== null && !debug) {
+        await query(`
+          UPDATE uk_schools 
+          SET overall_rating = $1,
+              rating_components = $2,
+              rating_percentile = $3,
+              rating_updated_at = NOW()
+          WHERE urn = $4
+        `, [
+          calculatedRating.rating, 
+          JSON.stringify(calculatedRating.components),
+          calculatedRating.percentile,
+          urn
+        ]);
+        
+        // Update local object
+        s.overall_rating = calculatedRating.rating;
+        s.rating_components = calculatedRating.components;
+        s.rating_percentile = calculatedRating.percentile;
+      }
+    }
+
     // Normalize leader name and contact
     const headteacher_name = [s.head_title, s.head_first_name, s.head_last_name]
       .filter(Boolean)
       .join(' ')
       .trim() || null;
 
-    // Coalesce demographics: prefer uk_schools totals but fall back to census
+    // Coalesce demographics
     const total_students = s.total_pupils ?? c.number_on_roll ?? null;
     const boys = s.boys_count ?? c.number_boys ?? null;
     const girls = s.girls_count ?? c.number_girls ?? null;
 
-    // Build overall 0–10 rating based on Ofsted band
-    let overall_rating = 5;
-    if (o.overall_effectiveness === 1) overall_rating = 9;
-    else if (o.overall_effectiveness === 2) overall_rating = 7;
-    else if (o.overall_effectiveness === 3) overall_rating = 5;
-    else if (o.overall_effectiveness === 4) overall_rating = 3;
+    // Use database rating or calculated rating
+    const final_rating = s.overall_rating || (calculatedRating && calculatedRating.rating) || null;
 
     const payload = {
       success: true,
@@ -182,19 +364,22 @@ router.get('/:urn', async (req, res) => {
           persistent_absence_rate: a.persistent_absence_rate ?? null,
         },
 
-        // Test Scores (NEW)
+        // Test Scores
         test_scores: {
           english: {
             score: toNum(s.english_score),
-            average: toNum(s.english_avg)
+            average: toNum(s.english_avg),
+            la_average: toNum(laAverages.avg_english)
           },
           math: {
             score: toNum(s.math_score),
-            average: toNum(s.math_avg)
+            average: toNum(s.math_avg),
+            la_average: toNum(laAverages.avg_math)
           },
           science: {
             score: toNum(s.science_score),
-            average: toNum(s.science_avg)
+            average: toNum(s.science_avg),
+            la_average: toNum(laAverages.avg_science)
           }
         },
 
@@ -216,8 +401,23 @@ router.get('/:urn', async (req, res) => {
           web_link: o.web_link || null,
         },
 
-        // Overall UI rating
-        overall_rating,
+        // Overall rating (new)
+        overall_rating: final_rating,
+        rating_components: s.rating_components || (calculatedRating && calculatedRating.components) || null,
+        rating_percentile: s.rating_percentile || (calculatedRating && calculatedRating.percentile) || null,
+        rating_data_completeness: calculatedRating ? calculatedRating.data_completeness : null,
+        
+        // LA comparison data
+        la_comparison: {
+          local_authority: s.local_authority,
+          school_count: laAverages.school_count,
+          averages: {
+            english: toNum(laAverages.avg_english),
+            math: toNum(laAverages.avg_math),
+            science: toNum(laAverages.avg_science),
+            attendance: toNum(laAverages.avg_attendance)
+          }
+        }
       },
     };
 
@@ -227,6 +427,9 @@ router.get('/:urn', async (req, res) => {
         ofsted_row: !!oR.rows[0],
         census_row: !!cR.rows[0],
         attendance_row: !!aR.rows[0],
+        rating_calculated: !!calculatedRating,
+        rating_from_db: !!s.overall_rating,
+        la_averages: laAverages
       };
     }
 
