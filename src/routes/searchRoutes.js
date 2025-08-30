@@ -262,7 +262,7 @@ router.get('/city/:city', async (req, res) => {
         s.town,
         s.phase_of_education,
         s.type_of_establishment,
-        s.overall_rating,
+        COALESCE(s.overall_rating, 5.0) as overall_rating,  -- Use stored rating or default to 5
         s.rating_percentile,
         o.overall_effectiveness as ofsted_rating,
         c.number_on_roll
