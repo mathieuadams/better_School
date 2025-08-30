@@ -21,7 +21,12 @@ function calculateRatingWithFallbacks(school, laAverages) {
   
   // 1. Ofsted component (target 40% weight)
   if (school.ofsted_overall_effectiveness) {
-    const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
+    const ofstedMap = { 
+      1: 9.5,  // Outstanding
+      2: 7.5,  // Good
+      3: 4.5,  // Requires Improvement
+      4: 2.5   // Inadequate
+    };
     const ofstedScore = ofstedMap[school.ofsted_overall_effectiveness] || 5;
     components.push({
       name: 'ofsted',
@@ -37,7 +42,7 @@ function calculateRatingWithFallbacks(school, laAverages) {
   let academicDetails = {};
   
   if (school.english_score !== null && laAverages.avg_english !== null) {
-    const engScore = compareToLA(school.english_score, laAverages.avg_english);
+    const engScore = calculateAcademicScore(school.english_score, laAverages.avg_english);
     academicScores.push(engScore);
     academicDetails.english = {
       school: school.english_score,
@@ -47,7 +52,7 @@ function calculateRatingWithFallbacks(school, laAverages) {
   }
   
   if (school.math_score !== null && laAverages.avg_math !== null) {
-    const mathScore = compareToLA(school.math_score, laAverages.avg_math);
+    const mathScore = calculateAcademicScore(school.math_score, laAverages.avg_math);
     academicScores.push(mathScore);
     academicDetails.math = {
       school: school.math_score,
@@ -57,7 +62,7 @@ function calculateRatingWithFallbacks(school, laAverages) {
   }
   
   if (school.science_score !== null && laAverages.avg_science !== null) {
-    const sciScore = compareToLA(school.science_score, laAverages.avg_science);
+    const sciScore = calculateAcademicScore(school.science_score, laAverages.avg_science);
     academicScores.push(sciScore);
     academicDetails.science = {
       school: school.science_score,
@@ -79,8 +84,8 @@ function calculateRatingWithFallbacks(school, laAverages) {
   }
   
   // 3. Attendance component (target 20% weight)
-  if (school.attendance_rate !== null && laAverages.avg_attendance !== null) {
-    const attendanceScore = compareToLA(school.attendance_rate, laAverages.avg_attendance);
+  if (school.attendance_rate !== null) {
+    const attendanceScore = calculateAttendanceScore(school.attendance_rate);
     components.push({
       name: 'attendance',
       score: attendanceScore,
@@ -118,19 +123,37 @@ function calculateRatingWithFallbacks(school, laAverages) {
   };
 }
 
-function compareToLA(schoolValue, laAverage) {
-  if (!schoolValue || !laAverage) return 5;
+function calculateAcademicScore(schoolValue, laAverage) {
+  if (schoolValue === null || schoolValue === undefined) return 5;
+  if (laAverage === null || laAverage === undefined) return 5;
   
-  const ratio = schoolValue / laAverage;
+  // Calculate percentage point difference
+  const difference = schoolValue - laAverage;
   
-  // Convert ratio to 1-10 scale
-  if (ratio >= 1.2) return 9;      // 20% above average
-  if (ratio >= 1.1) return 8;      // 10% above average
-  if (ratio >= 1.05) return 7;     // 5% above average
-  if (ratio >= 0.95) return 6;     // Within 5% of average
-  if (ratio >= 0.9) return 5;      // 5-10% below average
-  if (ratio >= 0.8) return 4;      // 10-20% below average
-  return 3;                         // More than 20% below average
+  // Scale: Each 4 percentage points difference = 1 rating point
+  // +20 points above LA = 10/10, -20 below = 0/10
+  let score = 5 + (difference / 4);
+  
+  // Cap between 1 and 10
+  return Math.max(1, Math.min(10, score));
+}
+
+function calculateAttendanceScore(attendanceRate) {
+  if (!attendanceRate) return 5;
+  
+  // UK attendance standards:
+  // 97%+ = Excellent (9-10)
+  // 95-97% = Good (7-8.5)
+  // 90-95% = Requires Improvement (4-6.5)
+  // Below 90% = Poor (1-3.5)
+  
+  if (attendanceRate >= 97) return 9.5;
+  if (attendanceRate >= 96) return 8.5;
+  if (attendanceRate >= 95) return 7.5;
+  if (attendanceRate >= 93) return 6;
+  if (attendanceRate >= 90) return 4.5;
+  if (attendanceRate >= 85) return 3;
+  return 2;
 }
 
 function calculatePercentile(score, allScores) {
