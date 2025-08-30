@@ -1,164 +1,32 @@
-<!-- components/school-header.html -->
+<!-- school-header.html -->
 <section class="profile-header">
   <div class="container">
     <div class="profile-header-content">
-      <!-- LEFT -->
-      <div class="left">
-        <h1 id="schoolName">Loading…</h1>
-
-        <!-- meta row: type | students | ages -->
-        <div class="meta">
-          <span id="schoolType">-</span>
-          <span class="dot">•</span>
-          <span id="studentCount">-</span>
-          <span class="dot">•</span>
+      <div>
+        <h1 id="schoolName">Loading...</h1>
+        <div class="school-type-info">
+          <span id="schoolType">-</span><span>•</span>
+          <span id="schoolPhase">-</span><span>•</span>
           <span id="ageRange">Ages -</span>
-          <span class="dot" id="gradesDot" hidden>•</span>
-          <span id="grades" hidden>-</span>
-          <span class="dot">•</span>
-          <a id="reviewsCount" href="#reviews" class="reviews-link">0 reviews</a>
         </div>
-
-        <!-- address -->
-        <div class="address">
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+        <div class="school-address-info">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
           </svg>
           <span id="schoolAddress">-</span>
         </div>
       </div>
-
-      <!-- RIGHT: rating + Ofsted -->
-      <div class="right">
-        <div class="rating-card">
-          <div class="rating-score" id="overallRating">-</div>
-          <div class="rating-label">Overall Rating</div>
+      <div class="rating-section">
+        <div class="main-rating">
+          <div class="main-rating-score" id="overallRating">-</div>
+          <div class="main-rating-label">Overall Rating</div>
         </div>
-
-        <div class="ofsted-card">
-          <div class="ofsted-judgement" id="ofstedRating">-</div>
-          <div class="ofsted-meta">
-            <div>Ofsted</div>
-            <div id="ofstedDate">-</div>
-          </div>
+        <div class="ofsted-rating">
+          <div class="ofsted-score" id="ofstedRating">-</div>
+          <div style="font-size:.75rem;color:#6b7280;">Ofsted</div>
+          <div style="font-size:.75rem;color:#9ca3af;" id="ofstedDate">-</div>
         </div>
       </div>
     </div>
   </div>
-
-  <style>
-    .profile-header { padding: 24px 0; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-    .profile-header-content {
-      display: flex; align-items: center; justify-content: space-between; gap: 24px;
-    }
-    .left { min-width: 0; }
-    h1 {
-      font-size: 40px; line-height: 1.1; font-weight: 800; color: #0f172a; margin: 0 0 10px 0;
-    }
-    .meta { display: flex; align-items: center; gap: 10px; color: #475569; font-size: 15px; flex-wrap: wrap; }
-    .meta .dot { color:#94a3b8 }
-    .reviews-link { text-decoration: none; color: #0ea5e9; }
-    .reviews-link:hover { text-decoration: underline; }
-
-    .address { margin-top: 10px; display: flex; align-items: center; gap: 8px; color:#334155; font-size: 15px; }
-    .address svg { color:#64748b }
-
-    .right { display: flex; gap: 16px; align-items: center; }
-    .rating-card {
-      width: 140px; height: 110px; border-radius: 16px;
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      box-shadow: 0 8px 20px rgba(37, 99, 235, .25);
-    }
-    .rating-score { font-size: 36px; font-weight: 800; line-height: 1; }
-    .rating-label { margin-top: 6px; font-size: 12px; opacity:.95 }
-
-    .ofsted-card {
-      width: 180px; height: 110px; border-radius: 16px; background: #fff;
-      border: 1px solid #e5e7eb; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .ofsted-judgement { font-weight: 700; color: #111827; }
-    .ofsted-meta { margin-top: 6px; font-size: 12px; color:#6b7280; text-align:center }
-    @media (max-width: 900px) {
-      .profile-header-content { flex-direction: column; align-items: flex-start; }
-      .right { align-self: stretch; }
-    }
-  </style>
-
-  <script>
-    (function () {
-      function formatAddress(s) {
-        const parts = [s.street, s.locality, s.town, s.county, s.postcode].filter(Boolean);
-        return parts.join(', ');
-      }
-
-      function renderHeader(s) {
-        // Name
-        document.getElementById('schoolName').textContent = s.name || 'Unknown school';
-
-        // Type | students | ages | (optional grades)
-        const type = s.type_of_establishment || s.establishment_group || s.type || '-';
-        document.getElementById('schoolType').textContent = type;
-
-        const students = (s.total_pupils != null)
-          ? `${Number(s.total_pupils).toLocaleString()} students`
-          : 'Students: -';
-        document.getElementById('studentCount').textContent = students;
-
-        const ages =
-          (s.age_range_lower != null && s.age_range_upper != null)
-            ? `Ages ${s.age_range_lower} – ${s.age_range_upper}`
-            : 'Ages -';
-        document.getElementById('ageRange').textContent = ages;
-
-        // Optional “Grades …”
-        if (s.phase_of_education) {
-          document.getElementById('grades').textContent = s.phase_of_education;
-          document.getElementById('grades').hidden = false;
-          document.getElementById('gradesDot').hidden = false;
-        }
-
-        // Address
-        document.getElementById('schoolAddress').textContent = formatAddress(s);
-
-        // Ofsted bits if present
-        if (s.ofsted_overall_effectiveness_text) {
-          document.getElementById('ofstedRating').textContent = s.ofsted_overall_effectiveness_text;
-        }
-        if (s.ofsted_inspection_date_pretty || s.ofsted_last_inspection_date_pretty) {
-          document.getElementById('ofstedDate').textContent =
-            s.ofsted_inspection_date_pretty || s.ofsted_last_inspection_date_pretty;
-        }
-
-        // Fetch review stats (count + avg) to show on the header
-        if (s.urn) {
-          fetch(`/api/schools/${s.urn}/reviews?limit=1`)
-            .then(r => r.ok ? r.json() : Promise.reject(r))
-            .then(({ stats }) => {
-              const total = stats?.total_reviews ?? 0;
-              document.getElementById('reviewsCount').textContent =
-                `${total} review${total === 1 ? '' : 's'}`;
-
-              // Our DB rating is /5 — convert to /10 to match design
-              const avg5 = Number(stats?.avg_overall_rating || 0);
-              const out10 = Math.round(avg5 * 20) / 2; // one decimal
-              document.getElementById('overallRating').textContent =
-                avg5 ? `${out10}/10` : '-';
-            })
-            .catch(() => {
-              document.getElementById('reviewsCount').textContent = '0 reviews';
-              document.getElementById('overallRating').textContent = '-';
-            });
-        }
-      }
-
-      // Use data if it's already on the page; else wait for it.
-      if (window.currentSchoolData) {
-        renderHeader(window.currentSchoolData);
-      } else {
-        window.addEventListener('schoolDataLoaded', (e) => renderHeader(e.detail));
-      }
-    })();
-  </script>
 </section>
