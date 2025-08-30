@@ -13,16 +13,20 @@
   <div class="rating-display-container">
     <div class="rating-circle-container">
       <svg class="rating-circle" width="120" height="120" viewBox="0 0 120 120">
+        <!-- Background circle -->
         <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+        <!-- Progress circle with corrected rotation -->
         <circle cx="60" cy="60" r="54" fill="none" stroke="url(#ratingGradient)" stroke-width="8"
                 stroke-dasharray="339.29" 
                 stroke-dashoffset="339.29"
-                transform="rotate(-90 60 60)"
+                stroke-linecap="round"
+                transform="rotate(135 60 60)"
                 id="ratingProgressCircle"/>
         <defs>
           <linearGradient id="ratingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-            <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+            <stop offset="33%" style="stop-color:#f59e0b;stop-opacity:1" />
+            <stop offset="66%" style="stop-color:#fbbf24;stop-opacity:1" />
             <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
           </linearGradient>
         </defs>
@@ -557,11 +561,25 @@ function updateRatingDisplay(schoolData) {
   // Update main rating display
   document.getElementById('mainRatingScore').textContent = rating.toFixed(1);
   
-  // Update progress circle
+  // Update progress circle - make it go from red (left/bottom) to green (right/top)
   const circle = document.getElementById('ratingProgressCircle');
   const circumference = 339.29; // 2 * π * 54
+  // Start from bottom and go clockwise
   const offset = circumference - (rating / 10) * circumference;
   circle.style.strokeDashoffset = offset;
+  
+  // Update gradient to match the visual expectation
+  const gradient = document.querySelector('#ratingGradient');
+  if (gradient) {
+    // Clear existing stops
+    gradient.innerHTML = '';
+    // Red at start (0%), yellow in middle (50%), green at end (100%)
+    gradient.innerHTML = `
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    `;
+  }
   
   // Update performance text
   let performanceLevel = 'at an average level';
@@ -570,12 +588,20 @@ function updateRatingDisplay(schoolData) {
   else if (rating <= 4) performanceLevel = 'below average';
   
   document.getElementById('performanceLevel').textContent = performanceLevel;
-  document.getElementById('localAuthority').textContent = schoolData.address?.local_authority || 'the local authority';
   
-  // Update percentile if available
-  if (percentile) {
+  // Use actual local authority name
+  const laName = schoolData.address?.local_authority || schoolData.local_authority || 'the local authority';
+  document.getElementById('localAuthority').textContent = laName;
+  
+  // Update percentile if available (fix the 0% issue)
+  if (percentile !== null && percentile !== undefined) {
     document.getElementById('percentileDisplay').style.display = 'flex';
-    document.getElementById('percentileBadge').textContent = `Top ${100 - percentile}%`;
+    // Calculate the top percentage correctly
+    const topPercent = percentile > 0 ? (100 - percentile) : 50; // Default to 50% if no data
+    document.getElementById('percentileBadge').textContent = `Top ${topPercent}%`;
+  } else {
+    // Hide percentile if not available
+    document.getElementById('percentileDisplay').style.display = 'none';
   }
   
   // Update rating factors

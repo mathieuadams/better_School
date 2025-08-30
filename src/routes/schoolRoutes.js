@@ -114,8 +114,11 @@ function calculateRatingWithFallbacks(school, laAverages) {
   // Calculate percentile (how many schools in LA this school outperforms)
   const percentile = calculatePercentile(normalizedScore, laAverages.all_ratings || []);
   
+  // Round to nearest 0.5 for cleaner display
+  const roundedRating = Math.round(normalizedScore * 2) / 2;
+  
   return {
-    rating: Math.round(normalizedScore * 10) / 10,
+    rating: roundedRating,
     components: components,
     data_completeness: totalWeight,
     percentile: percentile,
@@ -158,8 +161,15 @@ function calculateAttendanceScore(attendanceRate) {
 
 function calculatePercentile(score, allScores) {
   if (!allScores || allScores.length === 0) return null;
-  const below = allScores.filter(s => s < score).length;
-  return Math.round((below / allScores.length) * 100);
+  if (allScores.length === 1) return 50; // Default to 50th percentile if only one school
+  
+  // Filter out null values and count how many schools have lower scores
+  const validScores = allScores.filter(s => s !== null);
+  const below = validScores.filter(s => s < score).length;
+  const percentile = Math.round((below / validScores.length) * 100);
+  
+  // Return null if percentile is 0 (might indicate data issue)
+  return percentile || null;
 }
 
 /* =======================================================================
