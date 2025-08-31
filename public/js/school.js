@@ -529,7 +529,7 @@ function getOfstedLabel(rating) {
 // Load all school data
 async function loadAll(urn) {
   try {
-    const schoolRes = await fetch(`/api/schools/${urn}`);
+    const schoolRes = await fetch(`/api/schools/${urn}?recalculate=1`);
     const schoolData = await schoolRes.json();
     
     if (!(schoolData && schoolData.success && schoolData.school)) {
@@ -543,6 +543,10 @@ async function loadAll(urn) {
     if (s.overall_rating) {
       s.overall_rating = Math.min(10, Math.max(1, parseInt(s.overall_rating) || 5));
     }
+    const componentsRaw = s.rating_components;
+    s.rating_components = Array.isArray(componentsRaw)
+      ? componentsRaw
+      : (componentsRaw ? JSON.parse(componentsRaw) : []);
     
     // CRITICAL FIX: Make school data globally available for review component
     window.currentSchoolData = s;
