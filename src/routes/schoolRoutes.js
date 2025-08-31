@@ -144,19 +144,28 @@ function calculateAcademicScore(schoolValue, laAverage) {
 function calculateAttendanceScore(attendanceRate) {
   if (!attendanceRate) return 5;
   
-  // UK attendance standards:
-  // 97%+ = Excellent (9-10)
-  // 95-97% = Good (7-8.5)
-  // 90-95% = Requires Improvement (4-6.5)
-  // Below 90% = Poor (1-3.5)
+  // Linear progression from 80% to 100%
+  // 80% or below = 1
+  // 100% = 10
+  // Linear scale in between
   
-  if (attendanceRate >= 97) return 9.5;
-  if (attendanceRate >= 96) return 8.5;
-  if (attendanceRate >= 95) return 7.5;
-  if (attendanceRate >= 93) return 6;
-  if (attendanceRate >= 90) return 4.5;
-  if (attendanceRate >= 85) return 3;
-  return 2;
+  if (attendanceRate <= 80) {
+    return 1;
+  }
+  
+  if (attendanceRate >= 100) {
+    return 10;
+  }
+  
+  // Linear calculation:
+  // For every 1% increase from 80%, add 0.45 points
+  // Formula: score = 1 + ((attendanceRate - 80) * 9 / 20)
+  // This gives us: 80%=1, 85%=3.25, 90%=5.5, 95%=7.75, 100%=10
+  
+  const score = 1 + ((attendanceRate - 80) * 9 / 20);
+  
+  // Round to 1 decimal place for consistency
+  return Math.round(score * 10) / 10;
 }
 
 function calculatePercentile(score, allScores) {
