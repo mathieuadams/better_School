@@ -178,6 +178,7 @@ app.get('/api/local-authority/:laName/summary', async (req, res) => {
         s.english_score,
         s.math_score,
         s.science_score,
+        s.overall_rating,
         o.overall_effectiveness as ofsted_rating,
         c.number_on_roll,
         c.percentage_fsm_ever6 as fsm_percentage,

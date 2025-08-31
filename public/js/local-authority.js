@@ -331,43 +331,48 @@ function renderTopSchoolsFromAPI(schools) {
   renderTopSchoolsFromSearch(schools);
 }
 
-// Render top schools from search results
+// Sort and render top schools by phase
 function renderTopSchoolsFromSearch(schools) {
-  // Sort schools by rating with proper capping
-  schoolsByPhase.primary.sort((a, b) => {
-    const ratingA = Math.min(10, parseInt(a.overall_rating) || 5);
-    const ratingB = Math.min(10, parseInt(b.overall_rating) || 5);
-    if (a.ofsted_rating !== b.ofsted_rating) {
-      return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
+  // Helper function to get the proper rating
+  const getRating = (school) => {
+    if (school.overall_rating !== null && school.overall_rating !== undefined) {
+      return Math.min(10, Math.max(1, Math.round(parseFloat(school.overall_rating))));
+    } else if (school.ofsted_rating) {
+      const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
+      return ofstedMap[school.ofsted_rating] || 5;
     }
-    return ratingB - ratingA;
-  });
+    return 5;
+  };
   
-  schoolsByPhase.secondary.sort((a, b) => {
-    const ratingA = Math.min(10, parseInt(a.overall_rating) || 5);
-    const ratingB = Math.min(10, parseInt(b.overall_rating) || 5);
-    if (a.ofsted_rating !== b.ofsted_rating) {
-      return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
+  // Sort schools by rating (best first)
+  // Primary sort: overall_rating (descending)
+  // Secondary sort: ofsted_rating (ascending - 1 is best)
+  const sortSchools = (a, b) => {
+    const ratingA = getRating(a);
+    const ratingB = getRating(b);
+    
+    // First sort by overall rating (higher is better)
+    if (ratingA !== ratingB) {
+      return ratingB - ratingA;
     }
-    return ratingB - ratingA;
-  });
+    
+    // If ratings are equal, use Ofsted as tiebreaker (lower number is better)
+    const ofstedA = a.ofsted_rating || 5;
+    const ofstedB = b.ofsted_rating || 5;
+    return ofstedA - ofstedB;
+  };
   
-  schoolsByPhase.sixthForm.sort((a, b) => {
-    const ratingA = Math.min(10, parseInt(a.overall_rating) || 5);
-    const ratingB = Math.min(10, parseInt(b.overall_rating) || 5);
-    if (a.ofsted_rating !== b.ofsted_rating) {
-      return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
-    }
-    return ratingB - ratingA;
-  });
+  // Sort each phase group
+  schoolsByPhase.primary.sort(sortSchools);
+  schoolsByPhase.secondary.sort(sortSchools);
+  schoolsByPhase.sixthForm.sort(sortSchools);
   
-  // Render top schools for each phase
+  // Render top 5 schools for each phase
   renderSchoolList('primarySchools', schoolsByPhase.primary.slice(0, 5));
   renderSchoolList('secondarySchools', schoolsByPhase.secondary.slice(0, 5));
   renderSchoolList('sixthFormSchools', schoolsByPhase.sixthForm.slice(0, 5));
 }
 
-// Render school list
 function renderSchoolList(containerId, schools) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -378,8 +383,27 @@ function renderSchoolList(containerId, schools) {
   }
   
   const html = schools.map((school, index) => {
-    // CRITICAL: Cap rating at 10
-    const rating = Math.min(10, Math.max(1, parseInt(school.overall_rating) || 5));
+    // CRITICAL FIX: Use the actual overall_rating from the database if available
+    let rating;
+    
+    // First priority: Use overall_rating from database if it exists
+    if (school.overall_rating !== null && school.overall_rating !== undefined) {
+      rating = Math.min(10, Math.max(1, Math.round(parseFloat(school.overall_rating))));
+    } 
+    // Second priority: Calculate from Ofsted if no overall_rating
+    else if (school.ofsted_rating) {
+      const ofstedMap = {
+        1: 9,  // Outstanding -> 9/10
+        2: 7,  // Good -> 7/10
+        3: 5,  // Requires Improvement -> 5/10
+        4: 3   // Inadequate -> 3/10
+      };
+      rating = ofstedMap[school.ofsted_rating] || 5;
+    }
+    // Default fallback
+    else {
+      rating = 5;
+    }
     
     return `
     <div class="school-item" onclick="window.location.href='/school/${school.urn}'">
