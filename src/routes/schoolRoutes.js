@@ -285,9 +285,9 @@ router.get('/:urn', async (req, res) => {
 
     // 4) Check if rating needs update (null or older than 30 days) or force recalculation
     const forceRecalculate = req.query.recalculate === '1';
-    const needsRatingUpdate = forceRecalculate || !s.rating_updated_at || 
+    const needsRatingUpdate = forceRecalculate || !s.rating_updated_at ||
+      !s.rating_components ||
       (Date.now() - new Date(s.rating_updated_at) > 30 * 24 * 60 * 60 * 1000);
-
     let calculatedRating = null;
     
     if (needsRatingUpdate || debug) {
