@@ -11,27 +11,8 @@
 
   <!-- Main Rating Display -->
   <div class="rating-display-container">
-    <div class="rating-circle-container">
-      <svg class="rating-circle" width="120" height="120" viewBox="0 0 120 120">
-        <!-- Background circle -->
-        <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8"/>
-        <!-- Progress circle with corrected rotation -->
-        <circle cx="60" cy="60" r="54" fill="none" stroke="url(#ratingGradient)" stroke-width="8"
-                stroke-dasharray="339.29" 
-                stroke-dashoffset="339.29"
-                stroke-linecap="round"
-                transform="rotate(135 60 60)"
-                id="ratingProgressCircle"/>
-        <defs>
-          <linearGradient id="ratingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-            <stop offset="33%" style="stop-color:#f59e0b;stop-opacity:1" />
-            <stop offset="66%" style="stop-color:#fbbf24;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div class="rating-circle-content">
+    <div class="rating-score-container">
+      <div class="rating-score-box">
         <div class="rating-number" id="mainRatingScore">-</div>
         <div class="rating-label">/10</div>
       </div>
@@ -205,23 +186,22 @@
   border-radius: 12px;
 }
 
-.rating-circle-container {
-  position: relative;
-  width: 120px;
-  height: 120px;
+.rating-score-container {
   flex-shrink: 0;
 }
 
-.rating-circle {
-  transform: rotate(0deg);
-}
-
-.rating-circle-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
+.rating-score-box {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 3px solid;
+  border-color: var(--rating-color, #6b7280);
 }
 
 .rating-number {
@@ -558,27 +538,20 @@ function updateRatingDisplay(schoolData) {
   const components = schoolData.rating_components || [];
   const percentile = schoolData.rating_percentile;
   
-  // Update main rating display
+  // Update main rating display (show as is from database)
   document.getElementById('mainRatingScore').textContent = rating.toFixed(1);
   
-  // Update progress circle - make it go from red (left/bottom) to green (right/top)
-  const circle = document.getElementById('ratingProgressCircle');
-  const circumference = 339.29; // 2 * π * 54
-  // Start from bottom and go clockwise
-  const offset = circumference - (rating / 10) * circumference;
-  circle.style.strokeDashoffset = offset;
-  
-  // Update gradient to match the visual expectation
-  const gradient = document.querySelector('#ratingGradient');
-  if (gradient) {
-    // Clear existing stops
-    gradient.innerHTML = '';
-    // Red at start (0%), yellow in middle (50%), green at end (100%)
-    gradient.innerHTML = `
-      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-    `;
+  // Set color based on rating
+  const scoreBox = document.querySelector('.rating-score-box');
+  if (scoreBox) {
+    let borderColor = '#6b7280'; // gray default
+    if (rating >= 8) borderColor = '#10b981'; // green
+    else if (rating >= 6) borderColor = '#3b82f6'; // blue
+    else if (rating >= 4) borderColor = '#f59e0b'; // orange
+    else borderColor = '#ef4444'; // red
+    
+    scoreBox.style.borderColor = borderColor;
+    scoreBox.style.setProperty('--rating-color', borderColor);
   }
   
   // Update performance text
@@ -594,13 +567,13 @@ function updateRatingDisplay(schoolData) {
   document.getElementById('localAuthority').textContent = laName;
   
   // Update percentile if available (fix the 0% issue)
-  if (percentile !== null && percentile !== undefined) {
+  if (percentile !== null && percentile !== undefined && percentile > 0) {
     document.getElementById('percentileDisplay').style.display = 'flex';
     // Calculate the top percentage correctly
-    const topPercent = percentile > 0 ? (100 - percentile) : 50; // Default to 50% if no data
+    const topPercent = 100 - percentile;
     document.getElementById('percentileBadge').textContent = `Top ${topPercent}%`;
   } else {
-    // Hide percentile if not available
+    // Hide percentile if not available or 0
     document.getElementById('percentileDisplay').style.display = 'none';
   }
   

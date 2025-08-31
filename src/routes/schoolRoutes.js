@@ -114,8 +114,8 @@ function calculateRatingWithFallbacks(school, laAverages) {
   // Calculate percentile (how many schools in LA this school outperforms)
   const percentile = calculatePercentile(normalizedScore, laAverages.all_ratings || []);
   
-  // Round to nearest 0.5 for cleaner display
-  const roundedRating = Math.round(normalizedScore * 2) / 2;
+  // Standard rounding - 0.5 and above rounds up, below rounds down
+  const roundedRating = Math.round(normalizedScore);
   
   return {
     rating: roundedRating,
@@ -283,16 +283,24 @@ router.get('/:urn', async (req, res) => {
     const laAvgR = await query(laAvgSql, [s.local_authority, s.phase_of_education, urn]);
     const laAverages = laAvgR.rows[0] || {};
 
-    // 4) Check if rating needs update (null or older than 30 days)
-    const needsRatingUpdate = !s.rating_updated_at || 
+    // 4) Check if rating needs update (null or older than 30 days) or force recalculation
+    const forceRecalculate = req.query.recalculate === '1';
+    const needsRatingUpdate = forceRecalculate || !s.rating_updated_at || 
       (Date.now() - new Date(s.rating_updated_at) > 30 * 24 * 60 * 60 * 1000);
 
     let calculatedRating = null;
     
     if (needsRatingUpdate || debug) {
       // Prepare data for rating calculation
+      // If overall_effectiveness is null but other Ofsted scores exist, try to infer it
+      let ofstedRating = o.overall_effectiveness;
+      if (!ofstedRating && o.quality_of_education) {
+        // Use quality_of_education as a proxy if overall is missing
+        ofstedRating = o.quality_of_education;
+      }
+      
       const schoolForRating = {
-        ofsted_overall_effectiveness: o.overall_effectiveness,
+        ofsted_overall_effectiveness: ofstedRating,
         english_score: toNum(s.english_score),
         math_score: toNum(s.math_score),
         science_score: toNum(s.science_score),
