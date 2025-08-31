@@ -768,29 +768,51 @@ async function loadAll(urn) {
   }
 }
 
-// Initialize page
+// Initialize page - FIXED URN EXTRACTION
 (function init() {
   const parts = window.location.pathname.split('/').filter(Boolean);
   let urn = null;
 
+  console.log('URL parts:', parts); // Debug log
+
   // FIX: Clean URN extraction with hash removal
   if (parts[0] === 'school' && parts[1]) {
-    urn = parts[1].split('#')[0].split('-')[0]; // Remove hash and slug parts
-  } else if (parts.length === 2 && !isNaN(Number(parts[1].split('-')[0]))) {
+    // Format: /school/135816 or /school/135816-school-name
     urn = parts[1].split('#')[0].split('-')[0];
+  } else if (parts.length === 2) {
+    // Format: /city/135816 or /city/135816-school-name
+    // Check if second part starts with digits (URN)
+    const potentialUrn = parts[1].split('#')[0].split('-')[0];
+    if (!isNaN(Number(potentialUrn))) {
+      urn = potentialUrn;
+    }
   } else if (parts.length === 3) {
-    // Format: /city/la/urn or /city/la/urn-slug
-    urn = parts[2].split('#')[0].split('-')[0];
+    // Format: /city/la/135816 or /city/la/135816-school-name
+    const potentialUrn = parts[2].split('#')[0].split('-')[0];
+    if (!isNaN(Number(potentialUrn))) {
+      urn = potentialUrn;
+    }
   }
 
   if (!urn) {
+    console.error('Could not extract URN from URL:', window.location.pathname);
     const nameEl = document.getElementById('schoolName');
     if (nameEl) nameEl.textContent = 'Error Loading School';
     return;
   }
 
   console.log('Initializing school page with URN:', urn);
-  loadAll(urn);
+  
+  // Load the school data and ensure rating display is called
+  loadAll(urn).then(() => {
+    // Double-check that rating display is updated after load
+    if (window.currentSchoolData && typeof updateRatingDisplay === 'function') {
+      console.log('Ensuring rating display is updated');
+      updateRatingDisplay(window.currentSchoolData);
+    }
+  }).catch(err => {
+    console.error('Error in loadAll:', err);
+  });
 })();
 
 // Export functions for global use
