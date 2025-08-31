@@ -253,6 +253,143 @@ function toggleDetails(subject) {
   }
 }
 
+// Update rating display - MOVED HERE for global access
+function updateRatingDisplay(schoolData) {
+  if (!schoolData || !schoolData.overall_rating) {
+    const mainScore = document.getElementById('mainRatingScore');
+    const perfText = document.getElementById('ratingPerformance');
+    const dataNotice = document.getElementById('dataNotice');
+    
+    if (mainScore) mainScore.textContent = 'N/A';
+    if (perfText) perfText.innerHTML = 'Insufficient data available for rating';
+    if (dataNotice) {
+      dataNotice.style.display = 'flex';
+      const noticeText = document.getElementById('dataNoticeText');
+      if (noticeText) noticeText.textContent = 'Not enough data to calculate rating';
+    }
+    return;
+  }
+  
+  const rating = parseInt(schoolData.overall_rating);
+  const components = schoolData.rating_components || [];
+  const percentile = schoolData.rating_percentile;
+  
+  // Update main rating display
+  const mainScore = document.getElementById('mainRatingScore');
+  if (mainScore) mainScore.textContent = rating;
+  
+  // Set color based on rating
+  const scoreBox = document.querySelector('.rating-score-box');
+  if (scoreBox) {
+    let borderColor = '#6b7280'; // gray default
+    if (rating >= 8) borderColor = '#10b981'; // green
+    else if (rating >= 6) borderColor = '#3b82f6'; // blue
+    else if (rating >= 4) borderColor = '#f59e0b'; // orange
+    else borderColor = '#ef4444'; // red
+    
+    scoreBox.style.borderColor = borderColor;
+    scoreBox.style.setProperty('--rating-color', borderColor);
+  }
+  
+  // Update performance text
+  let performanceLevel = 'at an average level';
+  if (rating >= 8) performanceLevel = 'above average';
+  else if (rating >= 6) performanceLevel = 'slightly above average';
+  else if (rating <= 4) performanceLevel = 'below average';
+  
+  const perfLevel = document.getElementById('performanceLevel');
+  if (perfLevel) perfLevel.textContent = performanceLevel;
+  
+  // Use actual local authority name
+  const laName = schoolData.address?.local_authority || schoolData.local_authority || 'the local authority';
+  const laElement = document.getElementById('localAuthority');
+  if (laElement) laElement.textContent = laName;
+  
+  // Update percentile if available
+  const percentileDisplay = document.getElementById('percentileDisplay');
+  if (percentileDisplay && percentile !== null && percentile !== undefined && percentile > 0) {
+    percentileDisplay.style.display = 'flex';
+    const topPercent = 100 - percentile;
+    const percentileBadge = document.getElementById('percentileBadge');
+    if (percentileBadge) percentileBadge.textContent = `Top ${topPercent}%`;
+  } else if (percentileDisplay) {
+    percentileDisplay.style.display = 'none';
+  }
+  
+  // Update rating factors if components exist
+  components.forEach(component => {
+    if (component.name === 'ofsted') {
+      const ofstedFactor = document.getElementById('ofstedFactor');
+      if (ofstedFactor) ofstedFactor.style.display = 'block';
+      const ofstedScore = document.getElementById('ofstedScore');
+      if (ofstedScore) ofstedScore.textContent = component.score.toFixed(1);
+      const ofstedLabel = document.getElementById('ofstedLabel');
+      if (ofstedLabel) ofstedLabel.textContent = component.label || 'Ofsted Rating';
+    } else if (component.name === 'academic') {
+      const academicFactor = document.getElementById('academicFactor');
+      if (academicFactor) academicFactor.style.display = 'block';
+      const academicScore = document.getElementById('academicScore');
+      if (academicScore) academicScore.textContent = component.score.toFixed(1);
+      
+      // Update subject breakdowns if available
+      if (component.details) {
+        if (component.details.english) {
+          const englishItem = document.getElementById('englishItem');
+          if (englishItem) englishItem.style.display = 'grid';
+          const englishValue = document.getElementById('englishValue');
+          if (englishValue) englishValue.textContent = `${component.details.english.school || 0}%`;
+          const englishBar = document.getElementById('englishSchoolBar');
+          if (englishBar) englishBar.style.width = `${component.details.english.school || 0}%`;
+          const englishMarker = document.getElementById('englishLAMarker');
+          if (englishMarker) englishMarker.style.left = `${component.details.english.la_avg || 50}%`;
+        }
+        if (component.details.math) {
+          const mathItem = document.getElementById('mathItem');
+          if (mathItem) mathItem.style.display = 'grid';
+          const mathValue = document.getElementById('mathValue');
+          if (mathValue) mathValue.textContent = `${component.details.math.school || 0}%`;
+          const mathBar = document.getElementById('mathSchoolBar');
+          if (mathBar) mathBar.style.width = `${component.details.math.school || 0}%`;
+          const mathMarker = document.getElementById('mathLAMarker');
+          if (mathMarker) mathMarker.style.left = `${component.details.math.la_avg || 50}%`;
+        }
+        if (component.details.science) {
+          const scienceItem = document.getElementById('scienceItem');
+          if (scienceItem) scienceItem.style.display = 'grid';
+          const scienceValue = document.getElementById('scienceValue');
+          if (scienceValue) scienceValue.textContent = `${component.details.science.school || 0}%`;
+          const scienceBar = document.getElementById('scienceSchoolBar');
+          if (scienceBar) scienceBar.style.width = `${component.details.science.school || 0}%`;
+          const scienceMarker = document.getElementById('scienceLAMarker');
+          if (scienceMarker) scienceMarker.style.left = `${component.details.science.la_avg || 50}%`;
+        }
+      }
+      
+      let comparisonText = 'Test scores ';
+      if (component.score >= 7) comparisonText += 'above LA average';
+      else if (component.score >= 5) comparisonText += 'near LA average';
+      else comparisonText += 'below LA average';
+      const academicComparison = document.getElementById('academicComparison');
+      if (academicComparison) academicComparison.textContent = comparisonText;
+    } else if (component.name === 'attendance') {
+      const attendanceFactor = document.getElementById('attendanceFactor');
+      if (attendanceFactor) attendanceFactor.style.display = 'block';
+      const attendanceScore = document.getElementById('attendanceScore');
+      if (attendanceScore) attendanceScore.textContent = component.score.toFixed(1);
+      const attendanceRate = document.getElementById('attendanceRate');
+      if (attendanceRate) attendanceRate.textContent = `${component.school_rate?.toFixed(1) || '-'}% attendance rate`;
+    }
+  });
+  
+  // Show data completeness notice if not 100%
+  const dataNotice = document.getElementById('dataNotice');
+  if (dataNotice && schoolData.rating_data_completeness && schoolData.rating_data_completeness < 100) {
+    dataNotice.style.display = 'flex';
+    const noticeText = document.getElementById('dataNoticeText');
+    if (noticeText) noticeText.textContent = `Rating based on ${schoolData.rating_data_completeness}% of available data`;
+  }
+}
+
 // Render neighborhood/contact section
 function renderNeighborhood(school) {
   const addressText = formatAddress(school.address);
@@ -408,10 +545,17 @@ async function loadAll(urn) {
       s.overall_rating = Math.min(10, Math.max(1, parseInt(s.overall_rating) || 5));
     }
     
-    // CRITICAL FIX: Make school data globally available for review component
+    // CRITICAL FIX: Make school data globally available IMMEDIATELY
     window.currentSchoolData = s;
+    
+    // IMPORTANT: Call updateRatingDisplay directly here
+    if (typeof updateRatingDisplay === 'function') {
+      updateRatingDisplay(s);
+    }
+    
+    // Also dispatch event for other components
     window.dispatchEvent(new CustomEvent('schoolDataLoaded', { detail: s }));
-    console.log('School data loaded and set globally:', s.urn);
+    console.log('School data loaded and rating updated:', s.urn, 'Rating:', s.overall_rating);
 
     // Update header
     const nameEl = document.getElementById('schoolName');
@@ -517,12 +661,10 @@ async function loadAll(urn) {
     const cityCrumbEl = document.getElementById('cityCrumb');
     if (cityCrumbEl && s.address?.town) {
       cityCrumbEl.textContent = s.address.town;
-      // Create city slug for URL
       const citySlug = s.address.town.toLowerCase().replace(/\s+/g, '-');
       cityCrumbEl.href = `/${citySlug}`;
       cityCrumbEl.style.display = 'inline';
     } else if (cityCrumbEl) {
-      // Hide city crumb if no city data
       cityCrumbEl.style.display = 'none';
       const citySeparator = cityCrumbEl.previousElementSibling;
       if (citySeparator && citySeparator.classList.contains('breadcrumb-separator')) {
@@ -534,10 +676,8 @@ async function loadAll(urn) {
     const laCrumbEl = document.getElementById('laCrumb');
     if (laCrumbEl && s.address?.local_authority) {
       laCrumbEl.textContent = s.address.local_authority;
-      // Create LA slug for URL
       const laSlug = s.address.local_authority.toLowerCase().replace(/\s+/g, '-');
       
-      // Build LA URL - use city/la format if we have city, otherwise /local-authority/la
       if (s.address?.town) {
         const citySlug = s.address.town.toLowerCase().replace(/\s+/g, '-');
         laCrumbEl.href = `/${citySlug}/${laSlug}`;
@@ -546,7 +686,6 @@ async function loadAll(urn) {
       }
       laCrumbEl.style.display = 'inline';
     } else if (laCrumbEl) {
-      // Hide LA crumb if no LA data
       laCrumbEl.style.display = 'none';
       const laSeparator = laCrumbEl.previousElementSibling;
       if (laSeparator && laSeparator.classList.contains('breadcrumb-separator')) {
@@ -608,7 +747,6 @@ async function loadAll(urn) {
       const nearbySchoolsEl = document.getElementById('nearbySchools');
       if (nearbySchoolsEl) {
         nearbySchoolsEl.innerHTML = near.nearby_schools.slice(0,5).map(n => {
-          // Ensure nearby school ratings are also capped at 10
           const rating = Math.min(10, Math.max(1, parseInt(n.overall_rating) || 5));
           return `
           <div class="nearby-school" onclick="window.location.href='/school/${n.urn}'" style="cursor:pointer; padding:0.75rem 0; border-bottom:1px solid #f3f4f6;">
@@ -636,14 +774,12 @@ async function loadAll(urn) {
   const parts = window.location.pathname.split('/').filter(Boolean);
   let urn = null;
 
-  // FIX: Clean URN extraction with hash removal
+  // Clean URN extraction with hash removal
   if (parts[0] === 'school' && parts[1]) {
-    urn = parts[1].split('#')[0].split('-')[0]; // Remove hash and slug parts
+    urn = parts[1].split('#')[0].split('-')[0];
   } else if (parts.length === 2 && !isNaN(Number(parts[1].split('-')[0]))) {
-    // Format: /city/urn or /city/urn-slug
     urn = parts[1].split('#')[0].split('-')[0];
   } else if (parts.length === 3) {
-    // Format: /city/la/urn or /city/la/urn-slug
     urn = parts[2].split('#')[0].split('-')[0];
   }
 
@@ -661,3 +797,4 @@ async function loadAll(urn) {
 window.showSubjectInfo = showSubjectInfo;
 window.toggleDetails = toggleDetails;
 window.formatNumber = formatNumber;
+window.updateRatingDisplay = updateRatingDisplay; // Export this function
