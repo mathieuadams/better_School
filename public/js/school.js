@@ -20,240 +20,7 @@ function formatNumber(num) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// Initialize or update map
-function initMap(lat, lon, name) {
-  const mapContainer = document.getElementById('schoolMap');
-  if (!mapContainer) {
-    console.error('Map container not found');
-    return;
-  }
-
-  if (leafletMap) {
-    leafletMap.setView([lat, lon], 15);
-    if (leafletMarker) {
-      leafletMarker.setLatLng([lat, lon]);
-      leafletMarker.setPopupContent(name || 'School');
-    } else {
-      leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
-    }
-    leafletMap.invalidateSize();
-    return;
-  }
-
-  try {
-    leafletMap = L.map('schoolMap', { 
-      scrollWheelZoom: false,
-      zoomControl: true 
-    }).setView([lat, lon], 15);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(leafletMap);
-    
-    leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
-    
-    setTimeout(() => {
-      leafletMap.invalidateSize();
-    }, 100);
-    
-  } catch (error) {
-    console.error('Error initializing map:', error);
-  }
-}
-
-// Geocode address fallback
-async function geocodeAddress(address) {
-  if (!address) return null;
-  const key = 'geo:' + address.toLowerCase();
-  const cached = sessionStorage.getItem(key);
-  if (cached) { 
-    try { return JSON.parse(cached); } catch {} 
-  }
-
-  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=gb&q=${encodeURIComponent(address)}`;
-  try {
-    const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    if (Array.isArray(data) && data.length) {
-      const { lat, lon } = data[0];
-      const result = { lat: parseFloat(lat), lon: parseFloat(lon) };
-      sessionStorage.setItem(key, JSON.stringify(result));
-      return result;
-    }
-  } catch (e) {
-    console.warn('Geocoding failed', e);
-  }
-  return null;
-}
-
-// Render student demographics
-function renderDemographics(school) {
-  const demographics = school.demographics;
-  const census = school.census_data;
-  
-  if (!demographics && !census) {
-    const demoSection = document.querySelector('#demographicsSection');
-    if (demoSection) {
-      demoSection.style.display = 'none';
-    }
-    return;
-  }
-  
-  // EAL (English as Additional Language)
-  const ealPercent = census?.percentage_eal || demographics?.eal_percentage;
-  if (ealPercent !== null && ealPercent !== undefined) {
-    const ealEl = document.getElementById('ealPercentage');
-    const ealCircle = document.getElementById('ealCircle');
-    if (ealEl) ealEl.textContent = Math.round(ealPercent) + '%';
-    if (ealCircle) {
-      const circumference = 2 * Math.PI * 25;
-      const offset = circumference - (ealPercent / 100) * circumference;
-      ealCircle.style.strokeDashoffset = offset.toString();
-    }
-  }
-  
-  // FSM (Free School Meals)
-  const fsmPercent = demographics?.fsm_percentage || census?.percentage_fsm_ever6;
-  if (fsmPercent !== null && fsmPercent !== undefined) {
-    const fsmEl = document.getElementById('fsmPercentage');
-    const fsmCircle = document.getElementById('fsmCircle');
-    if (fsmEl) fsmEl.textContent = Math.round(fsmPercent) + '%';
-    if (fsmCircle) {
-      const circumference = 2 * Math.PI * 25;
-      const offset = circumference - (fsmPercent / 100) * circumference;
-      fsmCircle.style.strokeDashoffset = offset.toString();
-    }
-  }
-  
-  // Gender breakdown
-  const boys = demographics?.boys || census?.number_boys || demographics?.total_students ? Math.floor((demographics?.total_students || 0) * 0.5) : null;
-  const girls = demographics?.girls || census?.number_girls || demographics?.total_students ? Math.ceil((demographics?.total_students || 0) * 0.5) : null;
-  
-  if (boys && girls) {
-    const total = boys + girls;
-    const femalePercent = Math.round((girls / total) * 100);
-    const malePercent = Math.round((boys / total) * 100);
-    
-    const femaleEl = document.getElementById('femalePercentage');
-    const maleEl = document.getElementById('malePercentage');
-    const genderCircle = document.getElementById('genderCircle');
-    
-    if (femaleEl) femaleEl.textContent = femalePercent + '%';
-    if (maleEl) maleEl.textContent = malePercent + '%';
-    if (genderCircle) {
-      const circumference = 2 * Math.PI * 25;
-      const offset = circumference - (malePercent / 100) * circumference;
-      genderCircle.style.strokeDashoffset = offset.toString();
-    }
-  }
-  
-  // SEN data
-  const senSupport = demographics?.sen_support_percentage || census?.percentage_sen_support;
-  const senEhcp = demographics?.sen_ehcp_percentage || census?.percentage_sen_ehcp;
-  
-  if (senSupport !== null || senEhcp !== null) {
-    const additionalDemo = document.getElementById('additionalDemographics');
-    if (additionalDemo) additionalDemo.style.display = 'block';
-    
-    if (senSupport !== null && senSupport !== undefined) {
-      const senSupportBar = document.getElementById('senSupportBar');
-      const senSupportValue = document.getElementById('senSupportValue');
-      if (senSupportBar) senSupportBar.style.width = Math.min(100, senSupport) + '%';
-      if (senSupportValue) {
-        const value = typeof senSupport === 'number' ? senSupport.toFixed(1) : String(senSupport);
-        senSupportValue.textContent = value + '%';
-      }
-    }
-    
-    if (senEhcp !== null && senEhcp !== undefined) {
-      const senEhcpBar = document.getElementById('senEhcpBar');
-      const senEhcpValue = document.getElementById('senEhcpValue');
-      if (senEhcpBar) senEhcpBar.style.width = Math.min(100, senEhcp) + '%';
-      if (senEhcpValue) {
-        const value = typeof senEhcp === 'number' ? senEhcp.toFixed(1) : String(senEhcp);
-        senEhcpValue.textContent = value + '%';
-      }
-    }
-  }
-}
-
-// Render test scores
-function renderTestScores(school) {
-  if (!school.test_scores) {
-    console.log('No test scores available');
-    const testScoresSection = document.querySelector('#testScoresContainer');
-    if (testScoresSection) {
-      testScoresSection.closest('.section-card').style.display = 'none';
-    }
-    return;
-  }
-  
-  const subjects = ['english', 'math', 'science'];
-  
-  subjects.forEach(subject => {
-    const score = school.test_scores[subject]?.score;
-    const average = school.test_scores[subject]?.average;
-    
-    const scoreEl = document.getElementById(`${subject}Score`);
-    const barEl = document.getElementById(`${subject}Bar`);
-    const avgEl = document.getElementById(`${subject}Avg`);
-    const avgLabelEl = document.getElementById(`${subject}AvgLabel`);
-    
-    if (scoreEl && score !== null && score !== undefined) {
-      scoreEl.textContent = Math.round(score) + '%';
-      
-      if (barEl) {
-        barEl.style.width = Math.min(100, Math.max(0, score)) + '%';
-        
-        if (score >= 70) {
-          barEl.className = 'score-fill high-performing';
-        } else if (score >= 50) {
-          barEl.className = 'score-fill average-performing';
-        } else {
-          barEl.className = 'score-fill low-performing';
-        }
-      }
-      
-      if (average !== null && average !== undefined && avgEl && avgLabelEl) {
-        avgEl.style.left = Math.min(100, Math.max(0, average)) + '%';
-        avgEl.style.display = 'flex';
-        avgLabelEl.textContent = 'National Avg: ' + Math.round(average) + '%';
-        avgLabelEl.style.display = 'inline';
-        
-        const avgContainer = avgLabelEl.parentElement;
-        if (avgContainer) {
-          avgContainer.style.paddingLeft = Math.min(100, Math.max(0, average)) + '%';
-          avgContainer.style.transform = 'translateX(-50%)';
-        }
-      }
-    } else if (scoreEl) {
-      scoreEl.textContent = 'N/A';
-    }
-  });
-}
-
-// Show info modal for subject
-function showSubjectInfo(subject) {
-  const info = {
-    english: 'This shows the percentage of students meeting expected standards in English/Reading assessments.',
-    math: 'This shows the percentage of students meeting expected standards in Mathematics assessments.',
-    science: 'This shows the percentage of students meeting expected standards in Science assessments.'
-  };
-  
-  alert(info[subject] || 'Information not available');
-}
-
-// Toggle detailed performance view
-function toggleDetails(subject) {
-  const detailed = document.getElementById('detailedPerformance');
-  if (detailed) {
-    detailed.style.display = detailed.style.display === 'none' ? 'block' : 'none';
-  }
-}
-
-// Update rating display - MOVED HERE for global access
+// Update rating display function - CRITICAL FOR RATING FACTORS
 function updateRatingDisplay(schoolData) {
   if (!schoolData || !schoolData.overall_rating) {
     const mainScore = document.getElementById('mainRatingScore');
@@ -387,6 +154,238 @@ function updateRatingDisplay(schoolData) {
     dataNotice.style.display = 'flex';
     const noticeText = document.getElementById('dataNoticeText');
     if (noticeText) noticeText.textContent = `Rating based on ${schoolData.rating_data_completeness}% of available data`;
+  }
+}
+
+// Initialize or update map
+function initMap(lat, lon, name) {
+  const mapContainer = document.getElementById('schoolMap');
+  if (!mapContainer) {
+    console.error('Map container not found');
+    return;
+  }
+
+  if (leafletMap) {
+    leafletMap.setView([lat, lon], 15);
+    if (leafletMarker) {
+      leafletMarker.setLatLng([lat, lon]);
+      leafletMarker.setPopupContent(name || 'School');
+    } else {
+      leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
+    }
+    leafletMap.invalidateSize();
+    return;
+  }
+
+  try {
+    leafletMap = L.map('schoolMap', { 
+      scrollWheelZoom: false,
+      zoomControl: true 
+    }).setView([lat, lon], 15);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(leafletMap);
+    
+    leafletMarker = L.marker([lat, lon]).addTo(leafletMap).bindPopup(name || 'School');
+    
+    setTimeout(() => {
+      leafletMap.invalidateSize();
+    }, 100);
+    
+  } catch (error) {
+    console.error('Error initializing map:', error);
+  }
+}
+
+// Geocode address fallback
+async function geocodeAddress(address) {
+  if (!address) return null;
+  const key = 'geo:' + address.toLowerCase();
+  const cached = sessionStorage.getItem(key);
+  if (cached) { 
+    try { return JSON.parse(cached); } catch {} 
+  }
+
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=gb&q=${encodeURIComponent(address)}`;
+  try {
+    const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (Array.isArray(data) && data.length) {
+      const { lat, lon } = data[0];
+      const result = { lat: parseFloat(lat), lon: parseFloat(lon) };
+      sessionStorage.setItem(key, JSON.stringify(result));
+      return result;
+    }
+  } catch (e) {
+    console.warn('Geocoding failed', e);
+  }
+  return null;
+}
+
+// Render student demographics
+function renderDemographics(school) {
+  const demographics = school.demographics;
+  const census = school.census_data;
+  
+  if (!demographics && !census) {
+    const demoSection = document.querySelector('#demographicsSection');
+    if (demoSection) {
+      demoSection.style.display = 'none';
+    }
+    return;
+  }
+  
+  // EAL (English as Additional Language)
+  const ealPercent = census?.percentage_eal || demographics?.eal_percentage;
+  if (ealPercent !== null && ealPercent !== undefined) {
+    const ealEl = document.getElementById('ealPercentage');
+    const ealCircle = document.getElementById('ealCircle');
+    if (ealEl) ealEl.textContent = Math.round(ealPercent) + '%';
+    if (ealCircle) {
+      const circumference = 2 * Math.PI * 25;
+      const offset = circumference - (ealPercent / 100) * circumference;
+      ealCircle.style.strokeDashoffset = offset.toString();
+    }
+  }
+  
+  // FSM (Free School Meals)
+  const fsmPercent = demographics?.fsm_percentage || census?.percentage_fsm_ever6;
+  if (fsmPercent !== null && fsmPercent !== undefined) {
+    const fsmEl = document.getElementById('fsmPercentage');
+    const fsmCircle = document.getElementById('fsmCircle');
+    if (fsmEl) fsmEl.textContent = Math.round(fsmPercent) + '%';
+    if (fsmCircle) {
+      const circumference = 2 * Math.PI * 25;
+      const offset = circumference - (fsmPercent / 100) * circumference;
+      fsmCircle.style.strokeDashoffset = offset.toString();
+    }
+  }
+  
+  // Gender breakdown
+  const boys = demographics?.boys || census?.number_boys;
+  const girls = demographics?.girls || census?.number_girls;
+  if (boys && girls) {
+    const total = boys + girls;
+    const femalePercent = Math.round((girls / total) * 100);
+    const malePercent = Math.round((boys / total) * 100);
+    
+    const femaleEl = document.getElementById('femalePercentage');
+    const maleEl = document.getElementById('malePercentage');
+    const genderCircle = document.getElementById('genderCircle');
+    
+    if (femaleEl) femaleEl.textContent = femalePercent + '%';
+    if (maleEl) maleEl.textContent = malePercent + '%';
+    if (genderCircle) {
+      const circumference = 2 * Math.PI * 25;
+      const offset = circumference - (malePercent / 100) * circumference;
+      genderCircle.style.strokeDashoffset = offset.toString();
+    }
+  }
+  
+  // SEN data
+  const senSupport = demographics?.sen_support_percentage || census?.percentage_sen_support;
+  const senEhcp = demographics?.sen_ehcp_percentage || census?.percentage_sen_ehcp;
+  
+  if (senSupport !== null || senEhcp !== null) {
+    const additionalDemo = document.getElementById('additionalDemographics');
+    if (additionalDemo) additionalDemo.style.display = 'block';
+    
+    if (senSupport !== null && senSupport !== undefined) {
+      const senSupportBar = document.getElementById('senSupportBar');
+      const senSupportValue = document.getElementById('senSupportValue');
+      if (senSupportBar) senSupportBar.style.width = Math.min(100, senSupport) + '%';
+      if (senSupportValue) {
+        const value = typeof senSupport === 'number' ? senSupport.toFixed(1) : String(senSupport);
+        senSupportValue.textContent = value + '%';
+      }
+    }
+    
+    if (senEhcp !== null && senEhcp !== undefined) {
+      const senEhcpBar = document.getElementById('senEhcpBar');
+      const senEhcpValue = document.getElementById('senEhcpValue');
+      if (senEhcpBar) senEhcpBar.style.width = Math.min(100, senEhcp) + '%';
+      if (senEhcpValue) {
+        const value = typeof senEhcp === 'number' ? senEhcp.toFixed(1) : String(senEhcp);
+        senEhcpValue.textContent = value + '%';
+      }
+    }
+  }
+}
+
+// Render test scores
+function renderTestScores(school) {
+  if (!school.test_scores) {
+    console.log('No test scores available');
+    const testScoresSection = document.querySelector('#testScoresContainer');
+    if (testScoresSection) {
+      testScoresSection.closest('.section-card').style.display = 'none';
+    }
+    return;
+  }
+  
+  const subjects = ['english', 'math', 'science'];
+  
+  subjects.forEach(subject => {
+    const score = school.test_scores[subject]?.score;
+    const average = school.test_scores[subject]?.average;
+    
+    const scoreEl = document.getElementById(`${subject}Score`);
+    const barEl = document.getElementById(`${subject}Bar`);
+    const avgEl = document.getElementById(`${subject}Avg`);
+    const avgLabelEl = document.getElementById(`${subject}AvgLabel`);
+    
+    if (scoreEl && score !== null && score !== undefined) {
+      scoreEl.textContent = Math.round(score) + '%';
+      
+      if (barEl) {
+        barEl.style.width = Math.min(100, Math.max(0, score)) + '%';
+        
+        if (score >= 70) {
+          barEl.className = 'score-fill high-performing';
+        } else if (score >= 50) {
+          barEl.className = 'score-fill average-performing';
+        } else {
+          barEl.className = 'score-fill low-performing';
+        }
+      }
+      
+      if (average !== null && average !== undefined && avgEl && avgLabelEl) {
+        avgEl.style.left = Math.min(100, Math.max(0, average)) + '%';
+        avgEl.style.display = 'flex';
+        avgLabelEl.textContent = 'National Avg: ' + Math.round(average) + '%';
+        avgLabelEl.style.display = 'inline';
+        
+        const avgContainer = avgLabelEl.parentElement;
+        if (avgContainer) {
+          avgContainer.style.paddingLeft = Math.min(100, Math.max(0, average)) + '%';
+          avgContainer.style.transform = 'translateX(-50%)';
+        }
+      }
+    } else if (scoreEl) {
+      scoreEl.textContent = 'N/A';
+    }
+  });
+}
+
+// Show info modal for subject
+function showSubjectInfo(subject) {
+  const info = {
+    english: 'This shows the percentage of students meeting expected standards in English/Reading assessments.',
+    math: 'This shows the percentage of students meeting expected standards in Mathematics assessments.',
+    science: 'This shows the percentage of students meeting expected standards in Science assessments.'
+  };
+  
+  alert(info[subject] || 'Information not available');
+}
+
+// Toggle detailed performance view
+function toggleDetails(subject) {
+  const detailed = document.getElementById('detailedPerformance');
+  if (detailed) {
+    detailed.style.display = detailed.style.display === 'none' ? 'block' : 'none';
   }
 }
 
@@ -545,7 +544,7 @@ async function loadAll(urn) {
       s.overall_rating = Math.min(10, Math.max(1, parseInt(s.overall_rating) || 5));
     }
     
-    // CRITICAL FIX: Make school data globally available IMMEDIATELY
+    // CRITICAL FIX: Make school data globally available for review component
     window.currentSchoolData = s;
     
     // IMPORTANT: Call updateRatingDisplay directly here
@@ -774,12 +773,13 @@ async function loadAll(urn) {
   const parts = window.location.pathname.split('/').filter(Boolean);
   let urn = null;
 
-  // Clean URN extraction with hash removal
+  // FIX: Clean URN extraction with hash removal
   if (parts[0] === 'school' && parts[1]) {
-    urn = parts[1].split('#')[0].split('-')[0];
+    urn = parts[1].split('#')[0].split('-')[0]; // Remove hash and slug parts
   } else if (parts.length === 2 && !isNaN(Number(parts[1].split('-')[0]))) {
     urn = parts[1].split('#')[0].split('-')[0];
   } else if (parts.length === 3) {
+    // Format: /city/la/urn or /city/la/urn-slug
     urn = parts[2].split('#')[0].split('-')[0];
   }
 
