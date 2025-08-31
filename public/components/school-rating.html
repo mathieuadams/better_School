@@ -14,7 +14,6 @@
     <div class="rating-score-container">
       <div class="rating-score-box">
         <div class="rating-number" id="mainRatingScore">-</div>
-        <div class="rating-label">/10</div>
       </div>
     </div>
     
@@ -205,15 +204,16 @@
 }
 
 .rating-number {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
   color: #111827;
   line-height: 1;
 }
 
-.rating-label {
-  font-size: 1rem;
-  color: #6b7280;
+.rating-max {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-top: -0.25rem;
 }
 
 .rating-summary {
@@ -534,12 +534,12 @@ function updateRatingDisplay(schoolData) {
     return;
   }
   
-  const rating = parseFloat(schoolData.overall_rating);
+  const rating = parseInt(schoolData.overall_rating);
   const components = schoolData.rating_components || [];
   const percentile = schoolData.rating_percentile;
   
-  // Update main rating display (show as is from database)
-  document.getElementById('mainRatingScore').textContent = rating.toFixed(1);
+  // Update main rating display - show as integer
+  document.getElementById('mainRatingScore').textContent = rating;
   
   // Set color based on rating
   const scoreBox = document.querySelector('.rating-score-box');
