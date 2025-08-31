@@ -142,7 +142,7 @@ function renderDemographics(school) {
     }
   }
   
-  // SEN data - FIX: Add proper type checking
+  // SEN data
   const senSupport = demographics?.sen_support_percentage || census?.percentage_sen_support;
   const senEhcp = demographics?.sen_ehcp_percentage || census?.percentage_sen_ehcp;
   
@@ -155,7 +155,6 @@ function renderDemographics(school) {
       const senSupportValue = document.getElementById('senSupportValue');
       if (senSupportBar) senSupportBar.style.width = Math.min(100, senSupport) + '%';
       if (senSupportValue) {
-        // FIX: Check if it's a number before calling toFixed
         const value = typeof senSupport === 'number' ? senSupport.toFixed(1) : String(senSupport);
         senSupportValue.textContent = value + '%';
       }
@@ -166,7 +165,6 @@ function renderDemographics(school) {
       const senEhcpValue = document.getElementById('senEhcpValue');
       if (senEhcpBar) senEhcpBar.style.width = Math.min(100, senEhcp) + '%';
       if (senEhcpValue) {
-        // FIX: Check if it's a number before calling toFixed
         const value = typeof senEhcp === 'number' ? senEhcp.toFixed(1) : String(senEhcp);
         senEhcpValue.textContent = value + '%';
       }
@@ -499,19 +497,50 @@ async function loadAll(urn) {
       if (statAttendanceEl) statAttendanceEl.textContent = att + '%';
     }
 
-    // Breadcrumb and title
+    // Update breadcrumbs with actual data from school
     const schoolCrumbEl = document.getElementById('schoolCrumb');
     if (schoolCrumbEl) schoolCrumbEl.textContent = s.name || 'School';
-
-  // Update city breadcrumb
-  if (city) {
-    const pretty = city.charAt(0).toUpperCase() + city.slice(1).replace(/-/g,' ');
-    const crumb = document.getElementById('cityCrumb');
-    if (crumb) {
-      crumb.textContent = pretty;
-      crumb.href = `/${city}`;
+    
+    // Update city breadcrumb with actual town/city from school data
+    const cityCrumbEl = document.getElementById('cityCrumb');
+    if (cityCrumbEl && s.address?.town) {
+      cityCrumbEl.textContent = s.address.town;
+      // Create city slug for URL
+      const citySlug = s.address.town.toLowerCase().replace(/\s+/g, '-');
+      cityCrumbEl.href = `/${citySlug}`;
+      cityCrumbEl.style.display = 'inline';
+    } else if (cityCrumbEl) {
+      // Hide city crumb if no city data
+      cityCrumbEl.style.display = 'none';
+      const citySeparator = cityCrumbEl.previousElementSibling;
+      if (citySeparator && citySeparator.classList.contains('breadcrumb-separator')) {
+        citySeparator.style.display = 'none';
+      }
     }
-  }
+    
+    // Update local authority breadcrumb with actual LA from school data
+    const laCrumbEl = document.getElementById('laCrumb');
+    if (laCrumbEl && s.address?.local_authority) {
+      laCrumbEl.textContent = s.address.local_authority;
+      // Create LA slug for URL
+      const laSlug = s.address.local_authority.toLowerCase().replace(/\s+/g, '-');
+      
+      // Build LA URL - use city/la format if we have city, otherwise /local-authority/la
+      if (s.address?.town) {
+        const citySlug = s.address.town.toLowerCase().replace(/\s+/g, '-');
+        laCrumbEl.href = `/${citySlug}/${laSlug}`;
+      } else {
+        laCrumbEl.href = `/local-authority/${laSlug}`;
+      }
+      laCrumbEl.style.display = 'inline';
+    } else if (laCrumbEl) {
+      // Hide LA crumb if no LA data
+      laCrumbEl.style.display = 'none';
+      const laSeparator = laCrumbEl.previousElementSibling;
+      if (laSeparator && laSeparator.classList.contains('breadcrumb-separator')) {
+        laSeparator.style.display = 'none';
+      }
+    }
     
     const pageTitleEl = document.getElementById('pageTitle');
     if (pageTitleEl) pageTitleEl.textContent = `${s.name} - Better School UK`;
@@ -587,27 +616,19 @@ async function loadAll(urn) {
   }
 }
 
-
 // Initialize page
 (function init() {
   const parts = window.location.pathname.split('/').filter(Boolean);
-  let urn = null, city = null;
+  let urn = null;
 
   // FIX: Clean URN extraction with hash removal
   if (parts[0] === 'school' && parts[1]) {
     urn = parts[1].split('#')[0].split('-')[0]; // Remove hash and slug parts
   } else if (parts.length === 2 && !isNaN(Number(parts[1]))) {
-    city = parts[0];
     urn = parts[1].split('#')[0].split('-')[0];
-  }
-
-  if (city) {
-    const pretty = city.charAt(0).toUpperCase() + city.slice(1).replace(/-/g,' ');
-    const crumb = document.getElementById('cityCrumb');
-    if (crumb) {
-      crumb.textContent = pretty;
-      crumb.href = `/${city}`;
-    }
+  } else if (parts.length === 3) {
+    // Format: /city/la/urn or /city/la/urn-slug
+    urn = parts[2].split('#')[0].split('-')[0];
   }
 
   if (!urn) {
