@@ -502,6 +502,16 @@ async function loadAll(urn) {
     // Breadcrumb and title
     const schoolCrumbEl = document.getElementById('schoolCrumb');
     if (schoolCrumbEl) schoolCrumbEl.textContent = s.name || 'School';
+
+  // Update city breadcrumb
+  if (city) {
+    const pretty = city.charAt(0).toUpperCase() + city.slice(1).replace(/-/g,' ');
+    const crumb = document.getElementById('cityCrumb');
+    if (crumb) {
+      crumb.textContent = pretty;
+      crumb.href = `/${city}`;
+    }
+  }
     
     const pageTitleEl = document.getElementById('pageTitle');
     if (pageTitleEl) pageTitleEl.textContent = `${s.name} - Better School UK`;
