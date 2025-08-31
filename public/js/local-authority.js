@@ -122,8 +122,7 @@ async function loadUsingSearchAPI(laName, citySlug) {
     document.getElementById('laName').textContent = 'Error Loading Local Authority';
   }
 }
-
-// Process schools data to generate summary
+// Fix for processSchoolsData function to avoid double-counting
 function processSchoolsData(schools, laName) {
   let primaryCount = 0;
   let secondaryCount = 0;
@@ -150,26 +149,39 @@ function processSchoolsData(schools, laName) {
   schoolsByPhase.sixthForm = [];
   
   schools.forEach(school => {
-    // Count by phase
     const phase = (school.phase_of_education || '').toLowerCase();
     const type = (school.type_of_establishment || '').toLowerCase();
     
-    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior')) {
+    // Check for special schools FIRST
+    if (type.includes('special') || phase.includes('special')) {
+      specialCount++;
+      // Special schools are not added to phase arrays
+    } 
+    // Then categorize by phase (non-special schools only)
+    else if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first')) {
       primaryCount++;
       schoolsByPhase.primary.push(school);
     }
-    if (phase.includes('secondary') || phase.includes('middle')) {
+    else if (phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper')) {
       secondaryCount++;
       schoolsByPhase.secondary.push(school);
+      
+      // Check if this secondary school also has sixth form
+      if (phase.includes('sixth') || phase.includes('16') || phase.includes('post')) {
+        sixthFormCount++;
+        schoolsByPhase.sixthForm.push(school);
+      }
     }
-    if (phase.includes('sixth') || phase.includes('16') || phase.includes('post')) {
-      sixthFormCount++;
-      schoolsByPhase.sixthForm.push(school);
+    else if (phase.includes('all-through') || phase.includes('through')) {
+      // All-through schools count as both primary and secondary
+      primaryCount++;
+      secondaryCount++;
+      schoolsByPhase.primary.push(school);
+      schoolsByPhase.secondary.push(school);
     }
-    
-    // Check for special schools
-    if (type.includes('special')) {
-      specialCount++;
+    else {
+      // Other types (nursery, etc.) - don't count in main categories
+      console.log('Uncategorized school phase:', phase, 'Type:', type);
     }
     
     // Count students
@@ -186,7 +198,7 @@ function processSchoolsData(schools, laName) {
       default: ofstedCounts.notInspected++; break;
     }
     
-    // Collect performance metrics (would need these in the API response)
+    // Collect performance metrics
     if (school.english_score) englishScores.push(parseFloat(school.english_score));
     if (school.math_score) mathScores.push(parseFloat(school.math_score));
     if (school.attendance_rate) attendanceRates.push(parseFloat(school.attendance_rate));
@@ -336,7 +348,7 @@ function renderTopSchoolsFromSearch(schools) {
   // Helper function to get the proper rating
   const getRating = (school) => {
     if (school.overall_rating !== null && school.overall_rating !== undefined) {
-      return Math.min(10, Math.max(1, Math.round(parseFloat(school.overall_rating))));
+      return parseFloat(school.overall_rating);
     } else if (school.ofsted_rating) {
       const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
       return ofstedMap[school.ofsted_rating] || 5;
@@ -345,18 +357,16 @@ function renderTopSchoolsFromSearch(schools) {
   };
   
   // Sort schools by rating (best first)
-  // Primary sort: overall_rating (descending)
-  // Secondary sort: ofsted_rating (ascending - 1 is best)
   const sortSchools = (a, b) => {
     const ratingA = getRating(a);
     const ratingB = getRating(b);
     
-    // First sort by overall rating (higher is better)
+    // Sort by rating (higher is better)
     if (ratingA !== ratingB) {
       return ratingB - ratingA;
     }
     
-    // If ratings are equal, use Ofsted as tiebreaker (lower number is better)
+    // If ratings are equal, use Ofsted as tiebreaker
     const ofstedA = a.ofsted_rating || 5;
     const ofstedB = b.ofsted_rating || 5;
     return ofstedA - ofstedB;
@@ -373,6 +383,7 @@ function renderTopSchoolsFromSearch(schools) {
   renderSchoolList('sixthFormSchools', schoolsByPhase.sixthForm.slice(0, 5));
 }
 
+// Render school list with proper rating handling
 function renderSchoolList(containerId, schools) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -383,26 +394,28 @@ function renderSchoolList(containerId, schools) {
   }
   
   const html = schools.map((school, index) => {
-    // CRITICAL FIX: Use the actual overall_rating from the database if available
+    // Use the actual overall_rating from database, properly rounded
     let rating;
     
-    // First priority: Use overall_rating from database if it exists
     if (school.overall_rating !== null && school.overall_rating !== undefined) {
+      // Use actual rating from database, round to nearest integer
       rating = Math.min(10, Math.max(1, Math.round(parseFloat(school.overall_rating))));
+      console.log(`School ${school.name}: DB rating ${school.overall_rating} -> displayed as ${rating}/10`);
     } 
-    // Second priority: Calculate from Ofsted if no overall_rating
     else if (school.ofsted_rating) {
+      // Only fall back to Ofsted if no overall_rating exists
       const ofstedMap = {
-        1: 9,  // Outstanding -> 9/10
-        2: 7,  // Good -> 7/10
-        3: 5,  // Requires Improvement -> 5/10
-        4: 3   // Inadequate -> 3/10
+        1: 9,  // Outstanding
+        2: 7,  // Good
+        3: 5,  // Requires Improvement
+        4: 3   // Inadequate
       };
       rating = ofstedMap[school.ofsted_rating] || 5;
+      console.log(`School ${school.name}: No DB rating, using Ofsted ${school.ofsted_rating} -> ${rating}/10`);
     }
-    // Default fallback
     else {
       rating = 5;
+      console.log(`School ${school.name}: No rating data, defaulting to 5/10`);
     }
     
     return `
