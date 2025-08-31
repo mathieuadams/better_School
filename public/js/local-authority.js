@@ -39,11 +39,23 @@ let schoolsByPhase = {
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');
   
-  // Update LA breadcrumb
+  // Update LA breadcrumb - just show the LA name, not school name
   const laCrumb = document.getElementById('laCrumb');
   if (laCrumb) laCrumb.textContent = laName;
   
-  // Load LA data - this will also update the city breadcrumb with actual data
+  // Hide city breadcrumb if we're on a direct LA page
+  if (!citySlug) {
+    const cityCrumb = document.getElementById('cityCrumb');
+    if (cityCrumb) {
+      cityCrumb.style.display = 'none';
+      const citySeparator = cityCrumb.previousElementSibling;
+      if (citySeparator && citySeparator.classList.contains('breadcrumb-separator')) {
+        citySeparator.style.display = 'none';
+      }
+    }
+  }
+  
+  // Load LA data
   await loadLocalAuthorityData(laName, citySlug);
 })();
 
@@ -63,7 +75,7 @@ async function loadLocalAuthorityData(laName, citySlug) {
     
     if (data.success) {
       renderLASummary(data, citySlug);
-      await loadTopSchools(laName);
+      renderTopSchoolsFromAPI(data.schools);
     }
   } catch (error) {
     console.error('Error loading LA data:', error);
@@ -132,25 +144,30 @@ function processSchoolsData(schools, laName) {
   let attendanceRates = [];
   let fsmPercentages = [];
   
+  // Clear phase arrays
+  schoolsByPhase.primary = [];
+  schoolsByPhase.secondary = [];
+  schoolsByPhase.sixthForm = [];
+  
   schools.forEach(school => {
     // Count by phase
     const phase = (school.phase_of_education || '').toLowerCase();
-    if (phase.includes('primary')) {
+    const type = (school.type_of_establishment || '').toLowerCase();
+    
+    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior')) {
       primaryCount++;
       schoolsByPhase.primary.push(school);
-    } else if (phase.includes('secondary')) {
+    }
+    if (phase.includes('secondary') || phase.includes('middle')) {
       secondaryCount++;
       schoolsByPhase.secondary.push(school);
     }
-    
-    // Check for sixth form
-    if (phase.includes('sixth') || phase.includes('16')) {
+    if (phase.includes('sixth') || phase.includes('16') || phase.includes('post')) {
       sixthFormCount++;
       schoolsByPhase.sixthForm.push(school);
     }
     
     // Check for special schools
-    const type = (school.type_of_establishment || '').toLowerCase();
     if (type.includes('special')) {
       specialCount++;
     }
@@ -197,7 +214,7 @@ function processSchoolsData(schools, laName) {
 
 // Render LA summary
 function renderLASummary(data, citySlug) {
-  // Update header
+  // Update header with actual LA name
   document.getElementById('laName').textContent = data.laName;
   document.getElementById('laSchoolCount').textContent = data.totalSchools || '0';
   document.getElementById('laStudentCount').textContent = formatNumber(data.totalStudents) || '0';
@@ -290,17 +307,58 @@ function renderLASummary(data, citySlug) {
   }
 }
 
+// Render top schools from API results
+function renderTopSchoolsFromAPI(schools) {
+  // Categorize schools
+  schoolsByPhase.primary = [];
+  schoolsByPhase.secondary = [];
+  schoolsByPhase.sixthForm = [];
+  
+  schools.forEach(school => {
+    const phase = (school.phase_of_education || '').toLowerCase();
+    
+    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior')) {
+      schoolsByPhase.primary.push(school);
+    }
+    if (phase.includes('secondary') || phase.includes('middle')) {
+      schoolsByPhase.secondary.push(school);
+    }
+    if (phase.includes('sixth') || phase.includes('16') || phase.includes('post')) {
+      schoolsByPhase.sixthForm.push(school);
+    }
+  });
+  
+  renderTopSchoolsFromSearch(schools);
+}
+
 // Render top schools from search results
 function renderTopSchoolsFromSearch(schools) {
-  // Sort schools by rating
-  const sortedSchools = schools.sort((a, b) => {
-    // First by Ofsted rating
-    const ofstedA = a.ofsted_rating || 5;
-    const ofstedB = b.ofsted_rating || 5;
-    if (ofstedA !== ofstedB) return ofstedA - ofstedB;
-    
-    // Then by overall rating
-    return (b.overall_rating || 0) - (a.overall_rating || 0);
+  // Sort schools by rating with proper capping
+  schoolsByPhase.primary.sort((a, b) => {
+    const ratingA = Math.min(10, parseInt(a.overall_rating) || 5);
+    const ratingB = Math.min(10, parseInt(b.overall_rating) || 5);
+    if (a.ofsted_rating !== b.ofsted_rating) {
+      return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
+    }
+    return ratingB - ratingA;
+  });
+  
+  schoolsByPhase.secondary.sort((a, b) => {
+    const ratingA = Math.min(10, parseInt(a.overall_rating) || 5);
+    const ratingB = Math.min(10, parseInt(b.overall_rating) || 5);
+    if (a.ofsted_rating !== b.ofsted_rating) {
+      return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
+    }
+    return ratingB - ratingA;
+  });
+  
+  schoolsByPhase.sixthForm.sort((a, b) => {
+    const ratingA = Math.min(10, parseInt(a.overall_rating) || 5);
+    const ratingB = Math.min(10, parseInt(b.overall_rating) || 5);
+    if (a.ofsted_rating !== b.ofsted_rating) {
+      return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
+    }
+    return ratingB - ratingA;
   });
   
   // Render top schools for each phase
@@ -319,7 +377,11 @@ function renderSchoolList(containerId, schools) {
     return;
   }
   
-  const html = schools.map((school, index) => `
+  const html = schools.map((school, index) => {
+    // CRITICAL: Cap rating at 10
+    const rating = Math.min(10, Math.max(1, parseInt(school.overall_rating) || 5));
+    
+    return `
     <div class="school-item" onclick="window.location.href='/school/${school.urn}'">
       <div class="school-rank">${index + 1}</div>
       <div class="school-details">
@@ -327,12 +389,12 @@ function renderSchoolList(containerId, schools) {
         <div class="school-info">
           <span class="school-info-item">📍 ${school.postcode || 'N/A'}</span>
           <span class="school-info-item">• ${school.type_of_establishment || 'School'}</span>
-          ${school.number_on_roll ? `<span class="school-info-item">• ${school.number_on_roll} students</span>` : ''}
+          ${school.number_on_roll ? `<span class="school-info-item">• ${formatNumber(school.number_on_roll)} students</span>` : ''}
         </div>
       </div>
       <div class="school-metrics">
         <div class="metric">
-          <div class="metric-value">${school.overall_rating || '5'}/10</div>
+          <div class="metric-value">${rating}/10</div>
           <div class="metric-label">Rating</div>
         </div>
         ${school.ofsted_rating ? `
@@ -341,7 +403,7 @@ function renderSchoolList(containerId, schools) {
         </div>` : ''}
       </div>
     </div>
-  `).join('');
+  `}).join('');
   
   container.innerHTML = html;
 }
