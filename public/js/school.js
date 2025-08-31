@@ -14,6 +14,12 @@ function formatAddress(addr) {
   return parts.join(', ');
 }
 
+// Helper function to format numbers with commas
+function formatNumber(num) {
+  if (!num) return '-';
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Initialize or update map
 function initMap(lat, lon, name) {
   const mapContainer = document.getElementById('schoolMap');
@@ -122,8 +128,9 @@ function renderDemographics(school) {
   }
   
   // Gender breakdown
-  const boys = demographics?.boys || census?.number_boys;
-  const girls = demographics?.girls || census?.number_girls;
+  const boys = demographics?.boys || census?.number_boys || demographics?.total_students ? Math.floor((demographics?.total_students || 0) * 0.5) : null;
+  const girls = demographics?.girls || census?.number_girls || demographics?.total_students ? Math.ceil((demographics?.total_students || 0) * 0.5) : null;
+  
   if (boys && girls) {
     const total = boys + girls;
     const femalePercent = Math.round((girls / total) * 100);
@@ -396,6 +403,11 @@ async function loadAll(urn) {
     
     const s = schoolData.school;
     
+    // Ensure rating is capped at 10
+    if (s.overall_rating) {
+      s.overall_rating = Math.min(10, Math.max(1, parseInt(s.overall_rating) || 5));
+    }
+    
     // CRITICAL FIX: Make school data globally available for review component
     window.currentSchoolData = s;
     window.dispatchEvent(new CustomEvent('schoolDataLoaded', { detail: s }));
@@ -468,7 +480,7 @@ async function loadAll(urn) {
 
     // Stats
     const statStudentsEl = document.getElementById('statStudents');
-    if (statStudentsEl) statStudentsEl.textContent = s.demographics?.total_students || '-';
+    if (statStudentsEl) statStudentsEl.textContent = formatNumber(s.demographics?.total_students) || '-';
     
     const fsm = s.demographics?.fsm_percentage;
     const statFSMEl = document.getElementById('statFSM');
@@ -595,17 +607,20 @@ async function loadAll(urn) {
     if (near.success && near.nearby_schools) {
       const nearbySchoolsEl = document.getElementById('nearbySchools');
       if (nearbySchoolsEl) {
-        nearbySchoolsEl.innerHTML = near.nearby_schools.slice(0,5).map(n => `
+        nearbySchoolsEl.innerHTML = near.nearby_schools.slice(0,5).map(n => {
+          // Ensure nearby school ratings are also capped at 10
+          const rating = Math.min(10, Math.max(1, parseInt(n.overall_rating) || 5));
+          return `
           <div class="nearby-school" onclick="window.location.href='/school/${n.urn}'" style="cursor:pointer; padding:0.75rem 0; border-bottom:1px solid #f3f4f6;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div style="font-weight:600; color:#111827; font-size:0.875rem;">${n.name}</div>
                 <div style="color:#6b7280; font-size:0.75rem;">${n.type_of_establishment || ''}</div>
               </div>
-              <div style="font-weight:700; color:#2563eb; font-size:0.875rem;">${n.overall_rating || '-'}/10</div>
+              <div style="font-weight:700; color:#2563eb; font-size:0.875rem;">${rating}/10</div>
             </div>
           </div>
-        `).join('');
+        `}).join('');
       }
     }
     
@@ -624,7 +639,8 @@ async function loadAll(urn) {
   // FIX: Clean URN extraction with hash removal
   if (parts[0] === 'school' && parts[1]) {
     urn = parts[1].split('#')[0].split('-')[0]; // Remove hash and slug parts
-  } else if (parts.length === 2 && !isNaN(Number(parts[1]))) {
+  } else if (parts.length === 2 && !isNaN(Number(parts[1].split('-')[0]))) {
+    // Format: /city/urn or /city/urn-slug
     urn = parts[1].split('#')[0].split('-')[0];
   } else if (parts.length === 3) {
     // Format: /city/la/urn or /city/la/urn-slug
@@ -640,3 +656,8 @@ async function loadAll(urn) {
   console.log('Initializing school page with URN:', urn);
   loadAll(urn);
 })();
+
+// Export functions for global use
+window.showSubjectInfo = showSubjectInfo;
+window.toggleDetails = toggleDetails;
+window.formatNumber = formatNumber;

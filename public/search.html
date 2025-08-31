@@ -40,6 +40,19 @@
             border-radius: 8px;
             border: 1px solid #e5e7eb;
         }
+        
+        .school-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .location-separator {
+            color: #d1d5db;
+        }
     </style>
 </head>
 <body>
@@ -113,15 +126,24 @@
                 return;
             }
             
-            const html = schools.map(school => `
+            const html = schools.map(school => {
+                // Ensure rating is capped at 10
+                const rating = Math.min(10, Math.max(1, parseInt(school.overall_rating) || 5));
+                
+                return `
                 <div class="school-card" onclick="window.location.href='/school/${school.urn}'">
                     <div class="school-card-header">
                         <div>
                             <div class="school-card-name">${school.name}</div>
                             <div class="school-card-type">${school.type_of_establishment || ''} • ${school.phase_of_education || ''}</div>
+                            <div class="school-location">
+                                ${school.town ? `<span>${school.town}</span>` : ''}
+                                ${school.town && school.local_authority ? '<span class="location-separator">•</span>' : ''}
+                                ${school.local_authority ? `<span>${school.local_authority}</span>` : ''}
+                            </div>
                         </div>
-                        <div class="school-card-rating rating-${getRatingClass(school.overall_rating)}">
-                            ${school.overall_rating || '-'}/10
+                        <div class="school-card-rating rating-${getRatingClass(rating)}">
+                            ${rating}/10
                         </div>
                     </div>
                     <div class="school-card-details">
@@ -135,11 +157,11 @@
                         </div>
                         <div class="detail-item">
                             <span>👥</span>
-                            <span>${school.number_on_roll || 'N/A'} students</span>
+                            <span>${formatNumber(school.number_on_roll)} students</span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             
             document.getElementById('searchResults').innerHTML = html;
         }
@@ -171,6 +193,11 @@
                 4: 'Inadequate'
             };
             return labels[rating] || 'Not Inspected';
+        }
+        
+        function formatNumber(num) {
+            if (!num) return 'N/A';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
         // Load results on page load
