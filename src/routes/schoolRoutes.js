@@ -14,95 +14,157 @@ const toNum = v => {
   return Number.isFinite(n) ? n : null;
 };
 
-/* ---------------- Rating Calculation Functions ---------------- */
 function calculateRatingWithFallbacks(school, laAverages) {
   let components = [];
   let totalWeight = 0;
   
-  // 1. Ofsted component (target 40% weight)
-  if (school.ofsted_overall_effectiveness) {
-    const ofstedMap = { 
-      1: 9.5,  // Outstanding
-      2: 7.5,  // Good
-      3: 4.5,  // Requires Improvement
-      4: 2.5   // Inadequate
-    };
-    const ofstedScore = ofstedMap[school.ofsted_overall_effectiveness] || 5;
-    components.push({
-      name: 'ofsted',
-      score: ofstedScore,
-      weight: 40,
-      label: getOfstedLabel(school.ofsted_overall_effectiveness)
-    });
-    totalWeight += 40;
-  }
+  // Check if school is in Scotland
+  const isScotland = school.country === 'Scotland';
   
-  // 2. Academic component (target 40% weight)
-  let academicScores = [];
-  let academicDetails = {};
-  
-  if (school.english_score !== null && laAverages.avg_english !== null) {
-    const engScore = calculateAcademicScore(school.english_score, laAverages.avg_english);
-    academicScores.push(engScore);
-    academicDetails.english = {
-      school: school.english_score,
-      la_avg: laAverages.avg_english,
-      score: engScore
-    };
-  }
-  
-  if (school.math_score !== null && laAverages.avg_math !== null) {
-    const mathScore = calculateAcademicScore(school.math_score, laAverages.avg_math);
-    academicScores.push(mathScore);
-    academicDetails.math = {
-      school: school.math_score,
-      la_avg: laAverages.avg_math,
-      score: mathScore
-    };
-  }
-  
-  if (school.science_score !== null && laAverages.avg_science !== null) {
-    const sciScore = calculateAcademicScore(school.science_score, laAverages.avg_science);
-    academicScores.push(sciScore);
-    academicDetails.science = {
-      school: school.science_score,
-      la_avg: laAverages.avg_science,
-      score: sciScore
-    };
-  }
-  
-  if (academicScores.length > 0) {
-    const avgAcademicScore = academicScores.reduce((a, b) => a + b, 0) / academicScores.length;
-    components.push({
-      name: 'academic',
-      score: avgAcademicScore,
-      weight: 40,
-      details: academicDetails,
-      subjects_available: academicScores.length
-    });
-    totalWeight += 40;
-  }
-  
-  // 3. Attendance component (target 20% weight)
-  if (school.attendance_rate !== null) {
-    const attendanceScore = calculateAttendanceScore(school.attendance_rate);
-    components.push({
-      name: 'attendance',
-      score: attendanceScore,
-      weight: 20,
-      school_rate: school.attendance_rate,
-      la_avg: laAverages.avg_attendance
-    });
-    totalWeight += 20;
+  if (isScotland) {
+    // Scotland rating: No Ofsted, only Academic (60%) and Attendance (40%)
+    
+    // Academic component (60% weight for Scotland)
+    let academicScores = [];
+    let academicDetails = {};
+    
+    // Only English and Math for Scotland
+    if (school.english_score !== null && laAverages.avg_english !== null) {
+      const engScore = calculateAcademicScore(school.english_score, laAverages.avg_english);
+      academicScores.push(engScore);
+      academicDetails.english = {
+        school: school.english_score,
+        la_avg: laAverages.avg_english,
+        score: engScore
+      };
+    }
+    
+    if (school.math_score !== null && laAverages.avg_math !== null) {
+      const mathScore = calculateAcademicScore(school.math_score, laAverages.avg_math);
+      academicScores.push(mathScore);
+      academicDetails.math = {
+        school: school.math_score,
+        la_avg: laAverages.avg_math,
+        score: mathScore
+      };
+    }
+    
+    if (academicScores.length > 0) {
+      const avgAcademicScore = academicScores.reduce((a, b) => a + b, 0) / academicScores.length;
+      components.push({
+        name: 'academic',
+        score: avgAcademicScore,
+        weight: 60,
+        details: academicDetails,
+        subjects_available: academicScores.length
+      });
+      totalWeight += 60;
+    }
+    
+    // Attendance component (40% weight for Scotland)
+    if (school.attendance_rate !== null) {
+      const attendanceScore = calculateAttendanceScore(school.attendance_rate);
+      components.push({
+        name: 'attendance',
+        score: attendanceScore,
+        weight: 40,
+        school_rate: school.attendance_rate,
+        la_avg: laAverages.avg_attendance
+      });
+      totalWeight += 40;
+    }
+    
+  } else {
+    // England/Wales/NI rating: Original system with Ofsted
+    
+    // 1. Ofsted component (40% weight)
+    if (school.ofsted_overall_effectiveness) {
+      const ofstedMap = { 
+        1: 9.5,  // Outstanding
+        2: 7.5,  // Good
+        3: 4.5,  // Requires Improvement
+        4: 2.5   // Inadequate
+      };
+      const ofstedScore = ofstedMap[school.ofsted_overall_effectiveness] || 5;
+      components.push({
+        name: 'ofsted',
+        score: ofstedScore,
+        weight: 40,
+        label: getOfstedLabel(school.ofsted_overall_effectiveness)
+      });
+      totalWeight += 40;
+    }
+    
+    // 2. Academic component (40% weight)
+    let academicScores = [];
+    let academicDetails = {};
+    
+    if (school.english_score !== null && laAverages.avg_english !== null) {
+      const engScore = calculateAcademicScore(school.english_score, laAverages.avg_english);
+      academicScores.push(engScore);
+      academicDetails.english = {
+        school: school.english_score,
+        la_avg: laAverages.avg_english,
+        score: engScore
+      };
+    }
+    
+    if (school.math_score !== null && laAverages.avg_math !== null) {
+      const mathScore = calculateAcademicScore(school.math_score, laAverages.avg_math);
+      academicScores.push(mathScore);
+      academicDetails.math = {
+        school: school.math_score,
+        la_avg: laAverages.avg_math,
+        score: mathScore
+      };
+    }
+    
+    // Include Science for non-Scotland schools
+    if (school.science_score !== null && laAverages.avg_science !== null) {
+      const sciScore = calculateAcademicScore(school.science_score, laAverages.avg_science);
+      academicScores.push(sciScore);
+      academicDetails.science = {
+        school: school.science_score,
+        la_avg: laAverages.avg_science,
+        score: sciScore
+      };
+    }
+    
+    if (academicScores.length > 0) {
+      const avgAcademicScore = academicScores.reduce((a, b) => a + b, 0) / academicScores.length;
+      components.push({
+        name: 'academic',
+        score: avgAcademicScore,
+        weight: 40,
+        details: academicDetails,
+        subjects_available: academicScores.length
+      });
+      totalWeight += 40;
+    }
+    
+    // 3. Attendance component (20% weight)
+    if (school.attendance_rate !== null) {
+      const attendanceScore = calculateAttendanceScore(school.attendance_rate);
+      components.push({
+        name: 'attendance',
+        score: attendanceScore,
+        weight: 20,
+        school_rate: school.attendance_rate,
+        la_avg: laAverages.avg_attendance
+      });
+      totalWeight += 20;
+    }
   }
   
   // Check minimum data threshold
-  if (totalWeight < 40) {
+  const minThreshold = isScotland ? 50 : 40; // Scotland needs at least 50% (half of academic + attendance)
+  if (totalWeight < minThreshold) {
     return {
       rating: null,
       message: "Insufficient data for rating",
       available_components: components,
-      data_completeness: totalWeight
+      data_completeness: totalWeight,
+      is_scotland: isScotland
     };
   }
   
@@ -111,10 +173,10 @@ function calculateRatingWithFallbacks(school, laAverages) {
     sum + (c.score * (c.weight / totalWeight)), 0
   );
   
-  // Calculate percentile (how many schools in LA this school outperforms)
+  // Calculate percentile
   const percentile = calculatePercentile(normalizedScore, laAverages.all_ratings || []);
   
-  // Standard rounding - 0.5 and above rounds up, below rounds down
+  // Standard rounding
   const roundedRating = Math.round(normalizedScore);
   
   return {
@@ -122,7 +184,8 @@ function calculateRatingWithFallbacks(school, laAverages) {
     components: components,
     data_completeness: totalWeight,
     percentile: percentile,
-    la_comparison: totalWeight === 100 ? 'Complete data' : 'Partial data'
+    la_comparison: totalWeight === 100 ? 'Complete data' : 'Partial data',
+    is_scotland: isScotland
   };
 }
 
@@ -213,7 +276,8 @@ router.get('/:urn', async (req, res) => {
         s.english_score, s.english_avg,
         s.math_score, s.math_avg,
         s.science_score, s.science_avg,
-        s.overall_rating, s.rating_components, s.rating_percentile, s.rating_updated_at
+        s.overall_rating, s.rating_components, s.rating_percentile, s.rating_updated_at,
+        s.counrty
       FROM uk_schools s
       WHERE s.urn = $1
       LIMIT 1
@@ -308,13 +372,14 @@ router.get('/:urn', async (req, res) => {
         ofstedRating = o.quality_of_education;
       }
       
-      const schoolForRating = {
-        ofsted_overall_effectiveness: ofstedRating,
-        english_score: toNum(s.english_score),
-        math_score: toNum(s.math_score),
-        science_score: toNum(s.science_score),
-        attendance_rate: a.overall_absence_rate ? (100 - a.overall_absence_rate) : null
-      };
+    const schoolForRating = {
+      country: s.country,
+      ofsted_overall_effectiveness: ofstedRating,
+      english_score: toNum(s.english_score),
+      math_score: toNum(s.math_score),
+      science_score: toNum(s.science_score),
+      attendance_rate: a.overall_absence_rate ? (100 - a.overall_absence_rate) : null
+    };
       
       // Calculate rating
       calculatedRating = calculateRatingWithFallbacks(schoolForRating, laAverages);
@@ -362,6 +427,8 @@ router.get('/:urn', async (req, res) => {
         // Basic
         urn: s.urn,
         name: s.name,
+        country: s.country || 'England', // Default to England if not specified
+        is_scotland: s.country === 'Scotland',
         type: s.type_of_establishment,
         phase: s.phase_of_education,
         status: s.establishment_status,
