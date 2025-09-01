@@ -93,18 +93,23 @@ function adjustScottishRating(school) {
   }
 }
 
-// Load school data
 async function loadSchoolData() {
   const urn = extractURN();
   if (!urn) {
     console.error('No URN found');
-    document.getElementById('schoolName').textContent = 'School Not Found';
+    const schoolNameEl = document.getElementById('schoolName');
+    if (schoolNameEl) {
+      schoolNameEl.textContent = 'School Not Found';
+    }
     return;
   }
   
   try {
+    console.log('Loading school data for URN:', urn);
     const response = await fetch(`/api/schools/${urn}`);
     const data = await response.json();
+    
+    console.log('School data received:', data);
     
     if (data.success && data.school) {
       // Store school data globally
@@ -113,6 +118,8 @@ async function loadSchoolData() {
       
       // Check if this is a Scottish school
       isScottishSchool = data.school.country === 'Scotland' || data.school.is_scotland;
+      
+      console.log('Is Scottish school:', isScottishSchool);
       
       // Hide England-specific features if Scottish
       if (isScottishSchool) {
@@ -123,93 +130,135 @@ async function loadSchoolData() {
       // Update display
       updateSchoolDisplay(data.school);
       
-      // Load additional data
-      await loadPerformanceData(urn);
-      await loadNearbySchools(urn);
+      // Load additional data - with error handling
+      try {
+        await loadPerformanceData(urn);
+      } catch (perfError) {
+        console.error('Error loading performance data:', perfError);
+      }
+      
+      try {
+        await loadNearbySchools(urn);
+      } catch (nearbyError) {
+        console.error('Error loading nearby schools:', nearbyError);
+      }
       
       // Dispatch event for components
       window.dispatchEvent(new CustomEvent('schoolDataLoaded', { detail: data.school }));
+    } else {
+      console.error('Invalid school data received:', data);
     }
   } catch (error) {
     console.error('Error loading school data:', error);
-    document.getElementById('schoolName').textContent = 'Error Loading School';
+    const schoolNameEl = document.getElementById('schoolName');
+    if (schoolNameEl) {
+      schoolNameEl.textContent = 'Error Loading School';
+    }
+  }
+}
+function updateSchoolDisplay(school) {
+  try {
+    // Update breadcrumbs
+    updateBreadcrumbs(school);
+    
+    // Update header - with null checks
+    const schoolName = document.getElementById('schoolName');
+    if (schoolName) {
+      schoolName.textContent = school.name || 'School Name';
+    }
+    
+    const schoolType = document.getElementById('schoolType');
+    if (schoolType) {
+      schoolType.textContent = school.type || '-';
+    }
+    
+    const schoolPhase = document.getElementById('schoolPhase');
+    if (schoolPhase) {
+      schoolPhase.textContent = school.phase || '-';
+    }
+    
+    const ageRangeEl = document.getElementById('ageRange');
+    if (ageRangeEl) {
+      const ageRange = school.characteristics?.age_range || 
+        `${school.age_range_lower || '?'} - ${school.age_range_upper || '?'}`;
+      ageRangeEl.textContent = `Ages ${ageRange}`;
+    }
+    
+    // Update address
+    const schoolAddressEl = document.getElementById('schoolAddress');
+    if (schoolAddressEl) {
+      const address = school.address;
+      if (address) {
+        const addressParts = [
+          address.street,
+          address.town,
+          address.postcode
+        ].filter(Boolean).join(', ');
+        schoolAddressEl.textContent = addressParts;
+      }
+    }
+    
+    // Update overall rating
+    const overallRatingEl = document.getElementById('overallRating');
+    if (overallRatingEl) {
+      if (school.overall_rating) {
+        overallRatingEl.textContent = `${parseInt(school.overall_rating)}/10`;
+      } else {
+        overallRatingEl.textContent = 'N/A';
+      }
+    }
+    
+    // Update Ofsted rating (only for non-Scottish schools)
+    if (!isScottishSchool && school.ofsted) {
+      const ofstedLabels = {
+        1: 'Outstanding',
+        2: 'Good',
+        3: 'Requires Improvement',
+        4: 'Inadequate'
+      };
+      
+      const ofstedRatingEl = document.getElementById('ofstedRating');
+      if (ofstedRatingEl) {
+        ofstedRatingEl.textContent = 
+          ofstedLabels[school.ofsted.overall_effectiveness] || 'Not Inspected';
+      }
+      
+      const ofstedDateEl = document.getElementById('ofstedDate');
+      if (ofstedDateEl && school.ofsted.inspection_date) {
+        const date = new Date(school.ofsted.inspection_date);
+        ofstedDateEl.textContent = 
+          date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+      }
+    }
+    
+    // Update key stats
+    updateKeyStats(school);
+    
+    // Update test scores
+    updateTestScores(school);
+    
+    // Update demographics
+    updateDemographics(school);
+    
+    // Update school info
+    updateSchoolInfo(school);
+    
+    // Update Ofsted details (only for non-Scottish schools)
+    if (!isScottishSchool) {
+      updateOfstedDetails(school);
+    }
+    
+    // Update contact info
+    updateContactInfo(school);
+    
+    // Update page title
+    document.title = `${school.name} - Better School UK`;
+    
+  } catch (error) {
+    console.error('Error updating school display:', error);
   }
 }
 
-// Update school display
-function updateSchoolDisplay(school) {
-  // Update breadcrumbs
-  updateBreadcrumbs(school);
-  
-  // Update header
-  document.getElementById('schoolName').textContent = school.name || 'School Name';
-  document.getElementById('schoolType').textContent = school.type || '-';
-  document.getElementById('schoolPhase').textContent = school.phase || '-';
-  
-  const ageRange = school.characteristics?.age_range || 
-    `${school.age_range_lower || '?'} - ${school.age_range_upper || '?'}`;
-  document.getElementById('ageRange').textContent = `Ages ${ageRange}`;
-  
-  // Update address
-  const address = school.address;
-  if (address) {
-    const addressParts = [
-      address.street,
-      address.town,
-      address.postcode
-    ].filter(Boolean).join(', ');
-    document.getElementById('schoolAddress').textContent = addressParts;
-  }
-  
-  // Update overall rating
-  if (school.overall_rating) {
-    document.getElementById('overallRating').textContent = 
-      `${parseInt(school.overall_rating)}/10`;
-  } else {
-    document.getElementById('overallRating').textContent = 'N/A';
-  }
-  
-  // Update Ofsted rating (only for non-Scottish schools)
-  if (!isScottishSchool && school.ofsted) {
-    const ofstedLabels = {
-      1: 'Outstanding',
-      2: 'Good',
-      3: 'Requires Improvement',
-      4: 'Inadequate'
-    };
-    document.getElementById('ofstedRating').textContent = 
-      ofstedLabels[school.ofsted.overall_effectiveness] || 'Not Inspected';
-    
-    if (school.ofsted.inspection_date) {
-      const date = new Date(school.ofsted.inspection_date);
-      document.getElementById('ofstedDate').textContent = 
-        date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-    }
-  }
-  
-  // Update key stats
-  updateKeyStats(school);
-  
-  // Update test scores
-  updateTestScores(school);
-  
-  // Update demographics
-  updateDemographics(school);
-  
-  // Update school info
-  updateSchoolInfo(school);
-  
-  // Update Ofsted details (only for non-Scottish schools)
-  if (!isScottishSchool) {
-    updateOfstedDetails(school);
-  }
-  
-  // Update contact info
-  updateContactInfo(school);
-  
-  // Update page title
-  document.title = `${school.name} - Better School UK`;
-}
 
 // Update breadcrumbs
 function updateBreadcrumbs(school) {
@@ -243,85 +292,111 @@ function updateBreadcrumbs(school) {
   }
 }
 
-// Update key stats
 function updateKeyStats(school) {
   // Students
   const students = school.demographics?.total_students;
-  document.getElementById('statStudents').textContent = 
-    students ? students.toLocaleString() : '-';
+  const statStudents = document.getElementById('statStudents');
+  if (statStudents) {
+    statStudents.textContent = students ? students.toLocaleString() : '-';
+  }
   
   // FSM
   const fsm = school.demographics?.fsm_percentage;
-  document.getElementById('statFSM').textContent = 
-    fsm ? `${Math.round(fsm)}%` : '-';
+  const statFSM = document.getElementById('statFSM');
+  if (statFSM) {
+    statFSM.textContent = fsm ? `${Math.round(fsm)}%` : '-';
+  }
   
   // English
   const english = school.test_scores?.english?.score;
-  document.getElementById('statEnglish').textContent = 
-    english ? `${Math.round(english)}%` : '-';
+  const statEnglish = document.getElementById('statEnglish');
+  if (statEnglish) {
+    statEnglish.textContent = english ? `${Math.round(english)}%` : '-';
+  }
   
   // Math
   const math = school.test_scores?.math?.score;
-  document.getElementById('statMath').textContent = 
-    math ? `${Math.round(math)}%` : '-';
+  const statMath = document.getElementById('statMath');
+  if (statMath) {
+    statMath.textContent = math ? `${Math.round(math)}%` : '-';
+  }
   
   // Attendance
   const absenceRate = school.attendance?.overall_absence_rate;
   const attendance = absenceRate ? (100 - absenceRate) : null;
-  document.getElementById('statAttendance').textContent = 
-    attendance ? `${Math.round(attendance)}%` : '-';
+  const statAttendance = document.getElementById('statAttendance');
+  if (statAttendance) {
+    statAttendance.textContent = attendance ? `${Math.round(attendance)}%` : '-';
+  }
 }
-
-// Update test scores
 function updateTestScores(school) {
   const scores = school.test_scores;
   if (!scores) return;
   
   // English
-  if (scores.english?.score) {
+  const englishScore = document.getElementById('englishScore');
+  const englishBar = document.getElementById('englishBar');
+  const englishAvg = document.getElementById('englishAvg');
+  const englishAvgLabel = document.getElementById('englishAvgLabel');
+  
+  if (scores.english?.score && englishScore && englishBar) {
     const score = Math.round(scores.english.score);
-    document.getElementById('englishScore').textContent = `${score}%`;
-    document.getElementById('englishBar').style.width = `${score}%`;
+    englishScore.textContent = `${score}%`;
+    englishBar.style.width = `${score}%`;
     
-    if (scores.english.average) {
-      document.getElementById('englishAvg').style.left = `${scores.english.average}%`;
-      document.getElementById('englishAvg').style.display = 'block';
-      document.getElementById('englishAvgLabel').textContent = 
-        `National Avg: ${Math.round(scores.english.average)}%`;
-      document.getElementById('englishAvgLabel').style.display = 'inline';
+    if (scores.english.average && englishAvg && englishAvgLabel) {
+      englishAvg.style.left = `${scores.english.average}%`;
+      englishAvg.style.display = 'block';
+      englishAvgLabel.textContent = `National Avg: ${Math.round(scores.english.average)}%`;
+      englishAvgLabel.style.display = 'inline';
     }
+  } else if (englishScore) {
+    englishScore.textContent = '-';
   }
   
   // Math
-  if (scores.math?.score) {
+  const mathScore = document.getElementById('mathScore');
+  const mathBar = document.getElementById('mathBar');
+  const mathAvg = document.getElementById('mathAvg');
+  const mathAvgLabel = document.getElementById('mathAvgLabel');
+  
+  if (scores.math?.score && mathScore && mathBar) {
     const score = Math.round(scores.math.score);
-    document.getElementById('mathScore').textContent = `${score}%`;
-    document.getElementById('mathBar').style.width = `${score}%`;
+    mathScore.textContent = `${score}%`;
+    mathBar.style.width = `${score}%`;
     
-    if (scores.math.average) {
-      document.getElementById('mathAvg').style.left = `${scores.math.average}%`;
-      document.getElementById('mathAvg').style.display = 'block';
-      document.getElementById('mathAvgLabel').textContent = 
-        `National Avg: ${Math.round(scores.math.average)}%`;
-      document.getElementById('mathAvgLabel').style.display = 'inline';
+    if (scores.math.average && mathAvg && mathAvgLabel) {
+      mathAvg.style.left = `${scores.math.average}%`;
+      mathAvg.style.display = 'block';
+      mathAvgLabel.textContent = `National Avg: ${Math.round(scores.math.average)}%`;
+      mathAvgLabel.style.display = 'inline';
     }
+  } else if (mathScore) {
+    mathScore.textContent = '-';
   }
   
   // Science (hide for Scottish schools)
-  if (!isScottishSchool && scores.science?.score) {
+  const scienceScore = document.getElementById('scienceScore');
+  const scienceBar = document.getElementById('scienceBar');
+  const scienceAvg = document.getElementById('scienceAvg');
+  const scienceAvgLabel = document.getElementById('scienceAvgLabel');
+  
+  if (!isScottishSchool && scores.science?.score && scienceScore && scienceBar) {
     const score = Math.round(scores.science.score);
-    document.getElementById('scienceScore').textContent = `${score}%`;
-    document.getElementById('scienceBar').style.width = `${score}%`;
+    scienceScore.textContent = `${score}%`;
+    scienceBar.style.width = `${score}%`;
     
-    if (scores.science.average) {
-      document.getElementById('scienceAvg').style.left = `${scores.science.average}%`;
-      document.getElementById('scienceAvg').style.display = 'block';
-      document.getElementById('scienceAvgLabel').textContent = 
-        `National Avg: ${Math.round(scores.science.average)}%`;
-      document.getElementById('scienceAvgLabel').style.display = 'inline';
+    if (scores.science.average && scienceAvg && scienceAvgLabel) {
+      scienceAvg.style.left = `${scores.science.average}%`;
+      scienceAvg.style.display = 'block';
+      scienceAvgLabel.textContent = `National Avg: ${Math.round(scores.science.average)}%`;
+      scienceAvgLabel.style.display = 'inline';
     }
+  } else if (scienceScore) {
+    scienceScore.textContent = '-';
   }
 }
+
 
 // Update demographics
 function updateDemographics(school) {
