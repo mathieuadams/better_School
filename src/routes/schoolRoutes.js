@@ -277,7 +277,7 @@ router.get('/:urn', async (req, res) => {
         s.math_score, s.math_avg,
         s.science_score, s.science_avg,
         s.overall_rating, s.rating_components, s.rating_percentile, s.rating_updated_at,
-        s.counrty
+        s.country
       FROM uk_schools s
       WHERE s.urn = $1
       LIMIT 1
