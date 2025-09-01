@@ -1,4 +1,4 @@
-// city.js - JavaScript for City Page with LA breakdown
+// city.js - Complete JavaScript for City Page with fair ranking system
 
 // Global variables
 let cityData = {
@@ -234,47 +234,70 @@ function renderOfstedDistribution() {
   }
 }
 
-// Render top schools
-function renderTopSchools() {
-  // Helper function to get rating
-  const getRating = (school) => {
+// Fair ranking system that considers data completeness
+function categorizeAndRankSchools(schools) {
+  const tiers = {
+    complete: [],
+    partial: [],
+    ofstedOnly: [],
+    unrated: []
+  };
+  
+  schools.forEach(school => {
     if (school.overall_rating !== null && school.overall_rating !== undefined) {
-      return parseFloat(school.overall_rating);
+      // Determine completeness based on rating components or value
+      const rating = parseFloat(school.overall_rating);
+      
+      // Check if school has comprehensive data (heuristic: non-standard Ofsted-only values)
+      // Schools with only Ofsted would have ratings like 9, 7, 5, 3
+      const isLikelyOfstedOnly = [9, 7, 5, 3].includes(Math.round(rating));
+      
+      if (school.rating_data_completeness >= 100) {
+        tiers.complete.push(school);
+      } else if (school.rating_data_completeness >= 40) {
+        tiers.partial.push(school);
+      } else if (isLikelyOfstedOnly && !school.rating_data_completeness) {
+        tiers.ofstedOnly.push(school);
+      } else {
+        // Assume complete if we have a non-standard rating value
+        tiers.complete.push(school);
+      }
     } else if (school.ofsted_rating) {
-      const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
-      return ofstedMap[school.ofsted_rating] || 5;
+      tiers.ofstedOnly.push(school);
+    } else {
+      tiers.unrated.push(school);
     }
-    return 5;
+  });
+  
+  // Sort each tier
+  const sortByRating = (a, b) => {
+    const ratingA = parseFloat(a.overall_rating) || 0;
+    const ratingB = parseFloat(b.overall_rating) || 0;
+    return ratingB - ratingA;
   };
   
-  // Sort schools by rating
-  const sortSchools = (a, b) => {
-    const ratingA = getRating(a);
-    const ratingB = getRating(b);
-    
-    if (ratingA !== ratingB) {
-      return ratingB - ratingA;
-    }
-    
-    // Tiebreaker: Ofsted rating
-    const ofstedA = a.ofsted_rating || 5;
-    const ofstedB = b.ofsted_rating || 5;
-    return ofstedA - ofstedB;
+  const sortByOfsted = (a, b) => {
+    return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
   };
   
-  // Sort each phase
-  cityData.schoolsByPhase.primary.sort(sortSchools);
-  cityData.schoolsByPhase.secondary.sort(sortSchools);
-  cityData.schoolsByPhase.sixthForm.sort(sortSchools);
+  tiers.complete.sort(sortByRating);
+  tiers.partial.sort(sortByRating);
+  tiers.ofstedOnly.sort(sortByOfsted);
+  tiers.unrated.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   
-  // Render top 5 of each
-  renderSchoolList('primarySchools', cityData.schoolsByPhase.primary.slice(0, 5));
-  renderSchoolList('secondarySchools', cityData.schoolsByPhase.secondary.slice(0, 5));
-  renderSchoolList('sixthFormSchools', cityData.schoolsByPhase.sixthForm.slice(0, 5));
+  return [...tiers.complete, ...tiers.partial, ...tiers.ofstedOnly, ...tiers.unrated];
 }
 
-// Render school list
-function renderSchoolList(containerId, schools) {
+// Render top schools with fair ranking
+function renderTopSchools() {
+  // Render top 5 of each phase
+  renderSchoolList('primarySchools', cityData.schoolsByPhase.primary, 5);
+  renderSchoolList('secondarySchools', cityData.schoolsByPhase.secondary, 5);
+  renderSchoolList('sixthFormSchools', cityData.schoolsByPhase.sixthForm, 5);
+}
+
+// Render school list with fair ranking
+function renderSchoolList(containerId, schools, showMax = 5) {
   const container = document.getElementById(containerId);
   if (!container) return;
   
@@ -283,16 +306,29 @@ function renderSchoolList(containerId, schools) {
     return;
   }
   
-  const html = schools.map((school, index) => {
-    // Get proper rating
+  // Apply fair ranking
+  const rankedSchools = categorizeAndRankSchools(schools);
+  const topSchools = rankedSchools.slice(0, showMax);
+  
+  const html = topSchools.map((school, index) => {
     let rating;
+    let dataIndicator = '';
+    
     if (school.overall_rating !== null && school.overall_rating !== undefined) {
       rating = Math.min(10, Math.max(1, Math.round(parseFloat(school.overall_rating))));
+      
+      // Determine data completeness
+      if (school.rating_data_completeness >= 100) {
+        dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
+      } else if (school.rating_data_completeness >= 40) {
+        dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">⚬</span>';
+      }
     } else if (school.ofsted_rating) {
       const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
       rating = ofstedMap[school.ofsted_rating] || 5;
+      dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
     } else {
-      rating = 5;
+      rating = '-';
     }
     
     return `
@@ -308,7 +344,7 @@ function renderSchoolList(containerId, schools) {
         </div>
         <div class="school-metrics">
           <div class="metric">
-            <div class="metric-value">${rating}/10</div>
+            <div class="metric-value">${rating}/10${dataIndicator}</div>
             <div class="metric-label">Rating</div>
           </div>
           ${school.ofsted_rating ? `

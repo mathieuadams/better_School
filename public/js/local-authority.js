@@ -1,4 +1,4 @@
-// local-authority.js - JavaScript for Local Authority Summary Page
+// local-authority.js - Complete JavaScript for Local Authority Page with fair ranking
 
 // Global variables
 let currentLA = null;
@@ -34,12 +34,12 @@ let schoolsByPhase = {
     return;
   }
   
-  // Convert slug to LA name (e.g., "westminster-city-council" -> "Westminster City Council")
+  // Convert slug to LA name
   const laName = laSlug.split('-').map(word => 
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');
   
-  // Update LA breadcrumb - just show the LA name, not school name
+  // Update LA breadcrumb
   const laCrumb = document.getElementById('laCrumb');
   if (laCrumb) laCrumb.textContent = laName;
   
@@ -75,7 +75,8 @@ async function loadLocalAuthorityData(laName, citySlug) {
     
     if (data.success) {
       renderLASummary(data, citySlug);
-      renderTopSchoolsFromAPI(data.schools);
+      processSchoolsForPhases(data.schools);
+      renderTopSchools();
     }
   } catch (error) {
     console.error('Error loading LA data:', error);
@@ -87,7 +88,6 @@ async function loadLocalAuthorityData(laName, citySlug) {
 // Fallback: Load using search API
 async function loadUsingSearchAPI(laName, citySlug) {
   try {
-    // Search for all schools in this LA
     const response = await fetch(`/api/search?type=location&q=${encodeURIComponent(laName)}&limit=500`);
     const data = await response.json();
     
@@ -99,10 +99,8 @@ async function loadUsingSearchAPI(laName, citySlug) {
       
       // Try to extract city from school data if we don't have it
       if (!citySlug && schools.length > 0) {
-        // Most schools in the LA should have the same town/city
         const towns = schools.map(s => s.town).filter(Boolean);
         if (towns.length > 0) {
-          // Find most common town
           const townCounts = {};
           towns.forEach(town => {
             townCounts[town] = (townCounts[town] || 0) + 1;
@@ -115,14 +113,16 @@ async function loadUsingSearchAPI(laName, citySlug) {
       }
       
       renderLASummary(summary, citySlug);
-      renderTopSchoolsFromSearch(schools);
+      processSchoolsForPhases(schools);
+      renderTopSchools();
     }
   } catch (error) {
     console.error('Error loading schools via search:', error);
     document.getElementById('laName').textContent = 'Error Loading Local Authority';
   }
 }
-// Fix for processSchoolsData function to avoid double-counting
+
+// Process schools data to generate summary
 function processSchoolsData(schools, laName) {
   let primaryCount = 0;
   let secondaryCount = 0;
@@ -140,13 +140,9 @@ function processSchoolsData(schools, laName) {
   
   let englishScores = [];
   let mathScores = [];
+  let scienceScores = [];
   let attendanceRates = [];
   let fsmPercentages = [];
-  
-  // Clear phase arrays
-  schoolsByPhase.primary = [];
-  schoolsByPhase.secondary = [];
-  schoolsByPhase.sixthForm = [];
   
   schools.forEach(school => {
     const phase = (school.phase_of_education || '').toLowerCase();
@@ -155,33 +151,23 @@ function processSchoolsData(schools, laName) {
     // Check for special schools FIRST
     if (type.includes('special') || phase.includes('special')) {
       specialCount++;
-      // Special schools are not added to phase arrays
     } 
     // Then categorize by phase (non-special schools only)
     else if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first')) {
       primaryCount++;
-      schoolsByPhase.primary.push(school);
     }
     else if (phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper')) {
       secondaryCount++;
-      schoolsByPhase.secondary.push(school);
       
       // Check if this secondary school also has sixth form
       if (phase.includes('sixth') || phase.includes('16') || phase.includes('post')) {
         sixthFormCount++;
-        schoolsByPhase.sixthForm.push(school);
       }
     }
     else if (phase.includes('all-through') || phase.includes('through')) {
-      // All-through schools count as both primary and secondary
+      // All-through schools count as both
       primaryCount++;
       secondaryCount++;
-      schoolsByPhase.primary.push(school);
-      schoolsByPhase.secondary.push(school);
-    }
-    else {
-      // Other types (nursery, etc.) - don't count in main categories
-      console.log('Uncategorized school phase:', phase, 'Type:', type);
     }
     
     // Count students
@@ -201,7 +187,10 @@ function processSchoolsData(schools, laName) {
     // Collect performance metrics
     if (school.english_score) englishScores.push(parseFloat(school.english_score));
     if (school.math_score) mathScores.push(parseFloat(school.math_score));
-    if (school.attendance_rate) attendanceRates.push(parseFloat(school.attendance_rate));
+    if (school.science_score) scienceScores.push(parseFloat(school.science_score));
+    if (school.overall_absence_rate) {
+      attendanceRates.push(100 - parseFloat(school.overall_absence_rate));
+    }
     if (school.fsm_percentage) fsmPercentages.push(parseFloat(school.fsm_percentage));
   });
   
@@ -219,14 +208,38 @@ function processSchoolsData(schools, laName) {
     ofstedCounts: ofstedCounts,
     avgEnglish: avg(englishScores),
     avgMaths: avg(mathScores),
+    avgScience: avg(scienceScores),
     avgAttendance: avg(attendanceRates),
-    avgFSM: avg(fsmPercentages)
+    avgFSM: avg(fsmPercentages),
+    schools: schools
   };
+}
+
+// Process schools into phases
+function processSchoolsForPhases(schools) {
+  // Clear phase arrays
+  schoolsByPhase.primary = [];
+  schoolsByPhase.secondary = [];
+  schoolsByPhase.sixthForm = [];
+  
+  schools.forEach(school => {
+    const phase = (school.phase_of_education || '').toLowerCase();
+    
+    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior')) {
+      schoolsByPhase.primary.push(school);
+    }
+    if (phase.includes('secondary') || phase.includes('middle')) {
+      schoolsByPhase.secondary.push(school);
+    }
+    if (phase.includes('sixth') || phase.includes('16') || phase.includes('post')) {
+      schoolsByPhase.sixthForm.push(school);
+    }
+  });
 }
 
 // Render LA summary
 function renderLASummary(data, citySlug) {
-  // Update header with actual LA name
+  // Update header
   document.getElementById('laName').textContent = data.laName;
   document.getElementById('laSchoolCount').textContent = data.totalSchools || '0';
   document.getElementById('laStudentCount').textContent = formatNumber(data.totalStudents) || '0';
@@ -244,7 +257,6 @@ function renderLASummary(data, citySlug) {
         cityCrumb.href = `/${citySlug || city.toLowerCase().replace(/\s+/g, '-')}`;
         cityCrumb.style.display = 'inline';
       } else {
-        // Hide city breadcrumb if no city
         cityCrumb.style.display = 'none';
         const citySeparator = cityCrumb.previousElementSibling;
         if (citySeparator && citySeparator.classList.contains('breadcrumb-separator')) {
@@ -252,7 +264,6 @@ function renderLASummary(data, citySlug) {
         }
       }
     } else {
-      // Hide city breadcrumb if no city
       cityCrumb.style.display = 'none';
       const citySeparator = cityCrumb.previousElementSibling;
       if (citySeparator && citySeparator.classList.contains('breadcrumb-separator')) {
@@ -319,72 +330,68 @@ function renderLASummary(data, citySlug) {
   }
 }
 
-// Render top schools from API results
-function renderTopSchoolsFromAPI(schools) {
-  // Categorize schools
-  schoolsByPhase.primary = [];
-  schoolsByPhase.secondary = [];
-  schoolsByPhase.sixthForm = [];
+// Fair ranking system that considers data completeness
+function categorizeAndRankSchools(schools) {
+  const tiers = {
+    complete: [],
+    partial: [],
+    ofstedOnly: [],
+    unrated: []
+  };
   
   schools.forEach(school => {
-    const phase = (school.phase_of_education || '').toLowerCase();
-    
-    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior')) {
-      schoolsByPhase.primary.push(school);
-    }
-    if (phase.includes('secondary') || phase.includes('middle')) {
-      schoolsByPhase.secondary.push(school);
-    }
-    if (phase.includes('sixth') || phase.includes('16') || phase.includes('post')) {
-      schoolsByPhase.sixthForm.push(school);
+    if (school.overall_rating !== null && school.overall_rating !== undefined) {
+      // Determine completeness
+      const rating = parseFloat(school.overall_rating);
+      
+      // Check if school has comprehensive data
+      const isLikelyOfstedOnly = [9, 7, 5, 3].includes(Math.round(rating));
+      
+      if (school.rating_data_completeness >= 100) {
+        tiers.complete.push(school);
+      } else if (school.rating_data_completeness >= 40) {
+        tiers.partial.push(school);
+      } else if (isLikelyOfstedOnly && !school.rating_data_completeness) {
+        tiers.ofstedOnly.push(school);
+      } else {
+        // Assume complete if we have a non-standard rating value
+        tiers.complete.push(school);
+      }
+    } else if (school.ofsted_rating) {
+      tiers.ofstedOnly.push(school);
+    } else {
+      tiers.unrated.push(school);
     }
   });
   
-  renderTopSchoolsFromSearch(schools);
-}
-
-// Sort and render top schools by phase
-function renderTopSchoolsFromSearch(schools) {
-  // Helper function to get the proper rating
-  const getRating = (school) => {
-    if (school.overall_rating !== null && school.overall_rating !== undefined) {
-      return parseFloat(school.overall_rating);
-    } else if (school.ofsted_rating) {
-      const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
-      return ofstedMap[school.ofsted_rating] || 5;
-    }
-    return 5;
+  // Sort each tier
+  const sortByRating = (a, b) => {
+    const ratingA = parseFloat(a.overall_rating) || 0;
+    const ratingB = parseFloat(b.overall_rating) || 0;
+    return ratingB - ratingA;
   };
   
-  // Sort schools by rating (best first)
-  const sortSchools = (a, b) => {
-    const ratingA = getRating(a);
-    const ratingB = getRating(b);
-    
-    // Sort by rating (higher is better)
-    if (ratingA !== ratingB) {
-      return ratingB - ratingA;
-    }
-    
-    // If ratings are equal, use Ofsted as tiebreaker
-    const ofstedA = a.ofsted_rating || 5;
-    const ofstedB = b.ofsted_rating || 5;
-    return ofstedA - ofstedB;
+  const sortByOfsted = (a, b) => {
+    return (a.ofsted_rating || 5) - (b.ofsted_rating || 5);
   };
   
-  // Sort each phase group
-  schoolsByPhase.primary.sort(sortSchools);
-  schoolsByPhase.secondary.sort(sortSchools);
-  schoolsByPhase.sixthForm.sort(sortSchools);
+  tiers.complete.sort(sortByRating);
+  tiers.partial.sort(sortByRating);
+  tiers.ofstedOnly.sort(sortByOfsted);
+  tiers.unrated.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   
-  // Render top 5 schools for each phase
-  renderSchoolList('primarySchools', schoolsByPhase.primary.slice(0, 5));
-  renderSchoolList('secondarySchools', schoolsByPhase.secondary.slice(0, 5));
-  renderSchoolList('sixthFormSchools', schoolsByPhase.sixthForm.slice(0, 5));
+  return [...tiers.complete, ...tiers.partial, ...tiers.ofstedOnly, ...tiers.unrated];
 }
 
-// Render school list with proper rating handling
-function renderSchoolList(containerId, schools) {
+// Render top schools with fair ranking
+function renderTopSchools() {
+  renderSchoolList('primarySchools', schoolsByPhase.primary, 5);
+  renderSchoolList('secondarySchools', schoolsByPhase.secondary, 5);
+  renderSchoolList('sixthFormSchools', schoolsByPhase.sixthForm, 5);
+}
+
+// Render school list with fair ranking
+function renderSchoolList(containerId, schools, showMax = 5) {
   const container = document.getElementById(containerId);
   if (!container) return;
   
@@ -393,54 +400,55 @@ function renderSchoolList(containerId, schools) {
     return;
   }
   
-  const html = schools.map((school, index) => {
-    // Use the actual overall_rating from database, properly rounded
+  // Apply fair ranking
+  const rankedSchools = categorizeAndRankSchools(schools);
+  const topSchools = rankedSchools.slice(0, showMax);
+  
+  const html = topSchools.map((school, index) => {
     let rating;
+    let dataIndicator = '';
     
     if (school.overall_rating !== null && school.overall_rating !== undefined) {
-      // Use actual rating from database, round to nearest integer
       rating = Math.min(10, Math.max(1, Math.round(parseFloat(school.overall_rating))));
-      console.log(`School ${school.name}: DB rating ${school.overall_rating} -> displayed as ${rating}/10`);
-    } 
-    else if (school.ofsted_rating) {
-      // Only fall back to Ofsted if no overall_rating exists
-      const ofstedMap = {
-        1: 9,  // Outstanding
-        2: 7,  // Good
-        3: 5,  // Requires Improvement
-        4: 3   // Inadequate
-      };
+      
+      // Determine data completeness
+      if (school.rating_data_completeness >= 100) {
+        dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
+      } else if (school.rating_data_completeness >= 40) {
+        dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">⚬</span>';
+      }
+    } else if (school.ofsted_rating) {
+      const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
       rating = ofstedMap[school.ofsted_rating] || 5;
-      console.log(`School ${school.name}: No DB rating, using Ofsted ${school.ofsted_rating} -> ${rating}/10`);
-    }
-    else {
-      rating = 5;
-      console.log(`School ${school.name}: No rating data, defaulting to 5/10`);
+      dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
+    } else {
+      rating = '-';
     }
     
     return `
-    <div class="school-item" onclick="window.location.href='/school/${school.urn}'">
-      <div class="school-rank">${index + 1}</div>
-      <div class="school-details">
-        <div class="school-name">${school.name}</div>
-        <div class="school-info">
-          <span class="school-info-item">📍 ${school.postcode || 'N/A'}</span>
-          <span class="school-info-item">• ${school.type_of_establishment || 'School'}</span>
-          ${school.number_on_roll ? `<span class="school-info-item">• ${formatNumber(school.number_on_roll)} students</span>` : ''}
+      <div class="school-item" onclick="window.location.href='/school/${school.urn}'">
+        <div class="school-rank">${index + 1}</div>
+        <div class="school-details">
+          <div class="school-name">${school.name}</div>
+          <div class="school-info">
+            <span class="school-info-item">📍 ${school.postcode || 'N/A'}</span>
+            <span class="school-info-item">• ${school.type_of_establishment || 'School'}</span>
+            ${school.number_on_roll ? `<span class="school-info-item">• ${formatNumber(school.number_on_roll)} students</span>` : ''}
+          </div>
+        </div>
+        <div class="school-metrics">
+          <div class="metric">
+            <div class="metric-value">${rating}/10${dataIndicator}</div>
+            <div class="metric-label">Rating</div>
+          </div>
+          ${school.ofsted_rating ? `
+          <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
+            ${getOfstedLabel(school.ofsted_rating)}
+          </div>` : ''}
         </div>
       </div>
-      <div class="school-metrics">
-        <div class="metric">
-          <div class="metric-value">${rating}/10</div>
-          <div class="metric-label">Rating</div>
-        </div>
-        ${school.ofsted_rating ? `
-        <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
-          ${getOfstedLabel(school.ofsted_rating)}
-        </div>` : ''}
-      </div>
-    </div>
-  `}).join('');
+    `;
+  }).join('');
   
   container.innerHTML = html;
 }
