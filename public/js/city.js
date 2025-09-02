@@ -407,25 +407,23 @@ function renderSchoolList(containerId, schools, showMax = 5) {
   const topSchools = rankedSchools.slice(0, showMax);
   
   const html = topSchools.map((school, index) => {
-    let rating;
-    let dataIndicator = '';
-    
-    if (school.overall_rating !== null && school.overall_rating !== undefined) {
-      rating = Math.min(10, Math.max(1, Math.round(parseFloat(school.overall_rating))));
-      
-      // Determine data completeness
-      if (school.rating_data_completeness >= 100) {
-        dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
-      } else if (school.rating_data_completeness >= 40) {
-        dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">⚬</span>';
-      }
-    } else if (school.ofsted_rating && !cityData.isScottish) {
-      const ofstedMap = { 1: 9, 2: 7, 3: 5, 4: 3 };
-      rating = ofstedMap[school.ofsted_rating] || 5;
-      dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
-    } else {
-      rating = '-';
+  let ratingText = '—';
+  let dataIndicator = '';
+
+  if (school.overall_rating != null) {
+    const r = Number(school.overall_rating);
+    ratingText = r.toFixed(1); // ← one decimal, no rounding to integer
+
+    if (school.rating_data_completeness >= 100) {
+      dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
+    } else if (school.rating_data_completeness >= 40) {
+      dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">⚬</span>';
     }
+  } else if (school.ofsted_rating != null) {
+    const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
+    ratingText = fallback != null ? `${fallback.toFixed ? fallback.toFixed(1) : (fallback + '.0')}` : '—';
+    dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
+  }
     
     // Don't show Ofsted badge for Scottish schools
     const ofstedBadge = (!cityData.isScottish && school.ofsted_rating) ? `
@@ -446,7 +444,7 @@ function renderSchoolList(containerId, schools, showMax = 5) {
         </div>
         <div class="school-metrics">
           <div class="metric">
-            <div class="metric-value">${rating}/10${dataIndicator}</div>
+            <div class="metric-value">${ratingText}/10${dataIndicator}</div>
             <div class="metric-label">Rating</div>
           </div>
           ${ofstedBadge}
