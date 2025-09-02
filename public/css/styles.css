@@ -1126,3 +1126,17 @@ a:hover {
 /* Chevron */
 .nearby-card__chev { width: 16px; height: 16px; color: #9ca3af; flex: 0 0 auto; }
 .nearby-card:hover .nearby-card__chev { color: #6b7280; }
+
+.autosuggest { position:absolute; z-index:50; left:0; right:0; top:calc(100% + 6px);
+  background:#fff; border:1px solid #e5e7eb; border-radius:10px;
+  box-shadow:0 12px 24px rgba(17,24,39,.12); max-height:320px; overflow-y:auto; }
+.autosuggest.hidden { display:none; }
+.suggest-group { padding:6px 8px 4px; font-size:.75rem; font-weight:700; color:#6b7280; letter-spacing:.02em; }
+.suggest-item { display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer;
+  text-decoration:none; color:#111827; }
+.suggest-item:hover, .suggest-item.active { background:#f9fafb; }
+.suggest-item__text { line-height:1.2; }
+.suggest-item__primary { font-weight:600; }
+.suggest-item__secondary { font-size:.75rem; color:#6b7280; margin-top:2px; }
+.suggest-badge { font-size:.65rem; font-weight:700; line-height:1; padding:4px 6px; border-radius:999px; background:#eef2ff; color:#3730a3; }
+.suggest-empty { padding:12px; color:#6b7280; }

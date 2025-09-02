@@ -274,10 +274,13 @@
           <label class="search-label">Find a great school</label>
           <form class="search-main" onsubmit="performSearch(event)">
             <div class="search-input-group">
-              <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-              </svg>
-              <input id="mainSearchInput" class="search-input" type="text" placeholder="Enter school name, postcode, or city..." required autocomplete="off"/>
+            </svg>
+            <input id="mainSearchInput" class="search-input" type="text"
+                    placeholder="Enter school name, postcode, or city..." required autocomplete="off"/>
+            <!-- ⬇️ new -->
+            <div id="searchSuggestions" class="autosuggest hidden" role="listbox" aria-label="Search suggestions"></div>
             </div>
             <button type="submit" class="search-btn">Search</button>
           </form>
@@ -343,6 +346,137 @@
   <div id="footer"></div>
 
   <script src="/js/main.js"></script>
+  <script>
+  // ---- tiny utils ----
+  const slug = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const debounce = (fn, d=200) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), d);} };
+  const pcRe = /^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$/i;
+
+  const inputEl = document.getElementById('mainSearchInput');
+  const sugEl   = document.getElementById('searchSuggestions');
+  let active = -1, items = [], aborter = null;
+
+  function hideSug(){ sugEl.classList.add('hidden'); active = -1; items = []; }
+  function showSug(){ sugEl.classList.remove('hidden'); }
+
+  function navToSuggestion(s) {
+    if (!s) return;
+    if (s.type === 'school')      window.location.href = `/school/${s.urn}`;
+    else if (s.type === 'city')   window.location.href = `/${slug(s.town)}`;
+    else if (s.type === 'la')     window.location.href = `/search?q=${encodeURIComponent(s.local_authority)}&type=la`;
+    else if (s.type === 'pc')     window.location.href = `/search?q=${encodeURIComponent(s.postcode)}&type=postcode`;
+    else                          performSearch(new Event('submit')); // fallback
+  }
+
+  // Render suggestions (grouped)
+  function renderSuggestions(data){
+    const groups = [];
+    const add = (title, arr, render) => {
+      if (!arr || !arr.length) return;
+      groups.push(`<div class="suggest-group">${title}</div>`);
+      arr.forEach((s, i) => {
+        const ix = items.length + i;
+        const secondary =
+          s.type==='school' ? [s.town, s.postcode].filter(Boolean).join(' • ') :
+          s.type==='city'   ? (s.country || 'UK') :
+          s.type==='la'     ? (s.region || '') :
+          s.type==='pc'     ? 'Postcode' : '';
+        groups.push(`
+          <div class="suggest-item" role="option" data-index="${ix}">
+            <div class="suggest-item__text">
+              <div class="suggest-item__primary">${render(s)}</div>
+              ${secondary ? `<div class="suggest-item__secondary">${secondary}</div>`:''}
+            </div>
+            ${s.type==='school' && s.overall_rating!=null
+              ? `<div class="suggest-badge">${Number(s.overall_rating).toFixed(1)}/10</div>` : ''}
+          </div>`);
+      });
+      items.push(...arr);
+    };
+
+    items = [];
+    if ((!data.schools || !data.schools.length) &&
+        (!data.cities || !data.cities.length) &&
+        (!data.authorities || !data.authorities.length) &&
+        (!data.postcodes || !data.postcodes.length)) {
+      sugEl.innerHTML = `<div class="suggest-empty">No matches. Press Enter to search all.</div>`;
+      showSug();
+      return;
+    }
+
+    add('SCHOOLS', data.schools, s => s.name);
+    add('CITIES', data.cities, s => s.town);
+    add('LOCAL AUTHORITIES', data.authorities, s => s.local_authority);
+    add('POSTCODES', data.postcodes, s => s.postcode);
+
+    sugEl.innerHTML = groups.join('');
+    showSug();
+
+    // mouse handling
+    sugEl.querySelectorAll('.suggest-item').forEach(el=>{
+      el.addEventListener('mouseenter', ()=> {
+        sugEl.querySelectorAll('.suggest-item.active').forEach(a=>a.classList.remove('active'));
+        el.classList.add('active'); active = Number(el.dataset.index);
+      });
+      el.addEventListener('mousedown', (e)=>{ e.preventDefault(); navToSuggestion(items[Number(el.dataset.index)]); });
+    });
+  }
+
+  async function fetchSuggestions(q){
+    if (aborter) aborter.abort();
+    aborter = new AbortController();
+    const res = await fetch(`/api/search/suggest?q=${encodeURIComponent(q)}`, { signal: aborter.signal });
+    if (!res.ok) throw new Error('suggest failed');
+    return res.json();
+  }
+
+  const onInput = debounce(async () => {
+    const q = inputEl.value.trim();
+    if (q.length < 2) { hideSug(); return; }
+    try {
+      const data = await fetchSuggestions(q);
+      renderSuggestions(data);
+    } catch(err){ /* quietly ignore aborted/failed */ }
+  }, 180);
+
+  inputEl.addEventListener('input', onInput);
+  inputEl.addEventListener('focus', onInput);
+  inputEl.addEventListener('blur', () => setTimeout(hideSug, 150));
+
+  // keyboard controls
+  inputEl.addEventListener('keydown', (e)=>{
+    if (sugEl.classList.contains('hidden')) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const count = sugEl.querySelectorAll('.suggest-item').length;
+      if (!count) return;
+      active = (e.key==='ArrowDown')
+        ? (active+1)%count
+        : (active-1+count)%count;
+      sugEl.querySelectorAll('.suggest-item').forEach((el,i)=>el.classList.toggle('active', i===active));
+      const activeEl = sugEl.querySelectorAll('.suggest-item')[active];
+      activeEl?.scrollIntoView({ block:'nearest' });
+    } else if (e.key === 'Enter') {
+      if (active >= 0 && items[active]) {
+        e.preventDefault();
+        navToSuggestion(items[active]);
+      }
+    } else if (e.key === 'Escape') {
+      hideSug();
+    }
+  });
+
+  // Keep your original submit behaviour
+  function performSearch(e){
+    if (e) e.preventDefault();
+    const q = inputEl.value.trim();
+    if(!q) return;
+    const type = pcRe.test(q) ? 'postcode' : 'all';
+    window.location.href = `/search?q=${encodeURIComponent(q)}&type=${type}`;
+  }
+  window.performSearch = performSearch; // keep global hook used by form
+</script>
+
   <script>
     function performSearch(e){
       e.preventDefault();

@@ -8,6 +8,84 @@ const { query } = require('../config/database');
  * @query   q (search term), type (name|postcode|location), limit, offset
  * @example /api/search?q=Westminster&type=name&limit=10
  */
+// GET /api/search/suggest?q=...
+router.get('/suggest', async (req, res) => {
+  const q = String(req.query.q || '').trim();
+  const limit = Math.min(parseInt(req.query.limit || '8', 10), 20);
+  if (q.length < 2) return res.json({ schools: [], cities: [], authorities: [], postcodes: [] });
+
+  // sanitize wildcards to keep prefix scans fast
+  const likePrefix = q.replace(/[%_]/g, '') + '%';
+
+  try {
+    const client = await pool.connect();
+
+    // Schools (prefer real rating, then ofsted fallback)
+    const schoolsSql = `
+      SELECT s.urn, s.name, s.town, s.postcode,
+             COALESCE(s.overall_rating,
+                      CASE o.overall_effectiveness
+                        WHEN 1 THEN 9 WHEN 2 THEN 7 WHEN 3 THEN 5 WHEN 4 THEN 3 ELSE NULL END
+             ) AS overall_rating
+      FROM uk_schools s
+      LEFT JOIN uk_ofsted_inspections o ON o.urn = s.urn
+      WHERE s.name ILIKE $1 OR s.postcode ILIKE $1 OR s.town ILIKE $1
+      ORDER BY s.overall_rating DESC NULLS LAST, s.name ASC
+      LIMIT $2;
+    `;
+
+    // Cities (distinct towns)
+    const citiesSql = `
+      SELECT s.town, MAX(s.country) AS country
+      FROM uk_schools s
+      WHERE s.town ILIKE $1
+      GROUP BY s.town
+      ORDER BY COUNT(*) DESC, s.town ASC
+      LIMIT $2;
+    `;
+
+    // Local Authorities
+    const laSql = `
+      SELECT s.local_authority, MAX(s.region) AS region
+      FROM uk_schools s
+      WHERE s.local_authority ILIKE $1
+      GROUP BY s.local_authority
+      ORDER BY COUNT(*) DESC, s.local_authority ASC
+      LIMIT $2;
+    `;
+
+    // Postcodes (prefix)
+    const pcSql = `
+      SELECT DISTINCT s.postcode
+      FROM uk_schools s
+      WHERE s.postcode ILIKE $1
+      ORDER BY s.postcode
+      LIMIT $2;
+    `;
+
+    const [schools, cities, authorities, postcodes] = await Promise.all([
+      client.query(schoolsSql, [likePrefix, limit]),
+      client.query(citiesSql,   [likePrefix, Math.max(5, Math.floor(limit/2))]),
+      client.query(laSql,       [likePrefix, Math.max(5, Math.floor(limit/2))]),
+      client.query(pcSql,       [likePrefix, 6]),
+    ]).then(rs => rs.map(r => r.rows));
+
+    client.release();
+
+    res.json({
+      schools: schools.map(r => ({ type:'school', urn:r.urn, name:r.name, town:r.town, postcode:r.postcode, overall_rating:r.overall_rating })),
+      cities:  cities.map(r => ({ type:'city', town:r.town, country:r.country })),
+      authorities: authorities.map(r => ({ type:'la', local_authority:r.local_authority, region:r.region })),
+      postcodes: postcodes.map(r => ({ type:'pc', postcode:r.postcode })),
+    });
+  } catch (e) {
+    console.error('suggest error', e);
+    res.json({ schools: [], cities: [], authorities: [], postcodes: [] });
+  }
+});
+
+
+
 router.get('/', async (req, res) => {
   try {
     const { 
