@@ -85,6 +85,41 @@ router.get('/suggest', async (req, res) => {
 });
 
 
+// GET /api/search/school-autocomplete?q=bo&limit=8
+router.get('/school-autocomplete', async (req, res) => {
+  const qRaw = String(req.query.q || '').trim();
+  const limit = Math.min(parseInt(req.query.limit || '8', 10), 20);
+  if (qRaw.length < 2) return res.json({ schools: [] });
+
+  // prefix search, escape SQL wildcards
+  const q = qRaw.replace(/[%_]/g, '');
+  const like = q + '%';
+
+  // tokenized fallback (lets "green bo" match "Bounds Green")
+  const tokens = q.split(/\s+/).filter(Boolean);
+  const tokenConds = tokens.map((_, i) => `unaccent(lower(name)) LIKE unaccent(lower($${i + 3}))`).join(' AND ');
+  const tokenParams = tokens.map(t => `%${t}%`);
+
+  const sql = `
+    SELECT urn, name, town, postcode, overall_rating
+    FROM uk_schools
+    WHERE name ILIKE $1
+       OR postcode ILIKE $1
+       OR town ILIKE $1
+       OR (${tokens.length ? tokenConds : 'FALSE'})
+    ORDER BY overall_rating DESC NULLS LAST, name ASC
+    LIMIT $2
+  `;
+  try {
+    const { rows } = await pool.query(sql, [like, limit, ...tokenParams]);
+    res.json({ schools: rows });
+  } catch (e) {
+    console.error('school-autocomplete error', e);
+    res.json({ schools: [] });
+  }
+});
+
+
 
 router.get('/', async (req, res) => {
   try {

@@ -371,29 +371,26 @@
   // Render suggestions (grouped)
   function renderSuggestions(data){
     const groups = [];
-    const add = (title, arr, render) => {
-      if (!arr || !arr.length) return;
-      groups.push(`<div class="suggest-group">${title}</div>`);
-      arr.forEach((s, i) => {
-        const ix = items.length + i;
-        const secondary =
-          s.type==='school' ? [s.town, s.postcode].filter(Boolean).join(' • ') :
-          s.type==='city'   ? (s.country || 'UK') :
-          s.type==='la'     ? (s.region || '') :
-          s.type==='pc'     ? 'Postcode' : '';
-        groups.push(`
-          <div class="suggest-item" role="option" data-index="${ix}">
-            <div class="suggest-item__text">
-              <div class="suggest-item__primary">${render(s)}</div>
-              ${secondary ? `<div class="suggest-item__secondary">${secondary}</div>`:''}
-            </div>
-            ${s.type==='school' && s.overall_rating!=null
-              ? `<div class="suggest-badge">${Number(s.overall_rating).toFixed(1)}/10</div>` : ''}
-          </div>`);
-      });
-      items.push(...arr);
+const add = (title, arr, render) => {
+        if (!arr || !arr.length) return;
+        groups.push(`<div class="suggest-group">${title}</div>`);
+        arr.forEach((s, i) => {
+            const ix = items.length + i;
+            groups.push(`
+            <div class="suggest-item" role="option" data-index="${ix}">
+                <div class="suggest-item__text">
+                <div class="suggest-item__primary">${render(s)}</div>
+                ${s.type==='school'
+                    ? `<div class="suggest-item__secondary">${[s.town, s.postcode].filter(Boolean).join(' • ')}</div>`
+                    : `<div class="suggest-item__secondary">${s.text || ''}</div>`}
+                </div>
+                ${s.type==='school' && s.overall_rating!=null
+                ? `<div class="suggest-badge">${Number(s.overall_rating).toFixed(1)}/10</div>`
+                : ''}
+            </div>`);
+        });
+        items.push(...arr);
     };
-
     items = [];
     if ((!data.schools || !data.schools.length) &&
         (!data.cities || !data.cities.length) &&
@@ -423,48 +420,23 @@
   }
 
   async function fetchSuggestions(q){
-    if (aborter) aborter.abort();
-    aborter = new AbortController();
-    const res = await fetch(`/api/search/suggest?q=${encodeURIComponent(q)}`, { signal: aborter.signal });
-    if (!res.ok) throw new Error('suggest failed');
-    return res.json();
+    const ctrl = new AbortController();
+    setTimeout(()=>ctrl.abort(), 8000);
+
+    const schools = await fetch(`/api/search/school-autocomplete?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+      .then(r=>r.json()).catch(()=>({ schools: [] }));
+
+    // If you also wired Google Places earlier, merge here too:
+    // const places = await fetch(`/api/search/places-autocomplete?q=${encodeURIComponent(q)}&sessiontoken=${placesSessionToken}`)
+    //   .then(r=>r.json()).catch(()=>({ predictions: [] }));
+
+    return {
+      schools: schools.schools || [],
+      // cities: (places.predictions || []).filter(p=>p.type==='city'),
+      // authorities: (places.predictions || []).filter(p=>p.type==='la'),
+      // postcodes: (places.predictions || []).filter(p=>p.type==='pc'),
+    };
   }
-
-  const onInput = debounce(async () => {
-    const q = inputEl.value.trim();
-    if (q.length < 2) { hideSug(); return; }
-    try {
-      const data = await fetchSuggestions(q);
-      renderSuggestions(data);
-    } catch(err){ /* quietly ignore aborted/failed */ }
-  }, 180);
-
-  inputEl.addEventListener('input', onInput);
-  inputEl.addEventListener('focus', onInput);
-  inputEl.addEventListener('blur', () => setTimeout(hideSug, 150));
-
-  // keyboard controls
-  inputEl.addEventListener('keydown', (e)=>{
-    if (sugEl.classList.contains('hidden')) return;
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      const count = sugEl.querySelectorAll('.suggest-item').length;
-      if (!count) return;
-      active = (e.key==='ArrowDown')
-        ? (active+1)%count
-        : (active-1+count)%count;
-      sugEl.querySelectorAll('.suggest-item').forEach((el,i)=>el.classList.toggle('active', i===active));
-      const activeEl = sugEl.querySelectorAll('.suggest-item')[active];
-      activeEl?.scrollIntoView({ block:'nearest' });
-    } else if (e.key === 'Enter') {
-      if (active >= 0 && items[active]) {
-        e.preventDefault();
-        navToSuggestion(items[active]);
-      }
-    } else if (e.key === 'Escape') {
-      hideSug();
-    }
-  });
 
   // Keep your original submit behaviour
   function performSearch(e){
