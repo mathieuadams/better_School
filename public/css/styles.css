@@ -1087,3 +1087,42 @@ a:hover {
         max-width: 100%;
     }
 }
+
+/* Sidebar actions */
+.action-buttons { display: grid; gap: 8px; }
+.action-btn { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e5e7eb;
+  background: #fff; cursor: pointer; font-weight: 600; transition: background .15s, border-color .15s, transform .12s; }
+.action-btn:hover { background: #f9fafb; border-color: #d1d5db; transform: translateY(-1px); }
+.action-btn.primary { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+.action-btn.primary:hover { background: #1e40af; border-color: #1e40af; }
+
+/* Nearby list layout */
+.nearby-list { display: grid; gap: 10px; }
+.nearby-empty { color: #6b7280; font-size: 14px; }
+
+/* Clickable cards */
+.nearby-card { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #e5e7eb;
+  border-radius: 12px; background: #fff; text-decoration: none; color: #111827;
+  transition: background .15s, border-color .15s, transform .12s, box-shadow .15s; cursor: pointer; }
+.nearby-card:hover { background: #f9fafb; border-color: #d1d5db; transform: translateX(2px);
+  box-shadow: 0 1px 0 rgba(17,24,39,.03), 0 1px 2px rgba(17,24,39,.06); }
+.nearby-card:focus { outline: 2px solid #3b82f6; outline-offset: 2px; }
+.nearby-card.is-active { border-color: #3b82f6; background: #eff6ff; }
+
+/* Card content */
+.nearby-card__main { flex: 1 1 auto; min-width: 0; }
+.nearby-card__title { font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nearby-card__meta { color: #6b7280; font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Rating pill */
+.badge { font-weight: 700; font-size: 12px; line-height: 1; padding: 6px 8px; border-radius: 999px; min-width: 48px;
+  text-align: center; }
+.badge.green { background: #ecfdf5; color: #047857; }
+.badge.blue { background: #eff6ff; color: #1d4ed8; }
+.badge.orange { background: #fff7ed; color: #c2410c; }
+.badge.red { background: #fef2f2; color: #b91c1c; }
+.badge.gray { background: #f3f4f6; color: #6b7280; }
+
+/* Chevron */
+.nearby-card__chev { width: 16px; height: 16px; color: #9ca3af; flex: 0 0 auto; }
+.nearby-card:hover .nearby-card__chev { color: #6b7280; }

@@ -350,20 +350,44 @@ function updateNearbySchools(schools) {
   const container = document.getElementById('nearbySchools');
   if (!container) return;
 
-  container.innerHTML = schools.map(s => {
-    const ratingValue = s.overall_rating; // real value from API
-    const ratingText = ratingValue != null ? `${Number(ratingValue).toFixed(1)}/10` : 'N/A';
+  // Make container a list for a11y
+  container.setAttribute('role', 'list');
+  container.classList.add('nearby-list');
+
+  if (!schools || !schools.length) {
+    container.innerHTML = '<div class="nearby-empty">No nearby schools found</div>';
+    return;
+  }
+
+  const currentUrn = (currentSchoolData && currentSchoolData.urn) ? String(currentSchoolData.urn) : null;
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+  const badgeClass = (r) => {
+    if (r == null || isNaN(r)) return 'badge gray';
+    const v = Number(r);
+    if (v >= 8) return 'badge green';
+    if (v >= 6) return 'badge blue';
+    if (v >= 4) return 'badge orange';
+    return 'badge red';
+  };
+
+  container.innerHTML = schools.map((s) => {
+    const ratingVal = s.overall_rating != null ? Number(s.overall_rating).toFixed(1) : '—';
+    const cls = badgeClass(s.overall_rating);
+    const active = currentUrn && String(s.urn) === currentUrn ? ' is-active' : '';
     return `
-      <div class="nearby-school-item" onclick="window.location.href='/school/${s.urn}'">
-        <div class="nearby-school-name">${s.name}</div>
-        <div class="nearby-school-info">
-          <span>${s.type_of_establishment || 'School'}</span>
-          <span>• ${s.postcode || ''}</span>
-          <span>• Rating: ${ratingText}</span>
+      <a class="nearby-card${active}" href="/school/${esc(s.urn)}" role="listitem" aria-label="${esc(s.name)}">
+        <div class="nearby-card__main">
+          <div class="nearby-card__title">${esc(s.name)}</div>
+          <div class="nearby-card__meta">${esc(s.type_of_establishment || 'School')} • ${esc(s.postcode || '')}</div>
         </div>
-      </div>`;
+        <div class="nearby-card__rating ${cls}" aria-label="Rating">${ratingVal}/10</div>
+        <svg class="nearby-card__chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18l6-6-6-6" stroke="currentColor"/></svg>
+      </a>`;
   }).join('');
 }
+
 
 // ---------------------- Rating component bridge -----------------------------
 window.updateRatingDisplay = function(schoolData) {
