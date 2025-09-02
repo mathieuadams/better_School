@@ -509,5 +509,19 @@ window.showSubjectInfo = function (subject) {
   // placeholder for info modal
 };
 
+// Re-render everything if components arrive after data
+window.renderSchoolUIFromCache = function () {
+  if (window.currentSchoolData) {
+    updateSchoolDisplay(window.currentSchoolData);
+  }
+};
+
+// If school.html fires this after partials load, fill all sections
+document.addEventListener('componentsLoaded', () => {
+  if (window.currentSchoolData) {
+    updateSchoolDisplay(window.currentSchoolData);
+  }
+});
+
 // -------------------------------- Init --------------------------------------
 document.addEventListener('DOMContentLoaded', loadSchoolData);

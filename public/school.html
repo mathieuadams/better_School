@@ -144,9 +144,13 @@
     );
 
     await Promise.all(promises);
-    
-    // After all components are loaded, the school.js init function will run
-    console.log('All components loaded');
+    document.dispatchEvent(new Event('componentsLoaded'));
+
+    // ✅ If data was fetched earlier, render every section now
+    if (window.renderSchoolUIFromCache) {
+      window.renderSchoolUIFromCache();
+    }
+
     
     // Give components time to initialize, then check if rating needs update
     setTimeout(() => {
