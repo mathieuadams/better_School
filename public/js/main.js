@@ -153,19 +153,43 @@ function getOfstedLabel(rating) {
     return labels[rating] || 'Not Inspected';
 }
 
-// Get search suggestions
 async function getSearchSuggestions(query) {
-    if (!query || query.length < 2) return [];
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/search/suggestions?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
-        return data.suggestions || [];
-    } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        return [];
-    }
+  if (!query || query.length < 2) return [];
+  try {
+    const res = await fetch(`/api/search/suggest?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    const schools = (data.schools || []).map(s => ({
+      type: 'school',
+      id: s.urn,
+      suggestion: s.name,
+      town: s.town,
+      postcode: s.postcode,
+      overall_rating: s.overall_rating
+    }));
+
+    const cities = (data.cities || []).map(c => ({
+      type: 'city',
+      suggestion: c.town
+    }));
+
+    const las = (data.authorities || []).map(a => ({
+      type: 'la',
+      suggestion: a.local_authority
+    }));
+
+    const pcs = (data.postcodes || []).map(p => ({
+      type: 'pc',
+      suggestion: p.postcode
+    }));
+
+    return [...schools, ...cities, ...las, ...pcs];
+  } catch (e) {
+    console.error('Error fetching suggestions:', e);
+    return [];
+  }
 }
+
 
 // Display search suggestions
 function displaySuggestions(suggestions, inputElement) {
@@ -210,9 +234,12 @@ function displaySuggestions(suggestions, inputElement) {
         `;
         
         // Add icon based on type
-        const icon = suggestion.type === 'school' ? '🏫' : 
-                     suggestion.type === 'town' ? '📍' : 
-                     suggestion.type === 'la' ? '🏛️' : '📍';
+        const icon =
+        suggestion.type === 'school' ? '🏫' :
+        suggestion.type === 'city'   ? '📍' :
+        suggestion.type === 'pc'     ? '📮' :
+        suggestion.type === 'la'     ? '🏛️' : '📍';
+
         
         item.innerHTML = `
             <span style="font-size: 1.2em;">${icon}</span>
@@ -221,6 +248,14 @@ function displaySuggestions(suggestions, inputElement) {
                 <div style="font-size: 0.875rem; color: #6b7280; text-transform: capitalize;">${suggestion.type}</div>
             </div>
         `;
+
+        if (suggestion.type === 'school' && suggestion.overall_rating != null) {
+        const chip = document.createElement('div');
+        chip.className = 'suggest-badge';
+        chip.textContent = Number(suggestion.overall_rating).toFixed(1) + '/10';
+        item.appendChild(chip);
+        }
+
         
         // Add hover effect
         item.addEventListener('mouseenter', () => {

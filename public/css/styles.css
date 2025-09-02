@@ -1141,4 +1141,13 @@ a:hover {
 .suggest-badge { font-size:.65rem; font-weight:700; line-height:1; padding:4px 6px; border-radius:999px; background:#eef2ff; color:#3730a3; }
 .suggest-empty { padding:12px; color:#6b7280; }
 
-.suggest-badge{font-size:.65rem;font-weight:700;line-height:1;padding:4px 6px;border-radius:999px;background:#eef2ff;color:#3730a3;}
+.suggest-badge{
+  font-size:.65rem;
+  font-weight:700;
+  line-height:1;
+  padding:4px 6px;
+  border-radius:999px;
+  background:#eef2ff;
+  color:#3730a3;
+}
+

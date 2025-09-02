@@ -8,19 +8,15 @@ const { query } = require('../config/database');
  * @query   q (search term), type (name|postcode|location), limit, offset
  * @example /api/search?q=Westminster&type=name&limit=10
  */
-// GET /api/search/suggest?q=...
+// --- /api/search/suggest ---
 router.get('/suggest', async (req, res) => {
   const q = String(req.query.q || '').trim();
   const limit = Math.min(parseInt(req.query.limit || '8', 10), 20);
   if (q.length < 2) return res.json({ schools: [], cities: [], authorities: [], postcodes: [] });
 
-  // sanitize wildcards to keep prefix scans fast
   const likePrefix = q.replace(/[%_]/g, '') + '%';
 
   try {
-    const client = await pool.connect();
-
-    // Schools (prefer real rating, then ofsted fallback)
     const schoolsSql = `
       SELECT s.urn, s.name, s.town, s.postcode,
              COALESCE(s.overall_rating,
@@ -31,46 +27,37 @@ router.get('/suggest', async (req, res) => {
       LEFT JOIN uk_ofsted_inspections o ON o.urn = s.urn
       WHERE s.name ILIKE $1 OR s.postcode ILIKE $1 OR s.town ILIKE $1
       ORDER BY s.overall_rating DESC NULLS LAST, s.name ASC
-      LIMIT $2;
-    `;
+      LIMIT $2;`;
 
-    // Cities (distinct towns)
     const citiesSql = `
       SELECT s.town, MAX(s.country) AS country
       FROM uk_schools s
       WHERE s.town ILIKE $1
       GROUP BY s.town
       ORDER BY COUNT(*) DESC, s.town ASC
-      LIMIT $2;
-    `;
+      LIMIT $2;`;
 
-    // Local Authorities
     const laSql = `
       SELECT s.local_authority, MAX(s.region) AS region
       FROM uk_schools s
       WHERE s.local_authority ILIKE $1
       GROUP BY s.local_authority
       ORDER BY COUNT(*) DESC, s.local_authority ASC
-      LIMIT $2;
-    `;
+      LIMIT $2;`;
 
-    // Postcodes (prefix)
     const pcSql = `
       SELECT DISTINCT s.postcode
       FROM uk_schools s
       WHERE s.postcode ILIKE $1
       ORDER BY s.postcode
-      LIMIT $2;
-    `;
+      LIMIT $2;`;
 
     const [schools, cities, authorities, postcodes] = await Promise.all([
-      client.query(schoolsSql, [likePrefix, limit]),
-      client.query(citiesSql,   [likePrefix, Math.max(5, Math.floor(limit/2))]),
-      client.query(laSql,       [likePrefix, Math.max(5, Math.floor(limit/2))]),
-      client.query(pcSql,       [likePrefix, 6]),
+      query(schoolsSql, [likePrefix, limit]),
+      query(citiesSql,   [likePrefix, Math.max(5, Math.floor(limit/2))]),
+      query(laSql,       [likePrefix, Math.max(5, Math.floor(limit/2))]),
+      query(pcSql,       [likePrefix, 6]),
     ]).then(rs => rs.map(r => r.rows));
-
-    client.release();
 
     res.json({
       schools: schools.map(r => ({ type:'school', urn:r.urn, name:r.name, town:r.town, postcode:r.postcode, overall_rating:r.overall_rating })),
@@ -84,18 +71,14 @@ router.get('/suggest', async (req, res) => {
   }
 });
 
-
-// GET /api/search/school-autocomplete?q=bo&limit=8
+// --- /api/search/school-autocomplete ---
 router.get('/school-autocomplete', async (req, res) => {
   const qRaw = String(req.query.q || '').trim();
   const limit = Math.min(parseInt(req.query.limit || '8', 10), 20);
   if (qRaw.length < 2) return res.json({ schools: [] });
 
-  // prefix search, escape SQL wildcards
   const q = qRaw.replace(/[%_]/g, '');
   const like = q + '%';
-
-  // tokenized fallback (lets "green bo" match "Bounds Green")
   const tokens = q.split(/\s+/).filter(Boolean);
   const tokenConds = tokens.map((_, i) => `unaccent(lower(name)) LIKE unaccent(lower($${i + 3}))`).join(' AND ');
   const tokenParams = tokens.map(t => `%${t}%`);
@@ -108,10 +91,10 @@ router.get('/school-autocomplete', async (req, res) => {
        OR town ILIKE $1
        OR (${tokens.length ? tokenConds : 'FALSE'})
     ORDER BY overall_rating DESC NULLS LAST, name ASC
-    LIMIT $2
-  `;
+    LIMIT $2`;
+
   try {
-    const { rows } = await pool.query(sql, [like, limit, ...tokenParams]);
+    const { rows } = await query(sql, [like, limit, ...tokenParams]);
     res.json({ schools: rows });
   } catch (e) {
     console.error('school-autocomplete error', e);
