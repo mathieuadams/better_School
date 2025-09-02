@@ -347,18 +347,19 @@ async function loadNearbySchools(urn) {
   if (data?.success && Array.isArray(data.nearby_schools)) updateNearbySchools(data.nearby_schools);
 }
 function updateNearbySchools(schools) {
-  const box = document.getElementById('nearbySchools');
-  if (!box) return;
-  if (!schools.length) { box.innerHTML = '<p>No nearby schools found</p>'; return; }
-  box.innerHTML = schools.map(s => {
-    const rating = s.overall_rating != null ? `${fmt1(s.overall_rating)}/10` : 'N/A';
+  const container = document.getElementById('nearbySchools');
+  if (!container) return;
+
+  container.innerHTML = schools.map(s => {
+    const ratingValue = s.overall_rating; // real value from API
+    const ratingText = ratingValue != null ? `${Number(ratingValue).toFixed(1)}/10` : 'N/A';
     return `
       <div class="nearby-school-item" onclick="window.location.href='/school/${s.urn}'">
         <div class="nearby-school-name">${s.name}</div>
         <div class="nearby-school-info">
           <span>${s.type_of_establishment || 'School'}</span>
           <span>• ${s.postcode || ''}</span>
-          <span>• Rating: ${rating}</span>
+          <span>• Rating: ${ratingText}</span>
         </div>
       </div>`;
   }).join('');
