@@ -98,8 +98,8 @@ const reviewRoutes = require('./src/routes/reviewRoutes');
 app.use('/api', reviewRoutes);
 
 // ---- Review HTML pages
-app.get('/review', (_req, res) => sendPublic(res, 'review.html'));
-app.get('/write-review', (_req, res) => sendPublic(res, 'write-review.html'));
+app.get(['/review','/review.html'], (_req, res) => sendPublic(res, 'review.html'));
+app.get(['/write-review','/write-review.html'], (_req, res) => sendPublic(res, 'write-review.html'));
 
 // ---- Other HTML pages
 app.get('/', (_req, res) => sendPublic(res, 'index.html'));
@@ -122,7 +122,11 @@ const ukCities = new Set([
 app.get('/:city', (req, res, next) => {
   const { city } = req.params;
   // avoid intercepting known prefixes and assets
-  const reserved = new Set(['api','css','js','components','images','favicon.ico','school','health','compare','about','search']);
+  const reserved = new Set([
+  'api','css','js','components','images','favicon.ico',
+  'school','health','compare','about','search',
+  'review','write-review' // <— add these
+]);
   if (reserved.has(city.toLowerCase())) return next();
 
   if (ukCities.has(city.toLowerCase())) {
@@ -141,7 +145,12 @@ app.get('/:city/:identifier', (req, res, next) => {
   const { city, identifier } = req.params;
   
   // Skip if city is a reserved word
-  const reserved = new Set(['api','css','js','components','images','favicon.ico','health','compare','about','search']);
+    const reserved = new Set([
+    'api','css','js','components','images','favicon.ico',
+    'health','compare','about','search',
+    // NEW:
+    'review','write-review'
+  ]);
   if (reserved.has(city.toLowerCase())) return next();
   
   // Check if it's a known city
