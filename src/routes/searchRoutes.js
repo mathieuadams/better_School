@@ -293,6 +293,102 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/search/nearby
+ * @desc    Search schools near specific coordinates
+ * @query   lat, lng, radius (in km)
+ * @example /api/search/nearby?lat=51.5074&lng=-0.1278&radius=5
+ */
+router.get('/nearby', async (req, res) => {
+  try {
+    const { lat, lng, radius = 5 } = req.query;
+    
+    if (!lat || !lng) {
+      return res.status(400).json({ 
+        error: 'Latitude and longitude are required' 
+      });
+    }
+    
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lng);
+    const searchRadius = Math.min(parseFloat(radius) || 5, 50); // Max 50km
+    
+    if (isNaN(latitude) || isNaN(longitude)) {
+      return res.status(400).json({ 
+        error: 'Invalid latitude or longitude values' 
+      });
+    }
+    
+    // Haversine distance formula for finding schools within radius
+    // Note: This assumes you have latitude and longitude columns in your uk_schools table
+    const sqlQuery = `
+      SELECT 
+        s.urn,
+        s.name,
+        s.postcode,
+        s.town,
+        s.local_authority,
+        s.phase_of_education,
+        s.type_of_establishment,
+        s.street,
+        s.religious_character,
+        s.gender,
+        s.overall_rating,
+        s.rating_percentile,
+        s.latitude,
+        s.longitude,
+        o.overall_effectiveness as ofsted_rating,
+        o.inspection_date,
+        c.number_on_roll,
+        c.percentage_fsm_ever6 as fsm_percentage,
+        (
+          6371 * acos(
+            cos(radians($1)) * cos(radians(s.latitude)) * 
+            cos(radians(s.longitude) - radians($2)) + 
+            sin(radians($1)) * sin(radians(s.latitude))
+          )
+        ) AS distance_km
+      FROM uk_schools s
+      LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
+      LEFT JOIN uk_census_data c ON s.urn = c.urn
+      WHERE 
+        s.latitude IS NOT NULL 
+        AND s.longitude IS NOT NULL
+        AND s.latitude BETWEEN $1 - ($3 / 111.0) AND $1 + ($3 / 111.0)
+        AND s.longitude BETWEEN $2 - ($3 / (111.0 * cos(radians($1)))) AND $2 + ($3 / (111.0 * cos(radians($1))))
+      HAVING distance_km <= $3
+      ORDER BY s.overall_rating DESC NULLS LAST, distance_km ASC
+      LIMIT 100
+    `;
+    
+    const result = await query(sqlQuery, [latitude, longitude, searchRadius]);
+    
+    // Format response
+    res.json({
+      success: true,
+      center: { lat: latitude, lng: longitude },
+      radius: searchRadius,
+      total: result.rows.length,
+      schools: result.rows.map(school => ({
+        ...school,
+        distance: school.distance_km ? `${school.distance_km.toFixed(1)}km` : null,
+        ofsted_label: getOfstedLabel(school.ofsted_rating),
+        overall_rating: school.overall_rating ? parseFloat(school.overall_rating) : null,
+        rating_display: school.overall_rating ? 
+          (parseFloat(school.overall_rating) >= 10 ? '10' : `${parseFloat(school.overall_rating).toFixed(1)}`) + '/10' 
+          : 'N/A'
+      }))
+    });
+    
+  } catch (error) {
+    console.error('Nearby search error:', error);
+    res.status(500).json({ 
+      error: 'Failed to search nearby schools',
+      message: error.message 
+    });
+  }
+});
+
+/**
  * @route   GET /api/search/postcode/:postcode
  * @desc    Search schools by specific postcode
  * @example /api/search/postcode/SW1A%201AA

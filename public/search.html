@@ -16,6 +16,8 @@
     
     <!-- Leaflet CSS for Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     
     <!-- Main CSS -->
     <link rel="stylesheet" href="/css/styles.css">
@@ -219,14 +221,129 @@
         
         /* Map Container */
         #schoolsMap {
-            height: 500px;
+            height: 600px;
             border-radius: 8px;
             border: 1px solid #e5e7eb;
             display: none;
+            position: relative;
         }
         
         #schoolsMap.active {
             display: block;
+        }
+        
+        /* Map Search Button */
+        .map-search-control {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .map-search-control:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            background: #f9fafb;
+        }
+        
+        .map-search-control.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        /* School Marker */
+        .school-marker {
+            background: white;
+            border: 2px solid #2563eb;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: #2563eb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .school-marker.excellent {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+        
+        .school-marker.good {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        .school-marker.average {
+            background: #fbbf24;
+            border-color: #fbbf24;
+            color: #92400e;
+        }
+        
+        .school-marker.poor {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+        
+        /* Custom marker cluster styles */
+        .marker-cluster {
+            background-clip: padding-box;
+            border-radius: 20px;
+        }
+        
+        .marker-cluster div {
+            background-color: rgba(37, 99, 235, 0.8);
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .marker-cluster-small {
+            background-color: rgba(37, 99, 235, 0.6);
+        }
+        
+        .marker-cluster-medium {
+            background-color: rgba(37, 99, 235, 0.7);
+        }
+        
+        .marker-cluster-medium div {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .marker-cluster-large {
+            background-color: rgba(37, 99, 235, 0.8);
+        }
+        
+        .marker-cluster-large div {
+            width: 50px;
+            height: 50px;
         }
         
         /* Results List */
@@ -555,6 +672,7 @@
     
     <!-- Leaflet JS for Map -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     
     <!-- Scripts -->
     <script src="/js/main.js"></script>
@@ -565,8 +683,9 @@
         let totalResults = 0;
         let searchResults = [];
         let map = null;
-        let markers = [];
+        let markers = L.markerClusterGroup();
         let currentView = 'list';
+        let isMapInitialized = false;
         
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -630,12 +749,14 @@
             const offset = (page - 1) * resultsPerPage;
             
             // Show loading
-            document.getElementById('resultsList').innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Loading schools...</p>
-                </div>
-            `;
+            if (currentView === 'list') {
+                document.getElementById('resultsList').innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading schools...</p>
+                    </div>
+                `;
+            }
             
             // Build query parameters
             const params = new URLSearchParams();
@@ -694,6 +815,55 @@
             }
         }
         
+        // Search for schools in map bounds
+        async function searchInMapBounds() {
+            if (!map) return;
+            
+            const bounds = map.getBounds();
+            const center = bounds.getCenter();
+            
+            // Add loading state to button
+            const searchBtn = document.querySelector('.map-search-control');
+            if (searchBtn) {
+                searchBtn.classList.add('loading');
+                searchBtn.innerHTML = '⏳ Searching...';
+            }
+            
+            try {
+                // Search using center coordinates
+                const params = new URLSearchParams();
+                params.append('lat', center.lat);
+                params.append('lng', center.lng);
+                params.append('radius', '10'); // 10km radius
+                params.append('limit', '100'); // Get more results for map
+                
+                const response = await fetch(`/api/search/nearby?${params}`);
+                const data = await response.json();
+                
+                if (data.success && data.schools) {
+                    searchResults = data.schools;
+                    totalResults = data.schools.length;
+                    
+                    // Update both map and list
+                    updateMap();
+                    displayResults();
+                    updateResultsCount();
+                    
+                    // Show notification
+                    showNotification(`Found ${totalResults} schools in this area`);
+                }
+            } catch (error) {
+                console.error('Map search error:', error);
+                showNotification('Error searching this area', 'error');
+            } finally {
+                // Reset button
+                if (searchBtn) {
+                    searchBtn.classList.remove('loading');
+                    searchBtn.innerHTML = '🔍 Search This Area';
+                }
+            }
+        }
+        
         function getActiveFilters() {
             const filters = {
                 schoolTypes: [],
@@ -735,6 +905,12 @@
                 const rating = school.overall_rating ? parseFloat(school.overall_rating) : null;
                 const ratingClass = getRatingClass(rating);
                 
+                // Format rating display - just show the number without decimals if it's 10
+                let ratingDisplay = 'N/A';
+                if (rating !== null) {
+                    ratingDisplay = rating >= 10 ? '10' : rating.toFixed(1);
+                }
+                
                 return `
                     <div class="school-card" onclick="window.location.href='/school/${school.urn}'">
                         <div class="school-card-header">
@@ -746,7 +922,7 @@
                                 </div>
                             </div>
                             <div class="school-card-rating rating-${ratingClass}">
-                                ${rating ? rating.toFixed(1) : 'N/A'}/10
+                                ${ratingDisplay}/10
                             </div>
                         </div>
                         <div class="school-card-details">
@@ -824,6 +1000,7 @@
                 document.getElementById('resultsList').classList.remove('active');
                 document.getElementById('schoolsMap').classList.add('active');
                 initializeMap();
+                updateMap();
             } else {
                 document.getElementById('schoolsMap').classList.remove('active');
                 document.getElementById('resultsList').classList.add('active');
@@ -831,41 +1008,100 @@
         }
         
         function initializeMap() {
-            if (!map) {
+            if (!isMapInitialized) {
                 map = L.map('schoolsMap').setView([52.5, -1.5], 6); // UK center
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 18
                 }).addTo(map);
+                
+                // Add marker cluster group
+                markers = L.markerClusterGroup({
+                    chunkedLoading: true,
+                    maxClusterRadius: 50
+                });
+                map.addLayer(markers);
+                
+                // Add search button
+                const searchControl = L.Control.extend({
+                    options: {
+                        position: 'topleft'
+                    },
+                    onAdd: function(map) {
+                        const div = L.DomUtil.create('div', 'map-search-control');
+                        div.innerHTML = '🔍 Search This Area';
+                        div.onclick = searchInMapBounds;
+                        L.DomEvent.disableClickPropagation(div);
+                        return div;
+                    }
+                });
+                
+                map.addControl(new searchControl());
+                
+                isMapInitialized = true;
             }
             
             setTimeout(() => {
                 map.invalidateSize();
-                updateMap();
             }, 100);
         }
         
         function updateMap() {
-            if (!map) return;
+            if (!map || !isMapInitialized) return;
             
             // Clear existing markers
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
+            markers.clearLayers();
             
-            // Add markers for schools
+            // Add markers for schools with coordinates
+            const validSchools = [];
             searchResults.forEach(school => {
-                // This would need geocoding or lat/lng data from the database
-                // For now, using placeholder
+                // Check for latitude/longitude in the school data
                 if (school.latitude && school.longitude) {
-                    const marker = L.marker([school.latitude, school.longitude])
-                        .bindPopup(`
-                            <strong>${school.name}</strong><br>
-                            Rating: ${school.overall_rating || 'N/A'}/10<br>
-                            <a href="/school/${school.urn}">View Details</a>
-                        `)
-                        .addTo(map);
-                    markers.push(marker);
+                    const lat = parseFloat(school.latitude);
+                    const lng = parseFloat(school.longitude);
+                    
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        validSchools.push(school);
+                        
+                        const rating = school.overall_rating ? parseFloat(school.overall_rating) : null;
+                        const ratingClass = getRatingClass(rating);
+                        
+                        // Format rating display
+                        let ratingDisplay = '?';
+                        if (rating !== null) {
+                            ratingDisplay = rating >= 10 ? '10' : rating.toFixed(1);
+                        }
+                        
+                        // Create custom icon
+                        const icon = L.divIcon({
+                            className: `school-marker ${ratingClass}`,
+                            html: ratingDisplay,
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        });
+                        
+                        const marker = L.marker([lat, lng], { icon })
+                            .bindPopup(`
+                                <strong>${school.name}</strong><br>
+                                Rating: ${ratingDisplay}/10<br>
+                                ${school.type_of_establishment || 'School'}<br>
+                                <a href="/school/${school.urn}">View Details</a>
+                            `);
+                        
+                        markers.addLayer(marker);
+                    }
                 }
             });
+            
+            // Fit map to markers if we have any
+            if (validSchools.length > 0) {
+                const bounds = markers.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            }
+            
+            console.log(`Mapped ${validSchools.length} schools with coordinates`);
         }
         
         function clearAllFilters() {
@@ -911,11 +1147,38 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
-        // Event listeners
-        document.getElementById('searchInput').addEventListener('input', debounce(searchSchools, 500));
-        document.getElementById('locationInput').addEventListener('input', debounce(searchSchools, 500));
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ef4444' : '#2563eb'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
         
-        document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach(checkbox => {
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', debounce(() => searchSchools(), 500));
+        document.getElementById('locationInput').addEventListener('input', debounce(() => searchSchools(), 500));
+        
+        document.querySelectorAll('#schoolTypeFilters input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => searchSchools());
+        });
+        
+        document.querySelectorAll('#ofstedFilters input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', () => searchSchools());
         });
         
@@ -923,7 +1186,7 @@
             document.getElementById('ratingValue').textContent = this.value;
         });
         
-        document.getElementById('ratingRange').addEventListener('change', searchSchools);
+        document.getElementById('ratingRange').addEventListener('change', () => searchSchools());
         
         // Debounce helper
         function debounce(func, wait) {
