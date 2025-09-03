@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Search Schools - Better School UK">
-    <title>Search Results - Better School UK</title>
+    <title>Search Schools - Better School UK</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -13,6 +13,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <!-- Main CSS -->
     <link rel="stylesheet" href="/css/styles.css">
@@ -24,15 +27,298 @@
             padding: 2rem 0;
         }
         
-        .search-results-container {
+        .search-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
             margin-top: 2rem;
         }
         
-        .results-info {
-            margin-bottom: 1.5rem;
-            color: #6b7280;
+        /* Filters Sidebar */
+        .filters-sidebar {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 1rem;
         }
         
+        .filter-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .filter-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .filter-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.75rem;
+        }
+        
+        .filter-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .filter-checkbox-group {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            cursor: pointer;
+        }
+        
+        .filter-checkbox input {
+            margin-right: 0.5rem;
+        }
+        
+        .filter-checkbox label {
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #374151;
+            flex: 1;
+        }
+        
+        .filter-count {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-left: 0.5rem;
+        }
+        
+        .filter-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            cursor: pointer;
+        }
+        
+        .filter-rating input {
+            margin-right: 0.5rem;
+        }
+        
+        .rating-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .rating-badge.outstanding {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .rating-badge.good {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .rating-badge.requires-improvement {
+            background: #fed7aa;
+            color: #92400e;
+        }
+        
+        .rating-badge.inadequate {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .clear-filters {
+            width: 100%;
+            padding: 0.5rem;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .clear-filters:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        
+        /* Results Section */
+        .results-section {
+            min-height: 500px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .results-info {
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+        
+        .results-info strong {
+            color: #111827;
+            font-size: 1rem;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .view-btn {
+            padding: 0.5rem 0.75rem;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .view-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .view-btn:hover:not(.active) {
+            background: #f9fafb;
+        }
+        
+        /* Map Container */
+        #schoolsMap {
+            height: 500px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            display: none;
+        }
+        
+        #schoolsMap.active {
+            display: block;
+        }
+        
+        /* Results List */
+        #resultsList {
+            display: none;
+        }
+        
+        #resultsList.active {
+            display: block;
+        }
+        
+        .school-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .school-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .school-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .school-card-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+        
+        .school-card-type {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .school-card-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .rating-excellent {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .rating-good {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        
+        .rating-satisfactory {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        }
+        
+        .rating-poor {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+        }
+        
+        .rating-average {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+        }
+        
+        .school-card-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        /* No Results */
         .no-results {
             text-align: center;
             padding: 4rem 2rem;
@@ -41,17 +327,84 @@
             border: 1px solid #e5e7eb;
         }
         
-        .school-location {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+        .no-results h3 {
+            color: #111827;
+            margin-bottom: 1rem;
         }
         
-        .location-separator {
-            color: #d1d5db;
+        .no-results p {
+            color: #6b7280;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 0.75rem;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .page-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .page-btn:hover:not(.active):not(:disabled) {
+            background: #f9fafb;
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .search-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-sidebar {
+                position: static;
+                margin-bottom: 2rem;
+            }
+            
+            .view-toggle {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -62,54 +415,278 @@
     <!-- Search Header -->
     <section class="search-header">
         <div class="container">
-            <h1>Search Results</h1>
-            <p id="searchQuery">Searching...</p>
+            <h1 id="pageTitle">Search Schools</h1>
+            <p id="searchSubtitle">Find the perfect school for your child</p>
         </div>
     </section>
     
-    <!-- Search Results -->
-    <div class="container search-results-container">
-        <div class="results-info" id="resultsInfo">
-            Loading results...
-        </div>
-        
-        <div id="searchResults">
-            <!-- Results will be loaded here -->
+    <!-- Search Content -->
+    <div class="container">
+        <div class="search-container">
+            <!-- Filters Sidebar -->
+            <aside class="filters-sidebar">
+                <div class="filter-section">
+                    <h3 class="filter-title">Search</h3>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="filter-input" 
+                        placeholder="School name or postcode..."
+                    />
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="filter-title">Location</h3>
+                    <input 
+                        type="text" 
+                        id="locationInput" 
+                        class="filter-input" 
+                        placeholder="City or area..."
+                    />
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="filter-title">School Type</h3>
+                    <div class="filter-checkbox-group" id="schoolTypeFilters">
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="type-primary" value="Primary">
+                            <label for="type-primary">Primary Schools</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="type-secondary" value="Secondary">
+                            <label for="type-secondary">Secondary Schools</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="type-sixth-form" value="Sixth Form">
+                            <label for="type-sixth-form">Sixth Form Colleges</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="type-special" value="Special">
+                            <label for="type-special">Special Schools</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="type-independent" value="Independent">
+                            <label for="type-independent">Independent Schools</label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="type-academy" value="Academy">
+                            <label for="type-academy">Academies</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="filter-title">Ofsted Rating</h3>
+                    <div id="ofstedFilters">
+                        <div class="filter-rating">
+                            <input type="checkbox" id="ofsted-1" value="1">
+                            <span class="rating-badge outstanding">Outstanding</span>
+                        </div>
+                        <div class="filter-rating">
+                            <input type="checkbox" id="ofsted-2" value="2">
+                            <span class="rating-badge good">Good</span>
+                        </div>
+                        <div class="filter-rating">
+                            <input type="checkbox" id="ofsted-3" value="3">
+                            <span class="rating-badge requires-improvement">Requires Improvement</span>
+                        </div>
+                        <div class="filter-rating">
+                            <input type="checkbox" id="ofsted-4" value="4">
+                            <span class="rating-badge inadequate">Inadequate</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="filter-title">Overall Rating</h3>
+                    <div>
+                        <label for="ratingRange" style="font-size: 0.875rem; color: #6b7280;">
+                            Minimum: <span id="ratingValue">5</span>/10
+                        </label>
+                        <input 
+                            type="range" 
+                            id="ratingRange" 
+                            min="1" 
+                            max="10" 
+                            value="5"
+                            style="width: 100%; margin-top: 0.5rem;"
+                        />
+                    </div>
+                </div>
+                
+                <button class="clear-filters" onclick="clearAllFilters()">Clear All Filters</button>
+            </aside>
+            
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="results-header">
+                    <div class="results-info">
+                        <strong id="resultsCount">0</strong> schools found
+                    </div>
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="toggleView('list')">
+                            <span>📋</span> List
+                        </button>
+                        <button class="view-btn" onclick="toggleView('map')">
+                            <span>🗺️</span> Map
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Map View -->
+                <div id="schoolsMap"></div>
+                
+                <!-- List View -->
+                <div id="resultsList" class="active">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading schools...</p>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="pagination"></div>
+            </div>
         </div>
     </div>
     
     <!-- Footer -->
     <div id="footer"></div>
     
+    <!-- Leaflet JS for Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <!-- Scripts -->
     <script src="/js/main.js"></script>
     <script>
-        // Get search parameters from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const query = urlParams.get('q');
-        const type = urlParams.get('type') || 'all';
+        // Global variables
+        let currentPage = 1;
+        const resultsPerPage = 20;
+        let totalResults = 0;
+        let searchResults = [];
+        let map = null;
+        let markers = [];
+        let currentView = 'list';
         
-        // Update search query display
-        if (query) {
-            document.getElementById('searchQuery').textContent = `Results for "${query}"`;
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialQuery = urlParams.get('q');
+        const initialType = urlParams.get('type');
+        const initialArea = urlParams.get('area');
+        
+        // Initialize page based on URL parameters
+        function initializePage() {
+            // Set page title based on parameters
+            if (initialType) {
+                document.getElementById('pageTitle').textContent = getTypeTitle(initialType);
+                document.getElementById('searchSubtitle').textContent = getTypeSubtitle(initialType);
+                setInitialTypeFilter(initialType);
+            } else if (initialArea) {
+                document.getElementById('pageTitle').textContent = `Schools in ${initialArea}`;
+                document.getElementById('searchSubtitle').textContent = `Browse all schools in ${initialArea}`;
+                document.getElementById('locationInput').value = initialArea;
+            } else if (initialQuery) {
+                document.getElementById('searchInput').value = initialQuery;
+            }
+            
+            // Load initial results
+            searchSchools();
         }
         
-        // Load search results
-        async function loadSearchResults() {
-            if (!query) {
-                document.getElementById('searchResults').innerHTML = 
-                    '<div class="no-results"><p>Please enter a search term.</p></div>';
-                return;
+        function getTypeTitle(type) {
+            const titles = {
+                'primary': 'Primary Schools',
+                'secondary': 'Secondary Schools',
+                'sixth-form': 'Sixth Form Colleges',
+                'special': 'Special Schools',
+                'independent': 'Independent Schools',
+                'academy': 'Academies'
+            };
+            return titles[type] || 'Search Schools';
+        }
+        
+        function getTypeSubtitle(type) {
+            const subtitles = {
+                'primary': 'Find primary schools (ages 4-11) across the UK',
+                'secondary': 'Find secondary schools (ages 11-16/18) across the UK',
+                'sixth-form': 'Find sixth form colleges and post-16 education',
+                'special': 'Find special schools and SEND provision',
+                'independent': 'Find independent and private schools',
+                'academy': 'Find academy schools across the UK'
+            };
+            return subtitles[type] || 'Find the perfect school for your child';
+        }
+        
+        function setInitialTypeFilter(type) {
+            const checkbox = document.getElementById(`type-${type}`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        }
+        
+        // Search function
+        async function searchSchools(page = 1) {
+            currentPage = page;
+            const offset = (page - 1) * resultsPerPage;
+            
+            // Show loading
+            document.getElementById('resultsList').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading schools...</p>
+                </div>
+            `;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            
+            const searchQuery = document.getElementById('searchInput').value;
+            const locationQuery = document.getElementById('locationInput').value;
+            
+            if (searchQuery) {
+                params.append('q', searchQuery);
+                params.append('type', 'name');
+            } else if (locationQuery) {
+                params.append('q', locationQuery);
+                params.append('type', 'location');
+            } else if (initialArea) {
+                params.append('q', initialArea);
+                params.append('type', 'location');
+            } else {
+                // Default search - get all schools
+                params.append('q', 'school');
+                params.append('type', 'all');
+            }
+            
+            params.append('limit', resultsPerPage);
+            params.append('offset', offset);
+            
+            // Add filters
+            const filters = getActiveFilters();
+            if (filters.schoolTypes.length > 0) {
+                params.append('phases', filters.schoolTypes.join(','));
+            }
+            if (filters.ofstedRatings.length > 0) {
+                params.append('ofsted', filters.ofstedRatings.join(','));
+            }
+            if (filters.minRating) {
+                params.append('minRating', filters.minRating);
             }
             
             try {
-                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&type=${type}`);
+                const response = await fetch(`/api/search?${params}`);
                 const data = await response.json();
                 
-                if (data.success && data.schools) {
-                    displayResults(data.schools, data.total);
-                } else {
-                    displayNoResults();
+                if (data.success) {
+                    searchResults = data.schools || [];
+                    totalResults = data.total || 0;
+                    displayResults();
+                    updatePagination();
+                    updateResultsCount();
+                    
+                    if (currentView === 'map') {
+                        updateMap();
+                    }
                 }
             } catch (error) {
                 console.error('Search error:', error);
@@ -117,64 +694,198 @@
             }
         }
         
-        function displayResults(schools, total) {
-            document.getElementById('resultsInfo').textContent = 
-                `Found ${total || schools.length} schools`;
+        function getActiveFilters() {
+            const filters = {
+                schoolTypes: [],
+                ofstedRatings: [],
+                minRating: null
+            };
             
-            if (!schools || schools.length === 0) {
-                displayNoResults();
+            // School types
+            document.querySelectorAll('#schoolTypeFilters input:checked').forEach(checkbox => {
+                filters.schoolTypes.push(checkbox.value);
+            });
+            
+            // Ofsted ratings
+            document.querySelectorAll('#ofstedFilters input:checked').forEach(checkbox => {
+                filters.ofstedRatings.push(checkbox.value);
+            });
+            
+            // Overall rating
+            const ratingRange = document.getElementById('ratingRange').value;
+            if (ratingRange > 1) {
+                filters.minRating = ratingRange;
+            }
+            
+            return filters;
+        }
+        
+        function displayResults() {
+            if (!searchResults || searchResults.length === 0) {
+                document.getElementById('resultsList').innerHTML = `
+                    <div class="no-results">
+                        <h3>No schools found</h3>
+                        <p>Try adjusting your search or filters</p>
+                    </div>
+                `;
                 return;
             }
             
-            const html = schools.map(school => {
-                // Ensure rating is capped at 10
-                const rating = Math.min(10, Math.max(1, parseInt(school.overall_rating) || 5));
+            const html = searchResults.map(school => {
+                const rating = school.overall_rating ? parseFloat(school.overall_rating) : null;
+                const ratingClass = getRatingClass(rating);
                 
                 return `
-                <div class="school-card" onclick="window.location.href='/school/${school.urn}'">
-                    <div class="school-card-header">
-                        <div>
-                            <div class="school-card-name">${school.name}</div>
-                            <div class="school-card-type">${school.type_of_establishment || ''} • ${school.phase_of_education || ''}</div>
-                            <div class="school-location">
-                                ${school.town ? `<span>${school.town}</span>` : ''}
-                                ${school.town && school.local_authority ? '<span class="location-separator">•</span>' : ''}
-                                ${school.local_authority ? `<span>${school.local_authority}</span>` : ''}
+                    <div class="school-card" onclick="window.location.href='/school/${school.urn}'">
+                        <div class="school-card-header">
+                            <div>
+                                <div class="school-card-name">${school.name}</div>
+                                <div class="school-card-type">
+                                    ${school.type_of_establishment || ''} 
+                                    ${school.phase_of_education ? `• ${school.phase_of_education}` : ''}
+                                </div>
+                            </div>
+                            <div class="school-card-rating rating-${ratingClass}">
+                                ${rating ? rating.toFixed(1) : 'N/A'}/10
                             </div>
                         </div>
-                        <div class="school-card-rating rating-${getRatingClass(rating)}">
-                            ${rating}/10
+                        <div class="school-card-details">
+                            <div class="detail-item">
+                                <span>📍</span>
+                                <span>${school.postcode || '-'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>🎓</span>
+                                <span>Ofsted: ${getOfstedLabel(school.ofsted_rating)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>👥</span>
+                                <span>${formatNumber(school.number_on_roll)} students</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>📍</span>
+                                <span>${school.town || '-'}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="school-card-details">
-                        <div class="detail-item">
-                            <span>📍</span>
-                            <span>${school.postcode || '-'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span>🎓</span>
-                            <span>Ofsted: ${getOfstedLabel(school.ofsted_rating)}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span>👥</span>
-                            <span>${formatNumber(school.number_on_roll)} students</span>
-                        </div>
-                    </div>
-                </div>
-            `}).join('');
+                `;
+            }).join('');
             
-            document.getElementById('searchResults').innerHTML = html;
+            document.getElementById('resultsList').innerHTML = html;
         }
         
-        function displayNoResults() {
-            document.getElementById('resultsInfo').textContent = 'No results found';
-            document.getElementById('searchResults').innerHTML = 
-                '<div class="no-results"><p>No schools found matching your search. Try a different search term.</p></div>';
+        function updateResultsCount() {
+            document.getElementById('resultsCount').textContent = totalResults;
+        }
+        
+        function updatePagination() {
+            const totalPages = Math.ceil(totalResults / resultsPerPage);
+            if (totalPages <= 1) {
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            
+            // Previous button
+            html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} 
+                     onclick="searchSchools(${currentPage - 1})">Previous</button>`;
+            
+            // Page numbers
+            for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" 
+                         onclick="searchSchools(${i})">${i}</button>`;
+            }
+            
+            if (totalPages > 5) {
+                html += `<span class="page-btn" disabled>...</span>`;
+                html += `<button class="page-btn ${totalPages === currentPage ? 'active' : ''}" 
+                         onclick="searchSchools(${totalPages})">${totalPages}</button>`;
+            }
+            
+            // Next button
+            html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} 
+                     onclick="searchSchools(${currentPage + 1})">Next</button>`;
+            
+            document.getElementById('pagination').innerHTML = html;
+        }
+        
+        function toggleView(view) {
+            currentView = view;
+            
+            // Update buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.view-btn').classList.add('active');
+            
+            // Toggle views
+            if (view === 'map') {
+                document.getElementById('resultsList').classList.remove('active');
+                document.getElementById('schoolsMap').classList.add('active');
+                initializeMap();
+            } else {
+                document.getElementById('schoolsMap').classList.remove('active');
+                document.getElementById('resultsList').classList.add('active');
+            }
+        }
+        
+        function initializeMap() {
+            if (!map) {
+                map = L.map('schoolsMap').setView([52.5, -1.5], 6); // UK center
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+            }
+            
+            setTimeout(() => {
+                map.invalidateSize();
+                updateMap();
+            }, 100);
+        }
+        
+        function updateMap() {
+            if (!map) return;
+            
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            // Add markers for schools
+            searchResults.forEach(school => {
+                // This would need geocoding or lat/lng data from the database
+                // For now, using placeholder
+                if (school.latitude && school.longitude) {
+                    const marker = L.marker([school.latitude, school.longitude])
+                        .bindPopup(`
+                            <strong>${school.name}</strong><br>
+                            Rating: ${school.overall_rating || 'N/A'}/10<br>
+                            <a href="/school/${school.urn}">View Details</a>
+                        `)
+                        .addTo(map);
+                    markers.push(marker);
+                }
+            });
+        }
+        
+        function clearAllFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('locationInput').value = '';
+            document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            document.getElementById('ratingRange').value = 5;
+            document.getElementById('ratingValue').textContent = '5';
+            searchSchools();
         }
         
         function displayError() {
-            document.getElementById('searchResults').innerHTML = 
-                '<div class="no-results"><p>An error occurred while searching. Please try again.</p></div>';
+            document.getElementById('resultsList').innerHTML = `
+                <div class="no-results">
+                    <h3>Error loading results</h3>
+                    <p>Please try again later</p>
+                </div>
+            `;
         }
         
         function getRatingClass(rating) {
@@ -200,10 +911,35 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
-        // Load results on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSearchResults();
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', debounce(searchSchools, 500));
+        document.getElementById('locationInput').addEventListener('input', debounce(searchSchools, 500));
+        
+        document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => searchSchools());
         });
+        
+        document.getElementById('ratingRange').addEventListener('input', function() {
+            document.getElementById('ratingValue').textContent = this.value;
+        });
+        
+        document.getElementById('ratingRange').addEventListener('change', searchSchools);
+        
+        // Debounce helper
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initializePage);
     </script>
 </body>
 </html>
