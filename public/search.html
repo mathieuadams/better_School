@@ -1054,6 +1054,8 @@
             
             // Add markers for schools with coordinates
             const validSchools = [];
+            const missingCoords = [];
+            
             searchResults.forEach(school => {
                 // Check for latitude/longitude in the school data
                 if (school.latitude && school.longitude) {
@@ -1090,6 +1092,8 @@
                         
                         markers.addLayer(marker);
                     }
+                } else {
+                    missingCoords.push(school);
                 }
             });
             
@@ -1099,9 +1103,23 @@
                 if (bounds.isValid()) {
                     map.fitBounds(bounds, { padding: [50, 50] });
                 }
+                console.log(`Mapped ${validSchools.length} schools with coordinates`);
+            } else if (searchResults.length > 0) {
+                // No schools have coordinates, show a message
+                console.log(`No coordinates available for ${searchResults.length} schools`);
+                showNotification('Map data not available for these schools', 'info');
+                
+                // Try to center on the general area if we know it
+                const locationQuery = document.getElementById('locationInput').value;
+                if (locationQuery) {
+                    // You could geocode the location here
+                    console.log('Would geocode:', locationQuery);
+                }
             }
             
-            console.log(`Mapped ${validSchools.length} schools with coordinates`);
+            if (missingCoords.length > 0) {
+                console.log(`${missingCoords.length} schools missing coordinates`);
+            }
         }
         
         function clearAllFilters() {
