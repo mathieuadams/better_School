@@ -13,7 +13,7 @@ const { pool, testConnection } = require('./src/config/database');
 // ---- API routes
 const schoolRoutes = require('./src/routes/schoolRoutes');
 const searchRoutes = require('./src/routes/searchRoutes');
-
+const contactRoutes = require('./src/routes/contactRoutes');
 // ---- App
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -96,10 +96,19 @@ const sendPublic = (res, file) => res.sendFile(path.join(PUBLIC_DIR, file));
 // ---- Review API routes
 const reviewRoutes = require('./src/routes/reviewRoutes');
 app.use('/api', reviewRoutes);
+app.use('/api', contactRoutes);
 
 // ---- Review HTML pages
 app.get(['/review','/review.html'], (_req, res) => sendPublic(res, 'review.html'));
 app.get(['/write-review','/write-review.html'], (_req, res) => sendPublic(res, 'write-review.html'));
+
+app.get(['/about','/about.html'], (_req, res) => sendPublic(res, 'about.html'));
+app.get(['/terms','/terms.html'], (_req, res) => sendPublic(res, 'terms.html'));
+app.get(['/privacy','/privacy.html'], (_req, res) => sendPublic(res, 'privacy.html'));
+app.get(['/contact','/contact.html'], (_req, res) => sendPublic(res, 'contact.html'));
+app.get(['/data-sources','/data-sources.html'], (_req, res) => sendPublic(res, 'data-sources.html'));
+app.get(['/methodology','/methodology.html'], (_req, res) => sendPublic(res, 'methodology.html'));
+app.get(['/faq','/faq.html'], (_req, res) => sendPublic(res, 'faq.html'));
 
 // ---- Other HTML pages
 app.get('/', (_req, res) => sendPublic(res, 'index.html'));
@@ -121,11 +130,12 @@ const ukCities = new Set([
 // Serve city page at /:city (static SEO-friendly path)
 app.get('/:city', (req, res, next) => {
   const { city } = req.params;
-  // avoid intercepting known prefixes and assets
-  const reserved = new Set([
+const reserved = new Set([
   'api','css','js','components','images','favicon.ico',
-  'school','health','compare','about','search',
-  'review','write-review' // <— add these
+  'school','health','compare','search',
+  'review','write-review',
+  'about','terms','privacy','contact',
+  'data-sources','methodology','faq'
 ]);
   if (reserved.has(city.toLowerCase())) return next();
 
@@ -145,11 +155,13 @@ app.get('/:city/:identifier', (req, res, next) => {
   const { city, identifier } = req.params;
   
   // Skip if city is a reserved word
-    const reserved = new Set([
+  const reserved2 = new Set([
     'api','css','js','components','images','favicon.ico',
     'health','compare','about','search',
-    // NEW:
-    'review','write-review'
+    'review','write-review',
+    // ADD these new pages:
+    'terms','privacy','contact',
+    'data-sources','methodology','faq'
   ]);
   if (reserved.has(city.toLowerCase())) return next();
   
