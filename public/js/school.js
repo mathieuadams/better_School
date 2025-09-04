@@ -123,21 +123,57 @@ async function loadSchoolData() {
   }
 }
 
-// ----------------------------- Rendering ------------------------------------
+// Add this at the top of school.js to fix the immediate error
 function updateSchoolDisplay(school) {
   try {
-    updateBreadcrumbs(school);
-    updateHeader(school);
-    updateKeyStats(school);
-    updateTestScores(school);
-    updateDemographics(school);
-    updateSchoolInfo(school);
-    if (!isScottishSchool) updateOfstedDetails(school);
-    updateContactInfo(school);
-    window.updateRatingDisplay?.(school); // allow school-rating component to render
+    // Check if all required functions exist before calling them
+    if (typeof updateBreadcrumbs === 'function') updateBreadcrumbs(school);
+    if (typeof updateHeader === 'function') updateHeader(school);
+    if (typeof updateKeyStats === 'function') updateKeyStats(school);
+    if (typeof updateTestScores === 'function') updateTestScores(school);
+    if (typeof updateDemographics === 'function') updateDemographics(school);
+    if (typeof updateSchoolInfo === 'function') updateSchoolInfo(school);
+    if (!isScottishSchool && typeof updateOfstedDetails === 'function') updateOfstedDetails(school);
+    if (typeof updateContactInfo === 'function') updateContactInfo(school);
+    
+    // This is the critical fix - check if the function exists
+    if (typeof window.updateRatingDisplay === 'function') {
+      window.updateRatingDisplay(school);
+    }
+    
     document.title = `${school.name || 'School'} - Better School UK`;
   } catch (e) {
-    console.error('updateSchoolDisplay failed', e);
+    console.error('updateSchoolDisplay error:', e);
+    // Continue rendering even if one part fails
+  }
+}
+
+// Fix for rating display - Cap at 10 and handle partial data
+function formatRatingDisplay(rating, dataCompleteness) {
+  if (rating === null || rating === undefined) {
+    return 'N/A';
+  }
+  
+  // Parse the rating value
+  let ratingValue = parseFloat(rating);
+  
+  // Cap at 10
+  if (ratingValue > 10) {
+    ratingValue = 10;
+  }
+  
+  // If data completeness is low, show indicator
+  if (dataCompleteness && dataCompleteness < 40) {
+    return 'Insufficient Data';
+  }
+  
+  // For display purposes, show clean integer for 10, one decimal otherwise
+  if (ratingValue === 10) {
+    return '10';
+  } else if (ratingValue >= 10) {
+    return '10'; // Cap display at 10
+  } else {
+    return ratingValue.toFixed(1);
   }
 }
 
@@ -392,20 +428,66 @@ function updateNearbySchools(schools) {
 // ---------------------- Rating component bridge -----------------------------
 window.updateRatingDisplay = function(schoolData) {
   if (!schoolData) return;
+  if (!schoolData) return;
+  
   const isScottish = schoolData.country === 'Scotland' || schoolData.is_scotland;
-
+  
+  // Cap rating at 10
+  let rating = schoolData.overall_rating ? parseFloat(schoolData.overall_rating) : null;
+  if (rating && rating > 10) {
+    rating = 10;
+  }
+  
+  // Check data completeness
+  const dataCompleteness = schoolData.rating_data_completeness || 0;
+  
   const scoreEl = document.getElementById('mainRatingScore');
-  if (scoreEl) scoreEl.textContent = schoolData.overall_rating ? fmt1(schoolData.overall_rating) : 'N/A';
+  if (scoreEl) {
+    if (!rating || dataCompleteness < 40) {
+      scoreEl.textContent = 'N/A';
+    } else {
+      // Show clean 10 or decimal for other values
+      scoreEl.textContent = rating === 10 ? '10' : rating.toFixed(1);
+    }
+  }
+  
+  const ratingEl = document.getElementById('overallRating');
+  if (ratingEl) {
+    if (!rating || dataCompleteness < 40) {
+      ratingEl.textContent = 'N/A';
+    } else {
+      const displayRating = rating === 10 ? '10' : rating.toFixed(1);
+      ratingEl.textContent = `${displayRating}/10`;
+    }
+  }
 
+  // Update performance text
   const perfEl = document.getElementById('ratingPerformance');
   if (perfEl) {
-    const r = Number(schoolData.overall_rating || 0);
-    let level = 'at an average level';
-    if (r >= 8) level = 'above average';
-    else if (r >= 6) level = 'slightly above average';
-    else if (r > 0 && r <= 4) level = 'below average';
-    setText('performanceLevel', level);
+    if (!rating || dataCompleteness < 40) {
+      setText('performanceLevel', 'insufficient data available');
+    } else {
+      let level = 'at an average level';
+      if (rating >= 8) level = 'above average';
+      else if (rating >= 6) level = 'slightly above average';
+      else if (rating > 0 && rating <= 4) level = 'below average';
+      setText('performanceLevel', level);
+    }
     setText('localAuthority', schoolData.address?.local_authority || schoolData.local_authority || 'the local authority');
+  }
+
+    // Show data completeness warning if needed
+  const dataNotice = document.getElementById('dataNotice');
+  if (dataNotice) {
+    if (dataCompleteness < 40) {
+      dataNotice.style.display = 'flex';
+      document.getElementById('dataNoticeText').textContent = 'Insufficient data for full rating';
+    } else if (dataCompleteness < 100) {
+      dataNotice.style.display = 'flex';
+      document.getElementById('dataNoticeText').textContent = `Rating based on ${dataCompleteness}% of available data`;
+    } else {
+      dataNotice.style.display = 'none';
+    }
   }
 
   // Percentile badge (if present)
