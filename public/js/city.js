@@ -392,7 +392,6 @@ function renderTopSchools() {
   }
 }
 
-// Render school list with fair ranking
 function renderSchoolList(containerId, schools, showMax = 5) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -407,26 +406,44 @@ function renderSchoolList(containerId, schools, showMax = 5) {
   const topSchools = rankedSchools.slice(0, showMax);
   
   const html = topSchools.map((school, index) => {
-  let ratingText = '—';
-  let dataIndicator = '';
+    let ratingText = '—';
+    let dataIndicator = '';
+    let ratingValue = null;
 
-  if (school.overall_rating != null) {
-    const r = Number(school.overall_rating);
-    ratingText = r.toFixed(1); // ← one decimal, no rounding to integer
-
-    if (school.rating_data_completeness >= 100) {
-      dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
-    } else if (school.rating_data_completeness >= 40) {
-      dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">⚬</span>';
+    if (school.overall_rating != null) {
+      const r = Number(school.overall_rating);
+      
+      // Cap rating at 10
+      const cappedRating = Math.min(r, 10);
+      
+      // Check data completeness
+      if (school.rating_data_completeness && school.rating_data_completeness < 40) {
+        ratingText = '—';
+        dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
+      } else {
+        // Show clean display for 10, one decimal otherwise
+        ratingText = cappedRating === 10 ? '10' : cappedRating.toFixed(1);
+        
+        if (school.rating_data_completeness >= 100) {
+          dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
+        } else if (school.rating_data_completeness >= 40) {
+          dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">◐</span>';
+        }
+      }
+      
+      ratingValue = cappedRating;
+    } else if (school.ofsted_rating != null && !isScottishLA) {
+      // Fallback to Ofsted-based rating
+      const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
+      if (fallback != null) {
+        ratingText = fallback.toFixed(1);
+        dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
+        ratingValue = fallback;
+      }
     }
-  } else if (school.ofsted_rating != null) {
-    const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
-    ratingText = fallback != null ? `${fallback.toFixed ? fallback.toFixed(1) : (fallback + '.0')}` : '—';
-    dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
-  }
     
     // Don't show Ofsted badge for Scottish schools
-    const ofstedBadge = (!cityData.isScottish && school.ofsted_rating) ? `
+    const ofstedBadge = (!isScottishLA && school.ofsted_rating) ? `
       <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
         ${getOfstedLabel(school.ofsted_rating)}
       </div>` : '';
