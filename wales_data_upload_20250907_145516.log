@@ -1,7 +1,0 @@
-2025-09-07 14:55:17,604 - INFO - Database connection established
-2025-09-07 14:55:17,930 - INFO - uk_absence_data table already exists
-2025-09-07 14:55:18,091 - INFO - Starting data upload for Wales schools...
-2025-09-07 14:55:18,091 - INFO - Column mapping: literacy_points → english_score, numeracy_points → math_score, science_points → science_score
-2025-09-07 14:55:18,101 - INFO - Found 1464 schools in CSV file
-2025-09-07 14:55:18,748 - ERROR - Error updating schools: name 'school_number' is not defined
-2025-09-07 14:55:18,749 - INFO - Database connection closed

@@ -1,8 +1,0 @@
-2025-09-07 14:19:37,842 - INFO - Database connection established
-2025-09-07 14:19:37,842 - INFO - Starting data upload for Wales schools...
-2025-09-07 14:19:37,853 - INFO - Found 1464 schools in CSV file
-2025-09-07 14:19:38,489 - ERROR - Error updating schools: column "overall_absence_rate" does not exist
-LINE 6: ...            overall_absence_rate = COALESCE(NULL, overall_ab...
-                                                             ^
-
-2025-09-07 14:19:38,490 - INFO - Database connection closed

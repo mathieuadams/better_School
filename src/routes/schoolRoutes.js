@@ -18,11 +18,75 @@ function calculateRatingWithFallbacks(school, laAverages) {
   let components = [];
   let totalWeight = 0;
   
-  // Check if school is in Scotland
-  const isScotland = school.country === 'Scotland';
+  // Check country (case-insensitive)
+  const country = (school.country || 'england').toLowerCase();
+  const isWales = country === 'wales';
+  const isScotland = country === 'scotland';
   
-  if (isScotland) {
-    // Scotland rating: No Ofsted, only Academic (60%) and Attendance (40%)
+  if (isWales) {
+    // Wales rating: No Ofsted, Academic (80%) and Attendance (20%)
+    
+    // Academic component (80% weight for Wales)
+    let academicScores = [];
+    let academicDetails = {};
+    
+    if (school.english_score !== null && laAverages.avg_english !== null) {
+      const engScore = calculateAcademicScore(school.english_score, laAverages.avg_english);
+      academicScores.push(engScore);
+      academicDetails.english = {
+        school: school.english_score,
+        la_avg: laAverages.avg_english,
+        score: engScore
+      };
+    }
+    
+    if (school.math_score !== null && laAverages.avg_math !== null) {
+      const mathScore = calculateAcademicScore(school.math_score, laAverages.avg_math);
+      academicScores.push(mathScore);
+      academicDetails.math = {
+        school: school.math_score,
+        la_avg: laAverages.avg_math,
+        score: mathScore
+      };
+    }
+    
+    if (school.science_score !== null && laAverages.avg_science !== null) {
+      const sciScore = calculateAcademicScore(school.science_score, laAverages.avg_science);
+      academicScores.push(sciScore);
+      academicDetails.science = {
+        school: school.science_score,
+        la_avg: laAverages.avg_science,
+        score: sciScore
+      };
+    }
+    
+    if (academicScores.length > 0) {
+      const avgAcademicScore = academicScores.reduce((a, b) => a + b, 0) / academicScores.length;
+      components.push({
+        name: 'academic',
+        score: avgAcademicScore,
+        weight: 80,
+        details: academicDetails,
+        subjects_available: academicScores.length
+      });
+      totalWeight += 80;
+    }
+    
+    // Attendance component (20% weight for Wales)
+    if (school.attendance_rate !== null) {
+      const attendanceScore = calculateAttendanceScore(school.attendance_rate);
+      components.push({
+        name: 'attendance',
+        score: attendanceScore,
+        weight: 20,
+        school_rate: school.attendance_rate,
+        la_avg: laAverages.avg_attendance
+      });
+      totalWeight += 20;
+    }
+    
+  } else if (isScotland) {
+    // Scotland rating: No Ofsted, Academic (60%) and Attendance (40%)
     
     // Academic component (60% weight for Scotland)
     let academicScores = [];
@@ -157,13 +221,14 @@ function calculateRatingWithFallbacks(school, laAverages) {
   }
   
   // Check minimum data threshold
-  const minThreshold = isScotland ? 50 : 40; // Scotland needs at least 50% (half of academic + attendance)
+  const minThreshold = isWales ? 20 : (isScotland ? 50 : 40);
   if (totalWeight < minThreshold) {
     return {
       rating: null,
       message: "Insufficient data for rating",
       available_components: components,
       data_completeness: totalWeight,
+      is_wales: isWales,
       is_scotland: isScotland
     };
   }
@@ -185,6 +250,7 @@ function calculateRatingWithFallbacks(school, laAverages) {
     data_completeness: totalWeight,
     percentile: percentile,
     la_comparison: totalWeight === 100 ? 'Complete data' : 'Partial data',
+    is_wales: isWales,
     is_scotland: isScotland
   };
 }
@@ -365,21 +431,29 @@ router.get('/:urn', async (req, res) => {
     
     if (needsRatingUpdate || debug) {
       // Prepare data for rating calculation
+      // Check if school is in Wales
+      const isWales = s.country && s.country.toLowerCase() === 'wales';
+      
       // If overall_effectiveness is null but other Ofsted scores exist, try to infer it
       let ofstedRating = o.overall_effectiveness;
-      if (!ofstedRating && o.quality_of_education) {
-        // Use quality_of_education as a proxy if overall is missing
+      if (!ofstedRating && o.quality_of_education && !isWales) {
+        // Use quality_of_education as a proxy if overall is missing (but not for Wales)
         ofstedRating = o.quality_of_education;
       }
       
-    const schoolForRating = {
-      country: s.country,
-      ofsted_overall_effectiveness: ofstedRating,
-      english_score: toNum(s.english_score),
-      math_score: toNum(s.math_score),
-      science_score: toNum(s.science_score),
-      attendance_rate: a.overall_absence_rate ? (100 - a.overall_absence_rate) : null
-    };
+      // For Wales schools, explicitly set Ofsted to null
+      if (isWales) {
+        ofstedRating = null;
+      }
+      
+      const schoolForRating = {
+        country: s.country || 'england',
+        ofsted_overall_effectiveness: ofstedRating,
+        english_score: toNum(s.english_score),
+        math_score: toNum(s.math_score),
+        science_score: toNum(s.science_score),
+        attendance_rate: a.overall_absence_rate ? (100 - a.overall_absence_rate) : null
+      };
       
       // Calculate rating
       calculatedRating = calculateRatingWithFallbacks(schoolForRating, laAverages);
@@ -420,6 +494,11 @@ router.get('/:urn', async (req, res) => {
 
     // Use database rating or calculated rating
     const final_rating = s.overall_rating || (calculatedRating && calculatedRating.rating) || null;
+    
+    // Determine country flags
+    const country = (s.country || 'england').toLowerCase();
+    const isWales = country === 'wales';
+    const isScotland = country === 'scotland';
 
     const payload = {
       success: true,
@@ -427,8 +506,9 @@ router.get('/:urn', async (req, res) => {
         // Basic
         urn: s.urn,
         name: s.name,
-        country: s.country || 'England', // Default to England if not specified
-        is_scotland: s.country === 'Scotland',
+        country: s.country || 'England',
+        is_wales: isWales,
+        is_scotland: isScotland,
         type: s.type_of_establishment,
         phase: s.phase_of_education,
         status: s.establishment_status,
@@ -500,8 +580,23 @@ router.get('/:urn', async (req, res) => {
           }
         },
 
-        // Ofsted
-        ofsted: {
+        // Ofsted - set to null for Wales schools
+        ofsted: isWales ? {
+          overall_effectiveness: null,
+          overall_label: 'Not Applicable (Wales)',
+          inspection_date: null,
+          publication_date: null,
+          quality_of_education: null,
+          behaviour_and_attitudes: null,
+          personal_development: null,
+          leadership_and_management: null,
+          safeguarding_effective: null,
+          sixth_form_provision: null,
+          early_years_provision: null,
+          previous_inspection_date: null,
+          previous_overall_effectiveness: null,
+          web_link: null,
+        } : {
           overall_effectiveness: o.overall_effectiveness ?? null,
           overall_label: getOfstedLabel(o.overall_effectiveness),
           inspection_date: o.inspection_date ?? null,
@@ -546,7 +641,10 @@ router.get('/:urn', async (req, res) => {
         attendance_row: !!aR.rows[0],
         rating_calculated: !!calculatedRating,
         rating_from_db: !!s.overall_rating,
-        la_averages: laAverages
+        la_averages: laAverages,
+        country: s.country,
+        is_wales: isWales,
+        is_scotland: isScotland
       };
     }
 

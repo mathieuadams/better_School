@@ -34,7 +34,7 @@
   <div class="rating-factors" id="ratingFactors">
     <h3 class="factors-title">Rating Factors</h3>
     
-    <!-- Ofsted Factor -->
+    <!-- Ofsted Factor (hidden for Wales/Scotland) -->
     <div class="factor-item" id="ofstedFactor" style="display: none;">
       <div class="factor-header">
         <div class="factor-icon ofsted">
@@ -73,7 +73,7 @@
         </div>
         <div class="factor-info">
           <div class="factor-name">Academic Performance</div>
-          <div class="factor-weight">40% weight</div>
+          <div class="factor-weight" id="academicWeight">40% weight</div>
         </div>
         <div class="factor-score">
           <span id="academicScore">-</span>/10
@@ -134,7 +134,7 @@
         </div>
         <div class="factor-info">
           <div class="factor-name">Attendance</div>
-          <div class="factor-weight">20% weight</div>
+          <div class="factor-weight" id="attendanceWeight">20% weight</div>
         </div>
         <div class="factor-score">
           <span id="attendanceScore">-</span>/10
@@ -166,12 +166,12 @@
   <div class="rating-methodology" id="ratingMethodology" style="display: none;">
     <h4>How We Calculate Ratings</h4>
     <p>Our rating system evaluates schools on a 1-10 scale based on available data:</p>
-    <ul>
+    <ul id="methodologyList">
       <li><strong>Ofsted Inspection (40%):</strong> Latest official inspection rating</li>
       <li><strong>Academic Performance (40%):</strong> Test scores compared to local authority average</li>
       <li><strong>Attendance (20%):</strong> Student attendance rates compared to local average</li>
     </ul>
-    <p class="methodology-note">Schools need at least 40% of data available to receive a rating. Ratings are updated monthly.</p>
+    <p class="methodology-note" id="methodologyNote">Schools need at least 40% of data available to receive a rating. Ratings are updated monthly.</p>
   </div>
 </div>
 
@@ -430,6 +430,11 @@
   color: #6b7280;
 }
 
+.breakdown-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
 .data-notice {
   display: flex;
   align-items: center;
@@ -484,6 +489,15 @@
   color: #3b82f6;
 }
 
+.wales-notice, .scotland-notice {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
 @media (max-width: 768px) {
   .rating-display-container {
     flex-direction: column;
@@ -526,7 +540,14 @@ function toggleFactorDetail(factor) {
 }
 
 function updateRatingDisplay(schoolData) {
-  if (!schoolData || !schoolData.overall_rating) {
+  if (!schoolData) return;
+  
+  // Check if it's a Wales or Scotland school
+  const isWales = schoolData.is_wales || (schoolData.country && schoolData.country.toLowerCase() === 'wales');
+  const isScotland = schoolData.is_scotland || (schoolData.country && schoolData.country.toLowerCase() === 'scotland');
+  
+  // Handle missing rating
+  if (!schoolData.overall_rating) {
     document.getElementById('mainRatingScore').textContent = 'N/A';
     document.getElementById('ratingPerformance').innerHTML = 'Insufficient data available for rating';
     document.getElementById('dataNotice').style.display = 'flex';
@@ -577,15 +598,61 @@ function updateRatingDisplay(schoolData) {
     document.getElementById('percentileDisplay').style.display = 'none';
   }
   
+  // Update methodology for Wales/Scotland schools
+  if (isWales) {
+    // Hide Ofsted factor for Wales
+    document.getElementById('ofstedFactor').style.display = 'none';
+    
+    // Update methodology text for Wales
+    const methodologyList = document.getElementById('methodologyList');
+    if (methodologyList) {
+      methodologyList.innerHTML = `
+        <li><strong>Academic Performance (80%):</strong> Test scores compared to local authority average</li>
+        <li><strong>Attendance (20%):</strong> Student attendance rates compared to local average</li>
+      `;
+    }
+    
+    const methodologyNote = document.getElementById('methodologyNote');
+    if (methodologyNote) {
+      methodologyNote.innerHTML = 'Note: Wales schools are not inspected by Ofsted. Estyn inspections are not currently included in our ratings. Ratings are based on academic performance and attendance data.';
+    }
+  } else if (isScotland) {
+    // Hide Ofsted factor for Scotland
+    document.getElementById('ofstedFactor').style.display = 'none';
+    
+    // Update methodology text for Scotland
+    const methodologyList = document.getElementById('methodologyList');
+    if (methodologyList) {
+      methodologyList.innerHTML = `
+        <li><strong>Academic Performance (60%):</strong> Test scores compared to local authority average</li>
+        <li><strong>Attendance (40%):</strong> Student attendance rates compared to local average</li>
+      `;
+    }
+    
+    const methodologyNote = document.getElementById('methodologyNote');
+    if (methodologyNote) {
+      methodologyNote.innerHTML = 'Note: Scotland schools are not inspected by Ofsted. Education Scotland inspections are not currently included in our ratings. Ratings are based on academic performance and attendance data.';
+    }
+  }
+  
   // Update rating factors
   components.forEach(component => {
-    if (component.name === 'ofsted') {
+    if (component.name === 'ofsted' && !isWales && !isScotland) {
       document.getElementById('ofstedFactor').style.display = 'block';
       document.getElementById('ofstedScore').textContent = component.score.toFixed(1);
       document.getElementById('ofstedLabel').textContent = component.label || 'Ofsted Rating';
     } else if (component.name === 'academic') {
       document.getElementById('academicFactor').style.display = 'block';
       document.getElementById('academicScore').textContent = component.score.toFixed(1);
+      
+      // Update weight display for Wales/Scotland
+      if (isWales) {
+        document.getElementById('academicWeight').textContent = '80% weight';
+      } else if (isScotland) {
+        document.getElementById('academicWeight').textContent = '60% weight';
+      } else {
+        document.getElementById('academicWeight').textContent = '40% weight';
+      }
       
       // Update subject breakdowns if available
       if (component.details) {
@@ -606,6 +673,9 @@ function updateRatingDisplay(schoolData) {
           document.getElementById('scienceValue').textContent = `${component.details.science.school || 0}%`;
           document.getElementById('scienceSchoolBar').style.width = `${component.details.science.school || 0}%`;
           document.getElementById('scienceLAMarker').style.left = `${component.details.science.la_avg || 50}%`;
+        } else if (isScotland) {
+          // Hide science for Scotland schools
+          document.getElementById('scienceItem').style.display = 'none';
         }
       }
       
@@ -618,6 +688,15 @@ function updateRatingDisplay(schoolData) {
       document.getElementById('attendanceFactor').style.display = 'block';
       document.getElementById('attendanceScore').textContent = component.score.toFixed(1);
       document.getElementById('attendanceRate').textContent = `${component.school_rate?.toFixed(1) || '-'}% attendance rate`;
+      
+      // Update weight display for Wales/Scotland
+      if (isWales) {
+        document.getElementById('attendanceWeight').textContent = '20% weight';
+      } else if (isScotland) {
+        document.getElementById('attendanceWeight').textContent = '40% weight';
+      } else {
+        document.getElementById('attendanceWeight').textContent = '20% weight';
+      }
     }
   });
   
@@ -626,6 +705,8 @@ function updateRatingDisplay(schoolData) {
     document.getElementById('dataNotice').style.display = 'flex';
     document.getElementById('dataNoticeText').textContent = 
       `Rating based on ${schoolData.rating_data_completeness}% of available data`;
+  } else {
+    document.getElementById('dataNotice').style.display = 'none';
   }
 }
 
