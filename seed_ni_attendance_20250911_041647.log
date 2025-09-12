@@ -1,0 +1,11 @@
+2025-09-11 04:16:47,256 - INFO - [NI-school-level-attendance-primary.csv] Headers: ['Reference', 'School Name', '% attendance', '% absence', '% authorised absence', '% unauthorised absence']
+2025-09-11 04:16:47,265 - INFO - [NI-school-level-attendance-primary.csv] staged 780
+2025-09-11 04:16:47,266 - INFO - [NI-school-level-attendance-secondary.csv] Headers: ['Reference', 'School Name', '% attendance', '% absence', '% authorised absence', '% unauthorised absence']
+2025-09-11 04:16:47,269 - INFO - [NI-school-level-attendance-secondary.csv] staged 189
+2025-09-11 04:16:47,273 - INFO - [NI-school-level-attendance-special.csv] Headers: ['Reference', 'School Name', '% attendance', '% absence', '% authorised absence', '% unauthorised absence']
+2025-09-11 04:16:47,273 - INFO - [NI-school-level-attendance-special.csv] staged 39
+2025-09-11 04:16:47,274 - INFO - Unique (urn, year) keys: 1008
+2025-09-11 04:16:50,695 - ERROR - Error: insert or update on table "uk_absence_data" violates foreign key constraint "fk_school_absence"
+DETAIL:  Key (urn)=(1050232) is not present in table "uk_schools".
+
+2025-09-11 04:16:50,695 - INFO - Done.

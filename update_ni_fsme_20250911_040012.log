@@ -1,0 +1,9 @@
+2025-09-11 04:00:12,682 - INFO - Headers: ['De ref', 'school name', 'address 1', 'town', 'postcode', 'school type', 'management type', 'constituency', 'council', 'rural', 'total enrolment', 'male', 'female', 'fsme', 'free school meals', 'Protestant', '% Protestant', 'Catholic', '% Catholic', 'Other Christian / non-Christian / no religion / unknown', '% Other Christian / non-Christian / no religion / unknown']
+2025-09-11 04:00:12,690 - INFO - Staged 802 FSM rows from NI-school-level-primary-school.csv (computed=0, no-value=19)
+2025-09-11 04:00:12,690 - INFO - Headers: ['De ref', 'school name', 'address 1', 'town', 'postcode', 'school type', 'management type', 'constituency', 'council', 'rural', 'total pupils', 'fsme', 'free school meals', 'Protestant', '% Protestant', 'Catholic', '% Catholic', 'Other Christian / non-Christian / no religion / unknown', '% Other Christian / non-Christian / no religion / unknown', 'Newcomer', 'Total enrolment', '% Newcomer']
+2025-09-11 04:00:12,693 - INFO - Staged 201 FSM rows from NI-school-level-post-primary.csv (computed=0, no-value=0)
+2025-09-11 04:00:12,694 - INFO - After de-duplication: 1003 unique URNs
+2025-09-11 04:00:15,048 - INFO - Temp staged rows: 1003
+2025-09-11 04:00:15,206 - INFO - Rows matching uk_schools (country=Northen Irland): 1000
+2025-09-11 04:00:15,457 - INFO - UPDATED 1000 rows in uk_schools
+2025-09-11 04:00:15,616 - INFO - Done.

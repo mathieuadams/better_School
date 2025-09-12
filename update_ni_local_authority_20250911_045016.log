@@ -1,0 +1,9 @@
+2025-09-11 04:50:16,212 - INFO - [NI-school-level-primary-school.csv] Headers: ['De ref', 'school name', 'address 1', 'town', 'postcode', 'school type', 'management type', 'constituency', 'council', 'rural', 'total enrolment', 'male', 'female', 'fsme', 'free school meals', 'Protestant', '% Protestant', 'Catholic', '% Catholic', 'Other Christian / non-Christian / no religion / unknown', '% Other Christian / non-Christian / no religion / unknown']
+2025-09-11 04:50:16,218 - INFO - [NI-school-level-primary-school.csv] staged 821
+2025-09-11 04:50:16,219 - INFO - [NI-school-level-post-primary.csv] Headers: ['De ref', 'school name', 'address 1', 'town', 'postcode', 'school type', 'management type', 'constituency', 'council', 'rural', 'total pupils', 'fsme', 'free school meals', 'Protestant', '% Protestant', 'Catholic', '% Catholic', 'Other Christian / non-Christian / no religion / unknown', '% Other Christian / non-Christian / no religion / unknown', 'Newcomer', 'Total enrolment', '% Newcomer']
+2025-09-11 04:50:16,221 - INFO - [NI-school-level-post-primary.csv] staged 201
+2025-09-11 04:50:16,222 - INFO - Unique URNs staged: 1022
+2025-09-11 04:50:19,035 - WARNING - URNs not found in uk_schools: 3. Sample: 2420320, 3016705, 3036704
+2025-09-11 04:50:19,036 - INFO - Will target 1019 rows in uk_schools (country=Northen Irland).
+2025-09-11 04:50:19,273 - INFO - UPDATED 1019 rows in uk_schools.local_authority
+2025-09-11 04:50:19,438 - INFO - Done.

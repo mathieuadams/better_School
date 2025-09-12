@@ -1,0 +1,7 @@
+2025-09-11 04:12:58,230 - INFO - [NI-school-level-attendance-primary.csv] Headers: ['Reference', 'School Name', '% attendance', '% absence', '% authorised absence', '% unauthorised absence']
+2025-09-11 04:12:58,233 - INFO - [NI-school-level-attendance-primary.csv] staged 0
+2025-09-11 04:12:58,234 - INFO - [NI-school-level-attendance-secondary.csv] Headers: ['Reference', 'School Name', '% attendance', '% absence', '% authorised absence', '% unauthorised absence']
+2025-09-11 04:12:58,234 - INFO - [NI-school-level-attendance-secondary.csv] staged 0
+2025-09-11 04:12:58,236 - INFO - [NI-school-level-attendance-special.csv] Headers: ['Reference', 'School Name', '% attendance', '% absence', '% authorised absence', '% unauthorised absence']
+2025-09-11 04:12:58,236 - INFO - [NI-school-level-attendance-special.csv] staged 0
+2025-09-11 04:12:58,236 - WARNING - No rows staged from CSVs. Exiting.
