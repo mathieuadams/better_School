@@ -339,12 +339,51 @@ router.get('/:urn', async (req, res) => {
         s.religious_character, s.religious_ethos, s.diocese, s.percentage_fsm,
         s.is_part_of_trust, s.trust_name, s.ukprn, s.uprn,
         s.date_opened, s.last_changed_date, s.created_at, s.updated_at,
-        s.english_score, s.english_avg,
-        s.math_score, s.math_avg,
-        s.science_score, s.science_avg,
+
+        /* test scores (school-level) */
+        s.english_score, s.math_score, s.science_score,
+
+        /* NEW: national averages (renamed columns) */
+        s.english_avg_national, s.math_avg_national, s.science_avg_national,
+
+        /* NEW: local authority averages already cached on the school row (optional) */
+        s.english_avg_la, s.math_avg_la, s.science_avg_la,
+
+        /* rating fields on the school row */
         s.overall_rating, s.rating_components, s.rating_percentile, s.rating_updated_at,
-        s.country
+        s.country,
+
+        /* latest ofsted (if any) */
+        o.overall_effectiveness       AS ofsted_overall_effectiveness,
+        o.inspection_date             AS ofsted_inspection_date,
+        o.publication_date            AS ofsted_publication_date,
+
+        /* latest absence snapshot */
+        a.overall_absence_rate,
+        a.persistent_absence_rate,
+
+        /* convenience: computed attendance rate */
+        CASE
+          WHEN a.overall_absence_rate IS NOT NULL THEN 100 - a.overall_absence_rate
+          ELSE NULL
+        END AS attendance_rate
       FROM uk_schools s
+      /* latest ofsted */
+      LEFT JOIN LATERAL (
+        SELECT overall_effectiveness, inspection_date, publication_date
+        FROM uk_ofsted_inspections oi
+        WHERE oi.urn = s.urn
+        ORDER BY COALESCE(inspection_date, publication_date) DESC NULLS LAST
+        LIMIT 1
+      ) o ON TRUE
+      /* latest attendance */
+      LEFT JOIN LATERAL (
+        SELECT overall_absence_rate, persistent_absence_rate
+        FROM uk_absence_data ua
+        WHERE ua.urn = s.urn
+        ORDER BY academic_year DESC NULLS LAST
+        LIMIT 1
+      ) a ON TRUE
       WHERE s.urn = $1
       LIMIT 1
     `;
@@ -353,6 +392,38 @@ router.get('/:urn', async (req, res) => {
       return res.status(404).json({ error: 'School not found' });
     }
     const s = baseR.rows[0];
+
+
+
+    // Normalize: test_scores structure for the HTML components
+    s.test_scores = {
+      english: {
+        score: toNum(s.english_score),
+        average: toNum(s.english_avg_national),  // marker text says “National Avg”
+        la_average: toNum(s.english_avg_la)      // keep both if you want to show LA too
+      },
+      math: {
+        score: toNum(s.math_score),
+        average: toNum(s.math_avg_national),
+        la_average: toNum(s.math_avg_la)
+      },
+      science: {
+        score: toNum(s.science_score),
+        average: toNum(s.science_avg_national),
+        la_average: toNum(s.science_avg_la)
+      }
+    };
+
+    // One canonical field for calculators:
+    s.attendance_rate = toNum(s.attendance_rate);
+
+    // If you pass Ofsted into the header & rating box:
+    s.ofsted = s.ofsted_overall_effectiveness ? {
+      overall_effectiveness: s.ofsted_overall_effectiveness,
+      inspection_date: s.ofsted_inspection_date,
+      overall_label: getOfstedLabel(s.ofsted_overall_effectiveness)
+    } : null;
+
 
     // 2) Get latest Ofsted and other data
     const ofstedSql = `
@@ -403,22 +474,25 @@ router.get('/:urn', async (req, res) => {
 
     // 3) Calculate LA averages for comparison
     const laAvgSql = `
-      SELECT 
-        AVG(s.english_score) as avg_english,
-        AVG(s.math_score) as avg_math,
-        AVG(s.science_score) as avg_science,
-        AVG(CASE WHEN a.overall_absence_rate IS NOT NULL 
-            THEN (100 - a.overall_absence_rate) 
-            ELSE NULL END) as avg_attendance,
-        COUNT(DISTINCT s.urn) as school_count,
-        ARRAY_AGG(s.overall_rating) FILTER (WHERE s.overall_rating IS NOT NULL) as all_ratings
-      FROM uk_schools s
-      LEFT JOIN uk_absence_data a ON s.urn = a.urn
-      WHERE s.local_authority = $1 
-        AND s.phase_of_education = $2
-        AND s.urn != $3
+      SELECT
+        AVG(s2.english_score) AS avg_english,
+        AVG(s2.math_score)    AS avg_math,
+        AVG(s2.science_score) AS avg_science,
+        AVG(CASE WHEN a2.overall_absence_rate IS NOT NULL
+                THEN 100 - a2.overall_absence_rate END) AS avg_attendance,
+        ARRAY_AGG(s2.overall_rating) FILTER (WHERE s2.overall_rating IS NOT NULL) AS all_ratings
+      FROM uk_schools s2
+      LEFT JOIN LATERAL (
+        SELECT overall_absence_rate
+        FROM uk_absence_data ua2
+        WHERE ua2.urn = s2.urn
+        ORDER BY academic_year DESC NULLS LAST
+        LIMIT 1
+      ) a2 ON TRUE
+      WHERE s2.local_authority = $1
+        AND s2.phase_of_education = $2
+        AND s2.urn <> $3
     `;
-    
     const laAvgR = await query(laAvgSql, [s.local_authority, s.phase_of_education, urn]);
     const laAverages = laAvgR.rows[0] || {};
 
