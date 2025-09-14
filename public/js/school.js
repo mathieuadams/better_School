@@ -198,17 +198,31 @@ function updateBreadcrumbs(school) {
   const addr = school.address || {};
   const city = addr.town ? addr.town : null;
   const la = addr.local_authority ? addr.local_authority : null;
+  const country = (school.country || '').toLowerCase();
+  const isNonEngland = country && country !== 'england';
 
   const cityCrumb = document.getElementById('cityCrumb');
   if (cityCrumb && city) {
     cityCrumb.textContent = city;
-    cityCrumb.href = `/${city.toLowerCase().replace(/\s+/g, '-')}`;
+    // For Wales, Northern Ireland, and Scotland, prefer search link to avoid 404 city routes
+    if (isNonEngland) {
+      cityCrumb.href = `/search?type=location&q=${encodeURIComponent(city)}`;
+    } else {
+      cityCrumb.href = `/${city.toLowerCase().replace(/\s+/g, '-')}`;
+    }
   }
   const laCrumb = document.getElementById('laCrumb');
   if (laCrumb && la) {
     laCrumb.textContent = la;
     const laSlug = la.toLowerCase().replace(/\s+/g, '-');
-    if (city) laCrumb.href = `/${city.toLowerCase().replace(/\s+/g, '-')}/${laSlug}`; else laCrumb.href = `/local-authority/${laSlug}`;
+    // For non-England, always link to canonical LA route to avoid city slug routing issues
+    if (isNonEngland) {
+      laCrumb.href = `/local-authority/${laSlug}`;
+    } else if (city) {
+      laCrumb.href = `/${city.toLowerCase().replace(/\s+/g, '-')}/${laSlug}`;
+    } else {
+      laCrumb.href = `/local-authority/${laSlug}`;
+    }
   }
   const schoolCrumb = document.getElementById('schoolCrumb');
   if (schoolCrumb) schoolCrumb.textContent = school.name || 'School Name';

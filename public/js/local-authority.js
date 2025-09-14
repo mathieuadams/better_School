@@ -336,7 +336,14 @@ function renderLASummary(data, citySlug) {
       
       if (city) {
         cityCrumb.textContent = city;
-        cityCrumb.href = `/${citySlug || city.toLowerCase().replace(/\s+/g, '-')}`;
+        // For Wales and Northern Ireland, link to search page to avoid 404 for unknown city routes
+        const regionLower = (data.region || '').toLowerCase();
+        const isNonEngland = regionLower && regionLower !== 'england';
+        if (isNonEngland) {
+          cityCrumb.href = `/search?type=location&q=${encodeURIComponent(city)}`;
+        } else {
+          cityCrumb.href = `/${citySlug || city.toLowerCase().replace(/\s+/g, '-')}`;
+        }
         cityCrumb.style.display = 'inline';
       } else {
         cityCrumb.style.display = 'none';
@@ -352,6 +359,13 @@ function renderLASummary(data, citySlug) {
         citySeparator.style.display = 'none';
       }
     }
+  }
+
+  // Ensure LA breadcrumb points to canonical route (avoids reliance on city slug)
+  const laCrumb = document.getElementById('laCrumb');
+  if (laCrumb && data.laName) {
+    const laSlug = data.laName.toLowerCase().replace(/\s+/g, '-');
+    laCrumb.href = `/local-authority/${laSlug}`;
   }
   
   // Update title
