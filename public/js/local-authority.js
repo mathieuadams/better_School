@@ -141,7 +141,7 @@ async function loadLocalAuthorityData(laName, citySlug) {
       
       renderLASummary(data, citySlug);
       processSchoolsForPhases(data.schools);
-      renderTopSchools();
+      await renderTopSchools();
     }
   } catch (error) {
     console.error('Error loading LA data:', error);
@@ -187,7 +187,7 @@ async function loadUsingSearchAPI(laName, citySlug) {
       
       renderLASummary(summary, citySlug);
       processSchoolsForPhases(schools);
-      renderTopSchools();
+      await renderTopSchools();
     }
   } catch (error) {
     console.error('Error loading schools via search:', error);
@@ -500,17 +500,17 @@ function categorizeAndRankSchools(schools) {
 }
 
 // Render top schools with fair ranking
-function renderTopSchools() {
-  renderSchoolList('primarySchools', schoolsByPhase.primary, 5);
-  renderSchoolList('secondarySchools', schoolsByPhase.secondary, 5);
+async function renderTopSchools() {
+  await renderSchoolList('primarySchools', schoolsByPhase.primary, 5);
+  await renderSchoolList('secondarySchools', schoolsByPhase.secondary, 5);
   
   // Only render sixth form for non-Scottish LAs
   if (!isScottishLA) {
-    renderSchoolList('sixthFormSchools', schoolsByPhase.sixthForm, 5);
+    await renderSchoolList('sixthFormSchools', schoolsByPhase.sixthForm, 5);
   }
 }
 
-function renderSchoolList(containerId, schools, showMax = 5) {
+async function renderSchoolList(containerId, schools, showMax = 5) {
   const container = document.getElementById(containerId);
   if (!container) return;
   
@@ -521,7 +521,28 @@ function renderSchoolList(containerId, schools, showMax = 5) {
   
   // Apply fair ranking
   const rankedSchools = categorizeAndRankSchools(schools);
-  const topSchools = rankedSchools.slice(0, showMax);
+  let topSchools = rankedSchools.slice(0, showMax);
+
+  // Sync ratings with the school API for the rendered items
+  try {
+    const details = await Promise.all(topSchools.map(s => 
+      fetch(`/api/schools/${s.urn}`).then(r => r.ok ? r.json() : null).catch(() => null)
+    ));
+    topSchools = topSchools.map((s, i) => {
+      const d = details[i];
+      const school = d && d.school ? d.school : null;
+      if (school && school.overall_rating != null) {
+        return {
+          ...s,
+          overall_rating: school.overall_rating,
+          rating_data_completeness: school.rating_data_completeness,
+        };
+      }
+      return s;
+    });
+  } catch (e) {
+    console.warn('Failed to sync ratings for LA list', e);
+  }
   
   const html = topSchools.map((school, index) => {
     let ratingText = '—';
