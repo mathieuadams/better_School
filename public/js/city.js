@@ -142,6 +142,19 @@ function processSchoolsData() {
   cityData.schoolsByPhase.sixthForm = [];
   cityData.localAuthorities = {};
   
+  // Helper to robustly classify school phases across UK (NI included)
+  const classify = (school) => {
+    const phase = (school.phase_of_education || '').toLowerCase();
+    const type = (school.type_of_establishment || '').toLowerCase();
+    const group = (school.establishment_group || '').toLowerCase();
+    if (type.includes('special') || phase.includes('special') || group.includes('special')) return 'special';
+    if (phase.includes('all-through') || phase.includes('through') || type.includes('all-through')) return 'all-through';
+    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first') || type.includes('primary')) return 'primary';
+    if (phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper') || /post[-\s]?primary/.test(phase) || /post[-\s]?primary/.test(type) || type.includes('secondary') || type.includes('grammar') || type.includes('high school')) return 'secondary';
+    if (phase.includes('sixth') || phase.includes('16') || phase.includes('post-16') || type.includes('sixth') || type.includes('post-16')) return 'sixth';
+    return null;
+  };
+
   cityData.schools.forEach(school => {
     const phase = (school.phase_of_education || '').toLowerCase();
     const type = (school.type_of_establishment || '').toLowerCase();
@@ -163,28 +176,30 @@ function processSchoolsData() {
     cityData.localAuthorities[la].schools.push(school);
     
     // Count by phase
-    if (type.includes('special') || phase.includes('special')) {
+    const cls = classify(school);
+    if (cls === 'special') {
       specialCount++;
       cityData.localAuthorities[la].special++;
-    } else if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first')) {
+    } else if (cls === 'primary' || cls === 'all-through') {
       primaryCount++;
       cityData.schoolsByPhase.primary.push(school);
       cityData.localAuthorities[la].primary++;
-    } else if (phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper')) {
+    } else if (cls === 'secondary' || cls === 'all-through') {
       secondaryCount++;
       cityData.schoolsByPhase.secondary.push(school);
       cityData.localAuthorities[la].secondary++;
       
       // Don't count sixth form for Scottish schools
-      if (!cityData.isScottish && (phase.includes('sixth') || phase.includes('16') || phase.includes('post'))) {
+      if (!cityData.isScottish) {
         sixthFormCount++;
         cityData.schoolsByPhase.sixthForm.push(school);
       }
     }
     
-    // Count students
-    if (school.number_on_roll) {
-      const students = parseInt(school.number_on_roll) || 0;
+    // Count students (fallback to total_pupils for NI)
+    const pupils = school.number_on_roll ?? school.total_pupils;
+    if (pupils) {
+      const students = parseInt(pupils) || 0;
       totalStudents += students;
       cityData.localAuthorities[la].students += students;
     }
