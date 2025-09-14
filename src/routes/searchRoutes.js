@@ -132,6 +132,8 @@ router.get('/', async (req, res) => {
         s.name,
         s.postcode,
         s.town,
+        s.latitude,
+        s.longitude,
         s.local_authority,
         s.phase_of_education,
         s.type_of_establishment,
