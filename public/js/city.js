@@ -432,7 +432,7 @@ function renderSchoolList(containerId, schools, showMax = 5) {
       }
       
       ratingValue = cappedRating;
-    } else if (school.ofsted_rating != null && !isScottishLA) {
+    } else if (school.ofsted_rating != null && !cityData.isScottish) {
       // Fallback to Ofsted-based rating
       const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
       if (fallback != null) {
@@ -443,7 +443,7 @@ function renderSchoolList(containerId, schools, showMax = 5) {
     }
     
     // Don't show Ofsted badge for Scottish schools
-    const ofstedBadge = (!isScottishLA && school.ofsted_rating) ? `
+    const ofstedBadge = (!cityData.isScottish && school.ofsted_rating) ? `
       <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
         ${getOfstedLabel(school.ofsted_rating)}
       </div>` : '';
