@@ -147,8 +147,20 @@ router.get('/', async (req, res) => {
         c.number_on_roll,
         c.percentage_fsm_ever6 as fsm_percentage
       FROM uk_schools s
-      LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
-      LEFT JOIN uk_census_data c ON s.urn = c.urn
+      LEFT JOIN LATERAL (
+        SELECT overall_effectiveness, inspection_date
+        FROM uk_ofsted_inspections o
+        WHERE o.urn = s.urn
+        ORDER BY COALESCE(inspection_date, publication_date) DESC NULLS LAST
+        LIMIT 1
+      ) o ON TRUE
+      LEFT JOIN LATERAL (
+        SELECT number_on_roll, percentage_fsm_ever6
+        FROM uk_census_data c2
+        WHERE c2.urn = s.urn
+        ORDER BY academic_year DESC NULLS LAST
+        LIMIT 1
+      ) c ON TRUE
       WHERE 1=1
     `;
 
@@ -157,6 +169,7 @@ router.get('/', async (req, res) => {
 
     // Add search conditions based on type
     const searchTerm = `%${q.trim()}%`;
+    const qExact = q.trim();
     
     if (type === 'name') {
       paramCount++;
@@ -167,11 +180,15 @@ router.get('/', async (req, res) => {
       sqlQuery += ` AND LOWER(s.postcode) LIKE LOWER($${paramCount})`;
       params.push(searchTerm);
     } else if (type === 'location') {
-      paramCount++;
-      paramCount++;
-      sqlQuery += ` AND (LOWER(s.town) LIKE LOWER($${paramCount-1}) OR LOWER(s.local_authority) LIKE LOWER($${paramCount}))`;
-      params.push(searchTerm);
-      params.push(searchTerm);
+      // Prefer exact city/LA matches to avoid false positives like 'Londonderry'
+      const laPrefix = `${qExact}%`;
+      paramCount += 3;
+      sqlQuery += ` AND (
+        unaccent(lower(s.town)) = unaccent(lower($${paramCount-2})) OR
+        unaccent(lower(s.local_authority)) = unaccent(lower($${paramCount-1})) OR
+        unaccent(lower(s.local_authority)) LIKE unaccent(lower($${paramCount}))
+      )`;
+      params.push(qExact, qExact, laPrefix);
     } else {
       // Search all fields
       paramCount++;
@@ -296,7 +313,13 @@ router.get('/', async (req, res) => {
     let countQuery = `
       SELECT COUNT(*) as total
       FROM uk_schools s
-      LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
+      LEFT JOIN LATERAL (
+        SELECT overall_effectiveness, inspection_date
+        FROM uk_ofsted_inspections o
+        WHERE o.urn = s.urn
+        ORDER BY COALESCE(inspection_date, publication_date) DESC NULLS LAST
+        LIMIT 1
+      ) o ON TRUE
       WHERE 1=1
     `;
     
@@ -315,9 +338,14 @@ router.get('/', async (req, res) => {
       countQuery += ` AND LOWER(s.postcode) LIKE LOWER($${countParamCount})`;
       countParams.push(searchTerm);
     } else if (type === 'location') {
-      countParamCount += 2;
-      countQuery += ` AND (LOWER(s.town) LIKE LOWER($${countParamCount-1}) OR LOWER(s.local_authority) LIKE LOWER($${countParamCount}))`;
-      countParams.push(searchTerm, searchTerm);
+      const laPrefix = `${qExact}%`;
+      countParamCount += 3;
+      countQuery += ` AND (
+        unaccent(lower(s.town)) = unaccent(lower($${countParamCount-2})) OR
+        unaccent(lower(s.local_authority)) = unaccent(lower($${countParamCount-1})) OR
+        unaccent(lower(s.local_authority)) LIKE unaccent(lower($${countParamCount}))
+      )`;
+      countParams.push(qExact, qExact, laPrefix);
     } else {
       countParamCount += 4;
       countQuery += ` AND (
