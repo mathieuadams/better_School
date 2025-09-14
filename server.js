@@ -224,10 +224,8 @@ app.get('/:city', (req, res, next) => {
   
   if (reserved.has(city.toLowerCase())) return next();
 
-  if (ukCities.has(city.toLowerCase())) {
-    return sendPublic(res, 'city.html');
-  }
-  return next();
+  // Serve city page for any non-reserved slug (do not restrict to known list)
+  return sendPublic(res, 'city.html');
 });
 
 // ---- Local Authority routing
@@ -247,10 +245,7 @@ app.get('/:city/:identifier', (req, res, next) => {
   ]);
   
   if (reserved.has(city.toLowerCase())) return next();
-  
-  // Check if it's a known city
-  if (!ukCities.has(city.toLowerCase())) return next();
-  
+
   // Check if identifier looks like a URN (all digits or digits with dash)
   if (/^\d+(-.*)?$/.test(identifier)) {
     // It's a school (URN or URN-slug)

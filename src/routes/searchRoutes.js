@@ -113,7 +113,9 @@ router.get('/', async (req, res) => {
       offset = 0,
       phase,
       ofsted,
-      la 
+      la,
+      phases: phasesStr,
+      minRating
     } = req.query;
 
     // Validate search query
@@ -193,16 +195,83 @@ router.get('/', async (req, res) => {
       params.push(phase);
     }
 
+    // Multi-ofsted support (comma-separated)
     if (ofsted) {
-      paramCount++;
-      sqlQuery += ` AND o.overall_effectiveness = $${paramCount}`;
-      params.push(parseInt(ofsted));
+      const ratings = String(ofsted)
+        .split(',')
+        .map(v => parseInt(v.trim(), 10))
+        .filter(v => [1,2,3,4].includes(v));
+      if (ratings.length > 0) {
+        const placeholders = ratings.map(() => `$${++paramCount}`).join(',');
+        sqlQuery += ` AND o.overall_effectiveness IN (${placeholders})`;
+        params.push(...ratings);
+      }
     }
 
     if (la) {
       paramCount++;
       sqlQuery += ` AND LOWER(s.local_authority) = LOWER($${paramCount})`;
       params.push(la);
+    }
+
+    // School type filters (from checkboxes): phases=Primary,Secondary,Sixth Form,Special,Independent,Academy
+    if (phasesStr) {
+      const selected = String(phasesStr)
+        .split(',')
+        .map(s => s.trim().toLowerCase())
+        .filter(Boolean);
+      if (selected.length > 0) {
+        const orClauses = [];
+        // Primary
+        if (selected.includes('primary')) {
+          paramCount++;
+          orClauses.push(`LOWER(s.phase_of_education) LIKE LOWER($${paramCount})`);
+          params.push('%primary%');
+        }
+        // Secondary
+        if (selected.includes('secondary')) {
+          paramCount += 2;
+          orClauses.push(`(LOWER(s.phase_of_education) LIKE LOWER($${paramCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${paramCount}))`);
+          params.push('%secondary%','%secondary%');
+        }
+        // Sixth Form
+        if (selected.includes('sixth form') || selected.includes('sixth-form')) {
+          paramCount += 2;
+          orClauses.push(`(LOWER(s.phase_of_education) LIKE LOWER($${paramCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${paramCount}) OR s.has_sixth_form = TRUE)`);
+          params.push('%sixth%','%sixth%');
+        }
+        // Special
+        if (selected.includes('special')) {
+          paramCount += 2;
+          orClauses.push(`(LOWER(s.phase_of_education) LIKE LOWER($${paramCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${paramCount}))`);
+          params.push('%special%','%special%');
+        }
+        // Independent
+        if (selected.includes('independent')) {
+          paramCount += 2;
+          orClauses.push(`(LOWER(s.establishment_group) LIKE LOWER($${paramCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${paramCount}))`);
+          params.push('%independent%','%independent%');
+        }
+        // Academy
+        if (selected.includes('academy')) {
+          paramCount += 2;
+          orClauses.push(`(LOWER(s.establishment_group) LIKE LOWER($${paramCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${paramCount}))`);
+          params.push('%academy%','%academy%');
+        }
+        if (orClauses.length > 0) {
+          sqlQuery += ` AND (${orClauses.join(' OR ')})`;
+        }
+      }
+    }
+
+    // Minimum overall rating filter
+    if (minRating) {
+      const mr = parseFloat(minRating);
+      if (!isNaN(mr)) {
+        paramCount++;
+        sqlQuery += ` AND s.overall_rating >= $${paramCount}`;
+        params.push(mr);
+      }
     }
 
     // Order by overall_rating if available, otherwise by name
@@ -230,38 +299,106 @@ router.get('/', async (req, res) => {
     `;
     
     // Add the same WHERE conditions for count (without LIMIT/OFFSET)
-    const countParams = params.slice(0, -2); // Remove limit and offset params
-    
+    // Rebuild count params to mirror filters (without LIMIT/OFFSET)
+    const countParams = [];
+    let countParamCount = 0;
+
+    // replicate search conditions
+    const searchTerm = `%${q?.trim() || ''}%`;
     if (type === 'name') {
-      countQuery += ` AND LOWER(s.name) LIKE LOWER($1)`;
+      countParamCount++;
+      countQuery += ` AND LOWER(s.name) LIKE LOWER($${countParamCount})`;
+      countParams.push(searchTerm);
     } else if (type === 'postcode') {
-      countQuery += ` AND LOWER(s.postcode) LIKE LOWER($1)`;
+      countParamCount++;
+      countQuery += ` AND LOWER(s.postcode) LIKE LOWER($${countParamCount})`;
+      countParams.push(searchTerm);
     } else if (type === 'location') {
-      countQuery += ` AND (LOWER(s.town) LIKE LOWER($1) OR LOWER(s.local_authority) LIKE LOWER($2))`;
+      countParamCount += 2;
+      countQuery += ` AND (LOWER(s.town) LIKE LOWER($${countParamCount-1}) OR LOWER(s.local_authority) LIKE LOWER($${countParamCount}))`;
+      countParams.push(searchTerm, searchTerm);
     } else {
+      countParamCount += 4;
       countQuery += ` AND (
-        LOWER(s.name) LIKE LOWER($1) OR 
-        LOWER(s.postcode) LIKE LOWER($2) OR 
-        LOWER(s.town) LIKE LOWER($3) OR 
-        LOWER(s.local_authority) LIKE LOWER($4)
+        LOWER(s.name) LIKE LOWER($${countParamCount-3}) OR 
+        LOWER(s.postcode) LIKE LOWER($${countParamCount-2}) OR 
+        LOWER(s.town) LIKE LOWER($${countParamCount-1}) OR 
+        LOWER(s.local_authority) LIKE LOWER($${countParamCount})
       )`;
+      countParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
-    // Add filter conditions to count query if they exist
-    let countParamOffset = type === 'location' ? 2 : (type === 'all' ? 4 : 1);
-    
+    // Same filters for count
     if (phase) {
-      countQuery += ` AND s.phase_of_education = $${countParamOffset + 1}`;
-      countParamOffset++;
+      countParamCount++;
+      countQuery += ` AND s.phase_of_education = $${countParamCount}`;
+      countParams.push(phase);
     }
-    
     if (ofsted) {
-      countQuery += ` AND o.overall_effectiveness = $${countParamOffset + 1}`;
-      countParamOffset++;
+      const ratings = String(ofsted)
+        .split(',')
+        .map(v => parseInt(v.trim(), 10))
+        .filter(v => [1,2,3,4].includes(v));
+      if (ratings.length > 0) {
+        const placeholders = ratings.map(() => `$${++countParamCount}`).join(',');
+        countQuery += ` AND o.overall_effectiveness IN (${placeholders})`;
+        countParams.push(...ratings);
+      }
     }
-    
     if (la) {
-      countQuery += ` AND LOWER(s.local_authority) = LOWER($${countParamOffset + 1})`;
+      countParamCount++;
+      countQuery += ` AND LOWER(s.local_authority) = LOWER($${countParamCount})`;
+      countParams.push(la);
+    }
+    if (phasesStr) {
+      const selected = String(phasesStr)
+        .split(',')
+        .map(s => s.trim().toLowerCase())
+        .filter(Boolean);
+      if (selected.length > 0) {
+        const orClauses = [];
+        if (selected.includes('primary')) {
+          countParamCount++;
+          orClauses.push(`LOWER(s.phase_of_education) LIKE LOWER($${countParamCount})`);
+          countParams.push('%primary%');
+        }
+        if (selected.includes('secondary')) {
+          countParamCount += 2;
+          orClauses.push(`(LOWER(s.phase_of_education) LIKE LOWER($${countParamCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${countParamCount}))`);
+          countParams.push('%secondary%','%secondary%');
+        }
+        if (selected.includes('sixth form') || selected.includes('sixth-form')) {
+          countParamCount += 2;
+          orClauses.push(`(LOWER(s.phase_of_education) LIKE LOWER($${countParamCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${countParamCount}) OR s.has_sixth_form = TRUE)`);
+          countParams.push('%sixth%','%sixth%');
+        }
+        if (selected.includes('special')) {
+          countParamCount += 2;
+          orClauses.push(`(LOWER(s.phase_of_education) LIKE LOWER($${countParamCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${countParamCount}))`);
+          countParams.push('%special%','%special%');
+        }
+        if (selected.includes('independent')) {
+          countParamCount += 2;
+          orClauses.push(`(LOWER(s.establishment_group) LIKE LOWER($${countParamCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${countParamCount}))`);
+          countParams.push('%independent%','%independent%');
+        }
+        if (selected.includes('academy')) {
+          countParamCount += 2;
+          orClauses.push(`(LOWER(s.establishment_group) LIKE LOWER($${countParamCount-1}) OR LOWER(s.type_of_establishment) LIKE LOWER($${countParamCount}))`);
+          countParams.push('%academy%','%academy%');
+        }
+        if (orClauses.length > 0) {
+          countQuery += ` AND (${orClauses.join(' OR ')})`;
+        }
+      }
+    }
+    if (minRating) {
+      const mr = parseFloat(minRating);
+      if (!isNaN(mr)) {
+        countParamCount++;
+        countQuery += ` AND s.overall_rating >= $${countParamCount}`;
+        countParams.push(mr);
+      }
     }
 
     const countResult = await query(countQuery, countParams);

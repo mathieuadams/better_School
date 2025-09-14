@@ -27,6 +27,19 @@ let cityData = {
   document.getElementById('cityNameInSchools').textContent = cityData.name;
   document.getElementById('pageTitle').textContent = `${cityData.name} Schools - Better School UK`;
   
+  // Wire city search button to localized search page
+  const citySearchLink = document.getElementById('citySearchLink');
+  if (citySearchLink) {
+    const areaParam = encodeURIComponent(cityData.name);
+    citySearchLink.href = `/search.html?area=${areaParam}`;
+    citySearchLink.setAttribute('aria-label', `Search all schools in ${cityData.name}`);
+    // Update visible label as well
+    const labelSpan = citySearchLink.querySelector('span:last-child');
+    if (labelSpan) {
+      labelSpan.textContent = `Search all schools in ${cityData.name}`;
+    }
+  }
+  
   // Load city schools
   await loadCitySchools();
 })();
