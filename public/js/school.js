@@ -99,7 +99,7 @@ async function loadSchoolData() {
     const s = payload.school;
     // Normalize fields
     s.rating_components = safeParseJSON(s.rating_components, []);
-    isScottishSchool = s.country === 'Scotland' || !!s.is_scotland;
+    isScottishSchool = (s.country && s.country.toLowerCase() !== 'england') || !!s.is_scotland;
 
     if (isScottishSchool) {
       hideScotlandFeatures();

@@ -80,7 +80,7 @@ router.get('/school-autocomplete', async (req, res) => {
   const q = qRaw.replace(/[%_]/g, '');
   const like = q + '%';
   const tokens = q.split(/\s+/).filter(Boolean);
-  const tokenConds = tokens.map((_, i) => `unaccent(lower(name)) LIKE unaccent(lower($${i + 3}))`).join(' AND ');
+  const tokenConds = tokens.map((_, i) => `LOWER(name) LIKE LOWER($${i + 3})`).join(' AND ');
   const tokenParams = tokens.map(t => `%${t}%`);
 
   const sql = `
@@ -184,9 +184,9 @@ router.get('/', async (req, res) => {
       const laPrefix = `${qExact}%`;
       paramCount += 3;
       sqlQuery += ` AND (
-        unaccent(lower(s.town)) = unaccent(lower($${paramCount-2})) OR
-        unaccent(lower(s.local_authority)) = unaccent(lower($${paramCount-1})) OR
-        unaccent(lower(s.local_authority)) LIKE unaccent(lower($${paramCount}))
+        LOWER(s.town) = LOWER($${paramCount-2}) OR
+        LOWER(s.local_authority) = LOWER($${paramCount-1}) OR
+        LOWER(s.local_authority) LIKE LOWER($${paramCount})
       )`;
       params.push(qExact, qExact, laPrefix);
     } else {
@@ -341,9 +341,9 @@ router.get('/', async (req, res) => {
       const laPrefix = `${qExact}%`;
       countParamCount += 3;
       countQuery += ` AND (
-        unaccent(lower(s.town)) = unaccent(lower($${countParamCount-2})) OR
-        unaccent(lower(s.local_authority)) = unaccent(lower($${countParamCount-1})) OR
-        unaccent(lower(s.local_authority)) LIKE unaccent(lower($${countParamCount}))
+        LOWER(s.town) = LOWER($${countParamCount-2}) OR
+        LOWER(s.local_authority) = LOWER($${countParamCount-1}) OR
+        LOWER(s.local_authority) LIKE LOWER($${countParamCount})
       )`;
       countParams.push(qExact, qExact, laPrefix);
     } else {

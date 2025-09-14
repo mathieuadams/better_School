@@ -7,7 +7,7 @@ let schoolsByPhase = {
   secondary: [],
   sixthForm: []
 };
-let isScottishLA = false; // Add flag for Scottish LAs
+let isScottishLA = false; // legacy name; true for any non-England LA
 
 // Initialize page
 (async function init() {
@@ -60,7 +60,7 @@ let isScottishLA = false; // Add flag for Scottish LAs
   await loadLocalAuthorityData(laName, citySlug);
 })();
 
-// Check if LA is in Scotland
+// Check LA country using first school's country; treat non-England as 'Scottish' flag for UI logic
 async function checkIfScottishLA(schools) {
   if (schools && schools.length > 0) {
     try {
@@ -68,7 +68,8 @@ async function checkIfScottishLA(schools) {
       if (firstSchool && firstSchool.urn) {
         const response = await fetch(`/api/schools/${firstSchool.urn}`);
         const data = await response.json();
-        return data.school?.country === 'Scotland';
+        const country = data.school?.country || 'England';
+        return country.toLowerCase() !== 'england';
       }
     } catch (error) {
       console.error('Error checking country:', error);
@@ -77,7 +78,7 @@ async function checkIfScottishLA(schools) {
   return false;
 }
 
-// Hide England-specific features for Scottish LAs
+// Hide England-specific features for non-England LAs
 function hideScotlandFeatures() {
   // Hide Ofsted ratings section
   const ratingsSection = document.querySelector('.ratings-section');

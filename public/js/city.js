@@ -10,7 +10,9 @@ let cityData = {
     secondary: [],
     sixthForm: []
   },
-  isScottish: false // Add flag for Scottish cities
+  isScottish: false, // Add flag for Scottish cities (legacy)
+  isNonEngland: false,
+  country: 'England'
 };
 
 // Initialize page
@@ -44,25 +46,25 @@ let cityData = {
   await loadCitySchools();
 })();
 
-// Check if city is in Scotland
-async function checkIfScottishCity(schools) {
+// Get city country from first school's API
+async function getCityCountry(schools) {
   if (schools && schools.length > 0) {
     try {
       const firstSchool = schools[0];
       if (firstSchool && firstSchool.urn) {
         const response = await fetch(`/api/schools/${firstSchool.urn}`);
         const data = await response.json();
-        return data.school?.country === 'Scotland';
+        return data.school?.country || 'England';
       }
     } catch (error) {
       console.error('Error checking country:', error);
     }
   }
-  return false;
+  return 'England';
 }
 
-// Hide England-specific features for Scottish cities
-function hideScotlandFeatures() {
+// Hide England-only features (Ofsted, sixth form UI)
+function hideEnglandOnlyFeatures() {
   // Hide Ofsted ratings section
   const ratingsSection = document.querySelector('.ratings-section');
   if (ratingsSection) {
@@ -97,19 +99,17 @@ async function loadCitySchools() {
     if (data.success && data.schools) {
       cityData.schools = data.schools;
       
-      // Check if this is a Scottish city
-      cityData.isScottish = await checkIfScottishCity(data.schools);
-      
-      // Hide England-specific features if Scottish
-      if (cityData.isScottish) {
-        hideScotlandFeatures();
-      }
+      // Determine country flags
+      cityData.country = await getCityCountry(data.schools);
+      cityData.isNonEngland = (cityData.country && cityData.country.toLowerCase() !== 'england');
+      cityData.isScottish = (cityData.country === 'Scotland');
+      if (cityData.isNonEngland) hideEnglandOnlyFeatures();
       
       processSchoolsData();
       renderLocalAuthorities();
       
-      // Only render Ofsted distribution for non-Scottish cities
-      if (!cityData.isScottish) {
+      // Only render Ofsted distribution for England
+      if (!cityData.isNonEngland) {
         renderOfstedDistribution();
       }
       
@@ -189,8 +189,8 @@ function processSchoolsData() {
       cityData.localAuthorities[la].students += students;
     }
     
-    // Count Ofsted ratings (not relevant for Scotland but keep for England)
-    if (!cityData.isScottish) {
+    // Count Ofsted ratings (England only)
+    if (!cityData.isNonEngland) {
       switch(school.ofsted_rating) {
         case 1: 
           ofstedCounts.outstanding++;
@@ -221,8 +221,8 @@ function processSchoolsData() {
   document.getElementById('primaryCount').textContent = primaryCount;
   document.getElementById('secondaryCount').textContent = secondaryCount;
   
-  // Only show sixth form count for non-Scottish cities
-  if (!cityData.isScottish) {
+  // Only show sixth form count for England
+  if (!cityData.isNonEngland) {
     document.getElementById('sixthFormCount').textContent = sixthFormCount;
   }
   
@@ -247,9 +247,9 @@ function renderLocalAuthorities() {
     const laSlug = la.name.toLowerCase().replace(/\s+/g, '-');
     const citySlug = cityData.name.toLowerCase().replace(/\s+/g, '-');
     
-    // For Scottish LAs, don't show Ofsted percentages
+    // For non-England LAs, don't show Ofsted percentages
     let qualityIndicator = '';
-    if (!cityData.isScottish) {
+    if (!cityData.isNonEngland) {
       const goodOrOutstanding = la.outstanding + la.good;
       const totalRated = la.schools.filter(s => s.ofsted_rating).length;
       const percentage = totalRated > 0 ? Math.round((goodOrOutstanding / totalRated) * 100) : 0;
@@ -261,7 +261,7 @@ function renderLocalAuthorities() {
         </div>
       `;
     } else {
-      // For Scottish LAs, show average rating if available
+      // For non-England LAs, show average rating if available
       const ratings = la.schools
         .filter(s => s.overall_rating)
         .map(s => parseFloat(s.overall_rating));
@@ -309,7 +309,7 @@ function renderLocalAuthorities() {
 
 // Render Ofsted distribution (England only)
 function renderOfstedDistribution() {
-  if (cityData.isScottish) return; // Skip for Scottish cities
+  if (cityData.isNonEngland) return; // Skip for non-England cities
   
   const totalInspected = Object.values(cityData.ofstedCounts).reduce((a, b) => a + b, 0) - 
                          (cityData.ofstedCounts.notInspected || 0);
@@ -467,7 +467,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
       }
       
       ratingValue = cappedRating;
-    } else if (school.ofsted_rating != null && !cityData.isScottish) {
+    } else if (school.ofsted_rating != null && !cityData.isNonEngland) {
       // Fallback to Ofsted-based rating
       const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
       if (fallback != null) {
@@ -477,8 +477,8 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
       }
     }
     
-    // Don't show Ofsted badge for Scottish schools
-    const ofstedBadge = (!cityData.isScottish && school.ofsted_rating) ? `
+    // Don't show Ofsted badge for non-England
+    const ofstedBadge = (!cityData.isNonEngland && school.ofsted_rating) ? `
       <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
         ${getOfstedLabel(school.ofsted_rating)}
       </div>` : '';
@@ -510,8 +510,8 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
 
 // Switch between school phases
 function switchPhase(phase) {
-  // Don't allow switching to sixth form for Scottish cities
-  if (phase === 'sixth-form' && cityData.isScottish) {
+  // Don't allow switching to sixth form for non-England cities
+  if (phase === 'sixth-form' && cityData.isNonEngland) {
     return;
   }
   
