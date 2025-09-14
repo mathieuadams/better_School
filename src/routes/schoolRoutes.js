@@ -871,7 +871,7 @@ router.get('/:urn/nearby', async (req, res) => {
         s.postcode,
         s.town,
         o.overall_effectiveness AS ofsted_rating,
-        c.number_on_roll,
+        COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll,
         COALESCE(
           s.overall_rating,
           CASE
@@ -931,7 +931,7 @@ router.get('/:urn/comparison', async (req, res) => {
         s.local_authority,
         o.overall_effectiveness as ofsted_rating,
         c.percentage_fsm_ever6,
-        c.number_on_roll,
+        COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll,
         ks4.progress_8_score,
         ks4.attainment_8_score,
         ks4.basics_9_5_percentage,

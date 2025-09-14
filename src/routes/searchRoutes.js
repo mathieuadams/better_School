@@ -144,7 +144,7 @@ router.get('/', async (req, res) => {
         s.rating_percentile,
         o.overall_effectiveness as ofsted_rating,
         o.inspection_date,
-        c.number_on_roll,
+        COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll,
         c.percentage_fsm_ever6 as fsm_percentage
       FROM uk_schools s
       LEFT JOIN LATERAL (
@@ -506,7 +506,7 @@ router.get('/nearby', async (req, res) => {
           s.longitude,
           o.overall_effectiveness as ofsted_rating,
           o.inspection_date,
-          c.number_on_roll,
+          COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll,
           c.percentage_fsm_ever6 as fsm_percentage,
           (
             6371 * acos(
@@ -583,7 +583,7 @@ router.get('/postcode/:postcode', async (req, res) => {
       SELECT 
         s.*,
         o.overall_effectiveness as ofsted_rating,
-        c.number_on_roll
+        COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn
@@ -637,7 +637,7 @@ router.get('/city/:city', async (req, res) => {
         COALESCE(s.overall_rating, 5.0) as overall_rating,  -- Use stored rating or default to 5
         s.rating_percentile,
         o.overall_effectiveness as ofsted_rating,
-        c.number_on_roll
+        COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn

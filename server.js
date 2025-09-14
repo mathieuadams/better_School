@@ -279,7 +279,7 @@ app.get('/api/local-authority/:laName/summary', async (req, res) => {
         s.science_score,
         s.overall_rating,
         o.overall_effectiveness as ofsted_rating,
-        c.number_on_roll,
+        COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll,
         c.percentage_fsm_ever6 as fsm_percentage,
         a.overall_absence_rate
       FROM uk_schools s
