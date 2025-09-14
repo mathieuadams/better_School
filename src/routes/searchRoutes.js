@@ -303,8 +303,7 @@ router.get('/', async (req, res) => {
     const countParams = [];
     let countParamCount = 0;
 
-    // replicate search conditions
-    const searchTerm = `%${q?.trim() || ''}%`;
+    // replicate search conditions (reuse existing searchTerm)
     if (type === 'name') {
       countParamCount++;
       countQuery += ` AND LOWER(s.name) LIKE LOWER($${countParamCount})`;
