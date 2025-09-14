@@ -291,7 +291,9 @@ function updateSchoolInfo(school) {
   // Fills the School Information card (school-info.html)
   const c = school.characteristics || {};
   setText('infoType', school.type || '-');
-  setText('infoGender', c.gender || '-');
+  // If gender is missing/blank, assume Mixed
+  const g = (c.gender && String(c.gender).trim()) ? c.gender : 'Mixed';
+  setText('infoGender', g);
   setText('infoAgeRange', c.age_range || `${school.age_range_lower ?? '?'} - ${school.age_range_upper ?? '?'}`);
   setText('infoReligious', c.religious_character || 'None');
   setText('infoAdmissions', c.admissions_policy || 'Not specified');

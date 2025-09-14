@@ -496,63 +496,60 @@ router.get('/:urn', async (req, res) => {
     const laAvgR = await query(laAvgSql, [s.local_authority, s.phase_of_education, urn]);
     const laAverages = laAvgR.rows[0] || {};
 
-    // 4) Check if rating needs update (null or older than 30 days) or force recalculation
+    // 4) Always calculate an up-to-date rating for response payload.
+    //    We still only persist to DB when stale or forced.
     const forceRecalculate = req.query.recalculate === '1';
     const needsRatingUpdate = forceRecalculate || !s.rating_updated_at ||
       !s.rating_components ||
       (Date.now() - new Date(s.rating_updated_at) > 30 * 24 * 60 * 60 * 1000);
-    let calculatedRating = null;
+
+    // Prepare data for rating calculation
+    const isWales = s.country && s.country.toLowerCase() === 'wales';
     
-    if (needsRatingUpdate || debug) {
-      // Prepare data for rating calculation
-      // Check if school is in Wales
-      const isWales = s.country && s.country.toLowerCase() === 'wales';
+    // If overall_effectiveness is null but other Ofsted scores exist, try to infer it
+    let ofstedRating = o.overall_effectiveness;
+    if (!ofstedRating && o.quality_of_education && !isWales) {
+      // Use quality_of_education as a proxy if overall is missing (but not for Wales)
+      ofstedRating = o.quality_of_education;
+    }
+    
+    // For Wales schools, explicitly set Ofsted to null
+    if (isWales) {
+      ofstedRating = null;
+    }
+    
+    const schoolForRating = {
+      country: s.country || 'england',
+      ofsted_overall_effectiveness: ofstedRating,
+      english_score: toNum(s.english_score),
+      math_score: toNum(s.math_score),
+      science_score: toNum(s.science_score),
+      attendance_rate: a.overall_absence_rate ? (100 - a.overall_absence_rate) : null
+    };
+    
+    // Compute latest rating (for response)
+    const calculatedRating = calculateRatingWithFallbacks(schoolForRating, laAverages);
+
+    // Persist to DB only if stale/forced and we have a rating
+    if ((needsRatingUpdate || debug) && calculatedRating.rating !== null && !debug) {
+      await query(`
+        UPDATE uk_schools 
+        SET overall_rating = $1,
+            rating_components = $2,
+            rating_percentile = $3,
+            rating_updated_at = NOW()
+        WHERE urn = $4
+      `, [
+        calculatedRating.rating, 
+        JSON.stringify(calculatedRating.components),
+        calculatedRating.percentile,
+        urn
+      ]);
       
-      // If overall_effectiveness is null but other Ofsted scores exist, try to infer it
-      let ofstedRating = o.overall_effectiveness;
-      if (!ofstedRating && o.quality_of_education && !isWales) {
-        // Use quality_of_education as a proxy if overall is missing (but not for Wales)
-        ofstedRating = o.quality_of_education;
-      }
-      
-      // For Wales schools, explicitly set Ofsted to null
-      if (isWales) {
-        ofstedRating = null;
-      }
-      
-      const schoolForRating = {
-        country: s.country || 'england',
-        ofsted_overall_effectiveness: ofstedRating,
-        english_score: toNum(s.english_score),
-        math_score: toNum(s.math_score),
-        science_score: toNum(s.science_score),
-        attendance_rate: a.overall_absence_rate ? (100 - a.overall_absence_rate) : null
-      };
-      
-      // Calculate rating
-      calculatedRating = calculateRatingWithFallbacks(schoolForRating, laAverages);
-      
-      // Update database if we got a valid rating and not in debug mode
-      if (calculatedRating.rating !== null && !debug) {
-        await query(`
-          UPDATE uk_schools 
-          SET overall_rating = $1,
-              rating_components = $2,
-              rating_percentile = $3,
-              rating_updated_at = NOW()
-          WHERE urn = $4
-        `, [
-          calculatedRating.rating, 
-          JSON.stringify(calculatedRating.components),
-          calculatedRating.percentile,
-          urn
-        ]);
-        
-        // Update local object
-        s.overall_rating = calculatedRating.rating;
-        s.rating_components = calculatedRating.components;
-        s.rating_percentile = calculatedRating.percentile;
-      }
+      // Update local object
+      s.overall_rating = calculatedRating.rating;
+      s.rating_components = calculatedRating.components;
+      s.rating_percentile = calculatedRating.percentile;
     }
 
     // Normalize leader name and contact
@@ -689,7 +686,8 @@ router.get('/:urn', async (req, res) => {
 
         // Overall rating (new)
         overall_rating: final_rating,
-        rating_components: s.rating_components || (calculatedRating && calculatedRating.components) || null,
+        // Prefer freshly calculated components for accuracy, fall back to DB copy
+        rating_components: (calculatedRating && calculatedRating.components) || s.rating_components || null,
         rating_percentile: s.rating_percentile || (calculatedRating && calculatedRating.percentile) || null,
         rating_data_completeness: calculatedRating ? calculatedRating.data_completeness : null,
         
