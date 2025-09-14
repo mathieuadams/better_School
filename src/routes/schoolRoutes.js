@@ -566,9 +566,8 @@ router.get('/:urn', async (req, res) => {
     // Use database rating or calculated rating
     const final_rating = s.overall_rating || (calculatedRating && calculatedRating.rating) || null;
     
-    // Determine country flags
+    // Determine country flags (reuse earlier isWales for consistency)
     const country = (s.country || 'england').toLowerCase();
-    const isWales = country === 'wales';
     const isScotland = country === 'scotland';
 
     const payload = {

@@ -44,6 +44,14 @@ let isScottishLA = false; // legacy name; true for any non-England LA
   const laCrumb = document.getElementById('laCrumb');
   if (laCrumb) laCrumb.textContent = laName;
   
+  // Hide the trailing "School Name" breadcrumb on LA pages
+  const schoolCrumb = document.getElementById('schoolCrumb');
+  if (schoolCrumb) {
+    const sep = schoolCrumb.previousElementSibling;
+    schoolCrumb.style.display = 'none';
+    if (sep && sep.classList.contains('breadcrumb-separator')) sep.style.display = 'none';
+  }
+  
   // Hide city breadcrumb if we're on a direct LA page
   if (!citySlug) {
     const cityCrumb = document.getElementById('cityCrumb');
@@ -227,14 +235,24 @@ function processSchoolsData(schools, laName) {
       specialCount++;
     } 
     // Then categorize by phase (non-special schools only)
-    else if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first')) {
+    else if (
+      phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first') ||
+      type.includes('primary')
+    ) {
       primaryCount++;
     }
-    else if (phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper')) {
+    else if (
+      phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper') ||
+      /post[-\s]?primary/.test(phase) || /post[-\s]?primary/.test(type) ||
+      type.includes('secondary') || type.includes('grammar') || type.includes('high school')
+    ) {
       secondaryCount++;
       
       // Check if this secondary school also has sixth form (not relevant for Scotland)
-      if (!isScottishLA && (phase.includes('sixth') || phase.includes('16') || phase.includes('post'))) {
+      if (!isScottishLA && (
+        phase.includes('sixth') || phase.includes('16') || phase.includes('post-16') ||
+        type.includes('sixth') || type.includes('post-16')
+      )) {
         sixthFormCount++;
       }
     }
@@ -244,10 +262,9 @@ function processSchoolsData(schools, laName) {
       secondaryCount++;
     }
     
-    // Count students
-    if (school.number_on_roll) {
-      totalStudents += parseInt(school.number_on_roll) || 0;
-    }
+    // Count students: prefer number_on_roll, fallback to total_pupils (common in NI)
+    const pupils = school.number_on_roll ?? school.total_pupils;
+    if (pupils) totalStudents += parseInt(pupils) || 0;
     
     // Count Ofsted ratings (only for non-Scottish schools)
     if (!isScottishLA) {
@@ -305,16 +322,27 @@ function processSchoolsForPhases(schools) {
   
   schools.forEach(school => {
     const phase = (school.phase_of_education || '').toLowerCase();
+    const type = (school.type_of_establishment || '').toLowerCase();
     
-    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior')) {
+    if (
+      phase.includes('primary') || phase.includes('infant') || phase.includes('junior') ||
+      type.includes('primary')
+    ) {
       schoolsByPhase.primary.push(school);
     }
-    if (phase.includes('secondary') || phase.includes('middle')) {
+    if (
+      phase.includes('secondary') || phase.includes('middle') ||
+      /post[-\s]?primary/.test(phase) || /post[-\s]?primary/.test(type) ||
+      type.includes('secondary') || type.includes('grammar') || type.includes('high school')
+    ) {
       schoolsByPhase.secondary.push(school);
     }
     
-    // Only categorize sixth form for non-Scottish schools
-    if (!isScottishLA && (phase.includes('sixth') || phase.includes('16') || phase.includes('post'))) {
+    // Only categorize sixth form for non-Scottish LAs
+    if (!isScottishLA && (
+      phase.includes('sixth') || phase.includes('16') || phase.includes('post-16') ||
+      type.includes('sixth') || type.includes('post-16')
+    )) {
       schoolsByPhase.sixthForm.push(school);
     }
   });
