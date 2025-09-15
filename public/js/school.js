@@ -379,7 +379,15 @@ function initMap(lat, lng, schoolName) {
   const el = document.getElementById('schoolMap');
   if (!el || !window.L) return;
   const map = L.map(el).setView([lat, lng], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+  if (window.getDefaultTileLayer) {
+    window.getDefaultTileLayer(map);
+  } else {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap contributors, © CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+  }
   L.marker([lat, lng]).addTo(map).bindPopup(schoolName || 'School').openPopup();
 }
 

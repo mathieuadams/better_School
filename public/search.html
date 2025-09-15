@@ -1010,10 +1010,15 @@
         function initializeMap() {
             if (!isMapInitialized) {
                 map = L.map('schoolsMap').setView([52.5, -1.5], 6); // UK center
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 18
-                }).addTo(map);
+                if (window.getDefaultTileLayer) {
+                  window.getDefaultTileLayer(map);
+                } else {
+                  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                      attribution: '© OpenStreetMap contributors, © CARTO',
+                      maxZoom: 19,
+                      subdomains: 'abcd'
+                  }).addTo(map);
+                }
                 
                 // Add marker cluster group
                 markers = L.markerClusterGroup({

@@ -9,6 +9,29 @@ function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// Map tiles helper to comply with OSM tile usage policy
+// Prefer a commercial/free key-based provider if a public key is available.
+// Fallback to CARTO basemaps (which allow anonymous usage with attribution) rather than OSM tiles.
+window.getDefaultTileLayer = function(map) {
+  try {
+    const key = window.MAPTILER_KEY || window.maptilerKey || null;
+    if (key) {
+      const url = `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=${key}`;
+      return L.tileLayer(url, {
+        attribution: '© OpenStreetMap contributors, © MapTiler',
+        maxZoom: 20
+      }).addTo(map);
+    }
+  } catch {}
+  // CARTO Positron
+  const cartoUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+  return L.tileLayer(cartoUrl, {
+    attribution: '© OpenStreetMap contributors, © CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+};
+
 // Utility function to get URL parameters
 function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');

@@ -149,10 +149,16 @@ const SchoolComponents = {
       zoomControl: true 
     }).setView([lat, lon], 15);
     
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    if (window.getDefaultTileLayer) {
+      window.getDefaultTileLayer(map);
+    } else {
+      // Fallback if helper is not loaded for some reason
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors, © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+    }
     
     L.marker([lat, lon]).addTo(map).bindPopup(name || 'School');
     
