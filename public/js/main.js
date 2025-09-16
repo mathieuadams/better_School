@@ -9,6 +9,28 @@ function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+function schoolSlug(name = '') {
+    if (!name) return '';
+    return name
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function schoolPathFromData(schoolLike) {
+    if (!schoolLike) return '/school';
+    const urn = schoolLike.urn || schoolLike.id || '';
+    const name = schoolLike.name || schoolLike.school_name || '';
+    if (!urn) return '/school';
+    const slug = schoolSlug(name);
+    return slug ? `/school/${urn}-${slug}` : `/school/${urn}`;
+}
+
+window.schoolSlug = schoolSlug;
+window.schoolPath = schoolPathFromData;
+window.schoolPathFromData = schoolPathFromData;
+
 // Map tiles helper to comply with OSM tile usage policy
 // Prefer a commercial/free key-based provider if a public key is available.
 // Fallback to CARTO basemaps (which allow anonymous usage with attribution) rather than OSM tiles.
@@ -126,7 +148,7 @@ function displaySearchResults(schools) {
     }
     
     const html = schools.map(school => `
-        <div class="school-card" onclick="window.location.href='/school/${school.urn}'">
+        <div class="school-card" onclick="window.location.href='${schoolPathFromData(school)}'">
             <div class="school-card-header">
                 <div>
                     <div class="school-card-name">${school.name}</div>
@@ -295,7 +317,7 @@ function displaySuggestions(suggestions, inputElement) {
             
             // If it's a school, go directly to the school page
             if (suggestion.type === 'school' && suggestion.id) {
-                window.location.href = `/school/${suggestion.id}`;
+                window.location.href = schoolPathFromData({ urn: suggestion.id, name: suggestion.suggestion });
             } else {
                 // Otherwise, perform a search
                 const form = inputElement.closest('form');
@@ -517,7 +539,7 @@ function updateNearbySchools(schools) {
     if (!container) return;
     
     const html = schools.slice(0, 5).map(school => `
-        <div class="nearby-school" onclick="window.location.href='/school/${school.urn}'">
+        <div class="nearby-school" onclick="window.location.href='${schoolPathFromData(school)}'">
             <div>
                 <div class="nearby-school-name">${school.name}</div>
                 <div class="nearby-school-distance">${school.type_of_establishment}</div>

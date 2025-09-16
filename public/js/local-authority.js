@@ -712,7 +712,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
       </div>` : '';
     
     return `
-      <div class="school-item" onclick="window.location.href='/school/${school.urn}'">
+      <div class="school-item" onclick="window.location.href='${window.schoolPath ? window.schoolPath(school) : '/school/' + school.urn}'">
         <div class="school-rank">${index + 1}</div>
         <div class="school-details">
           <div class="school-name">${school.name}</div>

@@ -219,6 +219,62 @@
             color: #6b7280;
             line-height: 1.6;
         }
+
+        .about-explain {
+            padding: 4rem 0 3rem;
+            background: white;
+        }
+
+        .about-wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-wrapper h2 {
+            font-size: 2.25rem;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .about-wrapper p {
+            font-size: 1.125rem;
+            color: #4b5563;
+            line-height: 1.8;
+        }
+
+        .about-points {
+            margin-top: 2.5rem;
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .about-point {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 1.75rem;
+            text-align: left;
+            box-shadow: 0 10px 20px rgba(148, 163, 184, 0.12);
+        }
+
+        .about-point h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+        }
+
+        .about-point p {
+            font-size: 1rem;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+
+        .about-point span {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
         
         /* Browse Section */
         .browse-section {
@@ -347,6 +403,42 @@
     </div>
   </section>
 
+  <section class="about-explain">
+    <div class="about-wrapper">
+      <h2>Helping every family make confident school choices</h2>
+      <p>
+        FindSchool.uk brings together trusted government data, inspection reports, attendance insights,
+        and moderated parent reviews so you can understand the full story behind every UK school.
+        Whether you are comparing academies in England, looking at Gaelic primaries in Scotland,
+        or researching SEND provision across Wales and Northern Ireland, we highlight the evidence that matters.
+      </p>
+      <div class="about-points">
+        <div class="about-point">
+          <span>📊</span>
+          <h3>Transparent performance data</h3>
+          <p>
+            Track attainment, progress and attendance with nation-sensitive scoring so you can compare like for like.
+            Our methodology explains every rating in plain English.
+          </p>
+        </div>
+        <div class="about-point">
+          <span>🧭</span>
+          <h3>Context for every community</h3>
+          <p>
+            Browse by town, local authority or postcode to see nearby options, Ofsted history, catchment details and transport links.
+          </p>
+        </div>
+        <div class="about-point">
+          <span>💬</span>
+          <h3>Real parent perspectives</h3>
+          <p>
+            Read and contribute balanced reviews that are carefully moderated to keep guidance constructive and respectful.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Cities moved to footer -->
 
   <div id="footer"></div>
@@ -367,7 +459,7 @@
 
   function navToSuggestion(s) {
     if (!s) return;
-    if (s.type === 'school')      window.location.href = `/school/${s.urn}`;
+    if (s.type === 'school')      window.location.href = window.schoolPath ? window.schoolPath(s) : `/school/${s.urn}`;
     else if (s.type === 'city')   window.location.href = `/${slug(s.town)}`;
     else if (s.type === 'la')     window.location.href = `/search?q=${encodeURIComponent(s.local_authority)}&type=la`;
     else if (s.type === 'pc')     window.location.href = `/search?q=${encodeURIComponent(s.postcode)}&type=postcode`;

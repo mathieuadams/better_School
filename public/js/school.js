@@ -49,7 +49,8 @@ const canonicalUrl = () => {
 };
 
 function updateSchoolMeta(school) {
-  const schoolName = school.name || 'School';
+  const rawName = school.name || '';
+  const schoolName = rawName || 'School';
   const address = school.address || {};
   const locationParts = [address.town, address.local_authority, school.country]
     .filter(Boolean)
@@ -57,10 +58,28 @@ function updateSchoolMeta(school) {
     .filter(Boolean);
   const locationString = locationParts.join(', ');
   const title = `${schoolName} School Profile | FindSchool.uk`;
-  const url = canonicalUrl();
   const description = locationString
     ? `Review ${schoolName} in ${locationString} with FindSchool.uk. Access Ofsted reports, attainment scores, demographics and parent insights.`
     : `Review ${schoolName} with FindSchool.uk. Access Ofsted reports, attainment scores, demographics and parent insights.`;
+
+  const slugFn = window.schoolSlug || ((name) => {
+    return String(name || 'school')
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'school';
+  });
+  const slug = rawName ? slugFn(rawName) : '';
+  const desiredPath = `/school/${school.urn}${slug ? `-${slug}` : ''}`;
+  const currentPath = window.location.pathname;
+  if (currentPath.startsWith(`/school/${school.urn}`) && currentPath !== desiredPath) {
+    const newUrl = `${desiredPath}${window.location.search || ''}${window.location.hash || ''}`;
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', newUrl);
+    }
+  }
+
+  const url = canonicalUrl();
 
   document.title = title;
   const pageTitle = document.getElementById('pageTitle');
@@ -580,8 +599,9 @@ function updateNearbySchools(schools) {
     const ratingVal = s.overall_rating != null ? Number(s.overall_rating).toFixed(1) : '—';
     const cls = badgeClass(s.overall_rating);
     const active = currentUrn && String(s.urn) === currentUrn ? ' is-active' : '';
+    const href = window.schoolPath ? window.schoolPath(s) : `/school/${s.urn}`;
     return `
-      <a class="nearby-card${active}" href="/school/${esc(s.urn)}" role="listitem" aria-label="${esc(s.name)}">
+      <a class="nearby-card${active}" href="${esc(href)}" role="listitem" aria-label="${esc(s.name)}">
         <div class="nearby-card__main">
           <div class="nearby-card__title">${esc(s.name)}</div>
           <div class="nearby-card__meta">${esc(s.type_of_establishment || 'School')} • ${esc(s.postcode || '')}</div>

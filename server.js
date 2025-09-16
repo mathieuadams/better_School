@@ -409,8 +409,42 @@ app.get('/api/local-authority/:laName/summary', async (req, res) => {
   }
 });
 
+const toSlug = (str = '') => {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
 // Serve school page at /school/:identifier (URN or URN-name)
-app.get('/school/:identifier', (_req, res) => sendPublic(res, 'school.html'));
+app.get('/school/:identifier', async (req, res) => {
+  const { identifier } = req.params;
+  const match = String(identifier || '').match(/^(\d{4,})(?:-(.*))?$/);
+
+  if (!match) {
+    return sendPublic(res, 'school.html');
+  }
+
+  const urn = match[1];
+  const existingSlug = match[2] ? match[2].toLowerCase() : null;
+
+  try {
+    const { rows } = await pool.query('SELECT name FROM uk_schools WHERE urn = $1 LIMIT 1', [urn]);
+    if (rows && rows.length) {
+      const canonicalSlug = toSlug(rows[0].name);
+      if (canonicalSlug && (!existingSlug || existingSlug !== canonicalSlug)) {
+        const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+        return res.redirect(301, `/school/${urn}-${canonicalSlug}${query}`);
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to resolve school slug for', urn, err.message);
+  }
+
+  return sendPublic(res, 'school.html');
+});
 
 // Serve school page at /:city/:schoolIdentifier
 app.get('/:city/:schoolIdentifier', (req, res, next) => {
