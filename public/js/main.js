@@ -3,6 +3,33 @@
 // API Base URL - automatically uses the same domain
 const API_BASE_URL = '/api';
 
+// Ensure favicon is available on every page regardless of template differences
+function ensureFavicon() {
+    const head = document.head;
+    if (!head) return;
+
+    const iconHref = '/favicon.ico?v=2';
+
+    let iconLink = head.querySelector('link[rel="icon"]');
+    if (!iconLink) {
+        iconLink = document.createElement('link');
+        iconLink.rel = 'icon';
+        head.appendChild(iconLink);
+    }
+    iconLink.href = iconHref;
+    iconLink.type = 'image/x-icon';
+    iconLink.sizes = 'any';
+
+    let shortcutLink = head.querySelector('link[rel="shortcut icon"]');
+    if (!shortcutLink) {
+        shortcutLink = document.createElement('link');
+        shortcutLink.rel = 'shortcut icon';
+        head.appendChild(shortcutLink);
+    }
+    shortcutLink.href = iconHref;
+    shortcutLink.type = 'image/x-icon';
+}
+
 // Utility function to format numbers
 function formatNumber(num) {
     if (!num) return '-';
@@ -338,6 +365,8 @@ function displaySuggestions(suggestions, inputElement) {
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', function() {
+    ensureFavicon();
+
     // Load header and footer
     loadComponents();
     
