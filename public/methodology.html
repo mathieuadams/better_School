@@ -215,40 +215,6 @@
             line-height: 1.5;
         }
         
-        .example-calculation {
-            background: #f0f9ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-        }
-        
-        .example-title {
-            color: #1e40af;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        .example-step {
-            display: flex;
-            gap: 0.5rem;
-            margin: 0.5rem 0;
-            font-size: 0.875rem;
-        }
-        
-        .example-step-number {
-            background: #3b82f6;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-        
         .data-completeness {
             background: #fef3c7;
             border: 1px solid #fcd34d;
@@ -287,29 +253,89 @@
         <div class="container">
             <h1>Our Methodology</h1>
             <p class="methodology-subtitle">
-                Understanding how we calculate fair, transparent, and comprehensive school ratings
+                How FindSchool.uk builds every overall_rating and keeps the numbers transparent
             </p>
         </div>
     </section>
     
     <div class="methodology-content">
         <section class="methodology-section">
-            <h2>Rating Overview</h2>
+            <h2>What goes into a school’s score (overall_rating)</h2>
             <p>
-                FindSchool.uk uses a comprehensive 1-10 rating system that combines multiple data points to provide a fair assessment of each school. Our methodology is designed to be transparent, contextual, and reflective of the multiple dimensions that contribute to school quality.
+                We combine four components on a 0–10 scale to create each school’s overall_rating. The target weights are academic performance against national benchmarks (35%), academic performance versus the local authority (35%), attendance (10%), and Ofsted (20%). When any component is missing the weight is removed and the remaining factors are re-scaled so the final score still sits on a 0–10 range.
             </p>
+            
+            <div class="formula-box">
+                <div class="formula-title">Formula</div>
+                <pre class="formula-content">overall_rating = weighted_average(
+    national_component,
+    la_component,
+    attendance_score,
+    ofsted_score
+  with weights present among those available
+)</pre>
+            </div>
+
+            <div class="factor-card">
+                <div class="factor-header">
+                    <div class="factor-title">A) Academic vs National</div>
+                    <div class="factor-weight">35% weight</div>
+                </div>
+                <p>
+                    For each subject we hold (English, Maths, Science) we compare the school’s score to the national average for the same school phase (Primary, Secondary, Sixth Form, Special). We linearly scale the difference within a ±20% band: ≥ +20% above national becomes 10, ≤ −20% below becomes 0, with proportional scores in between. We average the available subjects and ignore any missing entries before feeding the 0–10 result into the weighted average.
+                </p>
+            </div>
+
+            <div class="factor-card">
+                <div class="factor-header">
+                    <div class="factor-title">B) Academic vs Local Authority</div>
+                    <div class="factor-weight">35% weight</div>
+                </div>
+                <p>
+                    We repeat the same subject-by-subject scaling using the local authority average as the anchor. Each subject is compared to the LA benchmark for the matching school type, translated into the ±20% band, and averaged to produce another 0–10 input.
+                </p>
+            </div>
+
+            <div class="factor-card">
+                <div class="factor-header">
+                    <div class="factor-title">C) Attendance</div>
+                    <div class="factor-weight">10% weight</div>
+                </div>
+                <p>
+                    We convert the latest overall absence figure into attendance (100 − absence) and scale it linearly so 80% attendance maps to 1 and 97% or higher maps to 10. Scores outside the range are clamped. This keeps attendance aligned with how the government highlights persistent absence.
+                </p>
+            </div>
+
+            <div class="factor-card">
+                <div class="factor-header">
+                    <div class="factor-title">D) Ofsted</div>
+                    <div class="factor-weight">20% weight</div>
+                </div>
+                <p>
+                    Latest Ofsted overall effectiveness is mapped directly to a 0–10 contribution: Outstanding → 10, Good → 8, Requires Improvement → 5, Inadequate → 2. If no inspection exists we drop this component and re-normalise the remaining ones.
+                </p>
+            </div>
+
+            <div class="data-completeness">
+                <div class="data-completeness-title">Missing data handling</div>
+                <p class="data-completeness-text">
+                    Any component without valid inputs is excluded, the remaining weights are re-scaled, and the published overall_rating clearly notes which slices were present. We also calculate rating_percentile using a percent-rank over overall_rating so parents can see how a school compares to others nationally.
+                </p>
+            </div>
+        </section>
+
+        <section class="methodology-section">
+            <h2>Rating Scale Interpretation</h2>
             <p>
-                Coverage varies slightly by nation: England has full scoring, Welsh ratings are currently limited to secondary schools, Scotland uses a streamlined model, and Northern Ireland schools display their available data without an overall score while we work with the published datasets.
+                The overall_rating is always expressed on a 0–10 scale, where higher numbers indicate stronger performance across the available components. The ranges below show how to interpret the final results.
             </p>
             
             <div class="rating-scale">
-                <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Rating Scale Interpretation</h3>
-                
                 <div class="scale-item">
                     <div class="scale-score scale-9-10">9-10</div>
                     <div class="scale-description">
                         <div class="scale-label">Outstanding</div>
-                        <div class="scale-text">Exceptional performance across all measured areas. These schools consistently exceed expectations.</div>
+                        <div class="scale-text">Consistently exceptional outcomes relative to peers and benchmarks.</div>
                     </div>
                 </div>
                 
@@ -317,7 +343,7 @@
                     <div class="scale-score scale-7-8">7-8</div>
                     <div class="scale-description">
                         <div class="scale-label">Good</div>
-                        <div class="scale-text">Above average performance with strong outcomes. Most areas meet or exceed standards.</div>
+                        <div class="scale-text">Above-average performance with strong inspected and academic indicators.</div>
                     </div>
                 </div>
                 
@@ -325,7 +351,7 @@
                     <div class="scale-score scale-5-6">5-6</div>
                     <div class="scale-description">
                         <div class="scale-label">Average</div>
-                        <div class="scale-text">Satisfactory performance meeting expected standards. Mixed strengths and areas for improvement.</div>
+                        <div class="scale-text">Meeting expected standards overall with a balance of strengths and gaps.</div>
                     </div>
                 </div>
                 
@@ -333,7 +359,7 @@
                     <div class="scale-score scale-3-4">3-4</div>
                     <div class="scale-description">
                         <div class="scale-label">Below Average</div>
-                        <div class="scale-text">Performance below expected standards. Significant areas requiring improvement.</div>
+                        <div class="scale-text">Performance trails local or national comparators across multiple measures.</div>
                     </div>
                 </div>
                 
@@ -341,192 +367,47 @@
                     <div class="scale-score scale-1-2">1-2</div>
                     <div class="scale-description">
                         <div class="scale-label">Poor</div>
-                        <div class="scale-text">Substantial underperformance. Urgent improvement needed across multiple areas.</div>
+                        <div class="scale-text">Significant concerns with persistent underperformance and/or inspections.</div>
                     </div>
                 </div>
             </div>
         </section>
-        
+
         <section class="methodology-section">
-            <h2>Rating Factors</h2>
+            <h2>Where the numbers come from</h2>
             <p>
-                The algorithm adapts to the data each nation publishes. In England (and any school with Ofsted coverage) we blend academic performance, inspection outcomes, and attendance. In the devolved nations, the mix shifts to reflect what is reliably available locally.
-            </p>
-            
-            <div class="factor-card">
-                <div class="factor-header">
-                    <div class="factor-title">📊 Academic Performance</div>
-                    <div class="factor-weight">40% weight (England)</div>
-                </div>
-                <p style="margin: 0; color: #4b5563;">
-                    We compare English, Maths, and Science outcomes against the local authority average for the same phase of education. Every four percentage points above the LA average adds roughly one rating point on the 1-10 scale (capped at 1-10). Missing subjects are skipped and the average recalculates using the remaining ones.
-                </p>
-            </div>
-            
-            <div class="factor-card">
-                <div class="factor-header">
-                    <div class="factor-title">🎓 Inspection Rating</div>
-                    <div class="factor-weight">40% weight (England)</div>
-                </div>
-                <p style="margin: 0; color: #4b5563;">
-                    Latest Ofsted overall effectiveness is mapped to a 1-10 contribution (Outstanding 9.5, Good 7.5, Requires Improvement 4.5, Inadequate 2.5). Scotland and Wales do not currently publish comparable judgements, so this component is omitted there and the weights redistribute.
-                </p>
-            </div>
-            
-            <div class="factor-card">
-                <div class="factor-header">
-                    <div class="factor-title">📅 Attendance</div>
-                    <div class="factor-weight">20% weight (England)</div>
-                </div>
-                <p style="margin: 0; color: #4b5563;">
-                    The most recent attendance rate is scaled between 80% (score of 1) and 100% (score of 10). We also show the local authority average for context.
-                </p>
-            </div>
-            
-            <p style="color: #4b5563; margin-top: 1.5rem;">
-                Regional weighting summary:
+                Every figure is pulled from official UK government releases. We align table columns directly with the inputs used in the methodology so users can verify the source data.
             </p>
             <ul style="margin-left: 1.5rem; color: #4b5563; line-height: 1.75;">
-                <li><strong>England:</strong> Academic 40% • Ofsted 40% • Attendance 20%</li>
-                <li><strong>Wales (secondary schools only):</strong> Academic 80% • Attendance 20% (no Ofsted equivalent published)</li>
-                <li><strong>Scotland:</strong> Academic 60% • Attendance 40% (inspection ratings not used)</li>
-                <li><strong>Northern Ireland:</strong> Ratings are currently withheld due to insufficient public performance data (more detail below).</li>
+                <li><strong>School test scores:</strong> <code>uk_schools.english_score</code>, <code>math_score</code>, <code>science_score</code></li>
+                <li><strong>National averages:</strong> <code>uk_schools.english_avg_national</code>, <code>math_avg_national</code>, <code>science_avg_national</code></li>
+                <li><strong>Local authority averages:</strong> <code>uk_schools.english_avg_la</code>, <code>math_avg_la</code>, <code>science_avg_la</code> (or calculated on the fly per LA/type when not prefilled)</li>
+                <li><strong>Attendance:</strong> Latest <code>overall_absence_rate</code> from <code>uk_absence_data</code></li>
+                <li><strong>Ofsted:</strong> Most recent overall effectiveness from <code>uk_ofsted_inspections</code></li>
             </ul>
-        </section>
-        
-        <section class="methodology-section">
-            <h2>Calculation Process</h2>
-            
-            <h3>Step 1: Local Comparisons & Scaling</h3>
             <p>
-                We translate each input onto a 1-10 scale before combining them:
+                When overall_rating is already persisted on <code>uk_schools</code> the API serves that value. If it is missing the route recomputes the score using the same rules outlined above before responding.
+            </p>
+        </section>
+
+        <section class="methodology-section">
+            <h2>How each page uses the score</h2>
+            <p>
+                Different parts of FindSchool.uk surface the score slightly differently, but they all rely on the same rules above.
             </p>
             <ul style="margin-left: 1.5rem; color: #4b5563; line-height: 1.75;">
-                <li><strong>Academic vs local authority:</strong> Starting from 5, every 4 percentage points above (or below) the LA average shifts the score by ±1, capped between 1 and 10. Subjects without reliable data are ignored.</li>
-                <li><strong>Attendance:</strong> 80% attendance or lower maps to 1, 100% maps to 10, and we interpolate linearly between those points.</li>
-                <li><strong>Ofsted overall effectiveness:</strong> Outstanding = 9.5, Good = 7.5, Requires Improvement = 4.5, Inadequate = 2.5. Wales and Scotland skip this component.</li>
-            </ul>
-            
-            <h3>Step 2: Weighted Average</h3>
-            <div class="formula-box">
-                <div class="formula-title">// Rating Calculation Formula</div>
-                <div class="formula-content">
-                    England = (Academic × 0.40) + (Ofsted × 0.40) + (Attendance × 0.20)<br>
-                    Wales  = (Academic × 0.80) + (Attendance × 0.20)<br>
-                    Scotland = (Academic × 0.60) + (Attendance × 0.40)<br>
-                    <br>
-                    We round the weighted score to the nearest whole number for display and also compute a percentile versus other schools in the same local authority.
-                </div>
-            </div>
-            
-            <h3>Step 3: Data Completeness Adjustment</h3>
-            <p>
-                Schools with incomplete data receive adjusted ratings to maintain fairness:
-            </p>
-            
-            <div class="data-completeness">
-                <div class="data-completeness-title">⚠️ Partial Data Handling</div>
-                <div class="data-completeness-text">
-                    When a component is missing, the remaining weights scale up proportionally so the score still sits on 1-10. Minimum evidence thresholds differ by nation (40 points for England, 20 for Wales, 50 for Scotland). If a school does not meet the threshold we label it "Insufficient data" instead of forcing a rating.
-                </div>
-            </div>
-        </section>
-        
-        <section class="methodology-section">
-            <h2>Example Calculation</h2>
-            
-            <div class="example-calculation">
-                <div class="example-title">Sample School Rating Calculation</div>
-                
-                <div class="example-step">
-                    <div class="example-step-number">1</div>
-                    <div>Academic performance: 75% English, 78% Maths, 80% Science versus an LA average of 70% → 6.8/10 after scaling.</div>
-                </div>
-                
-                <div class="example-step">
-                    <div class="example-step-number">2</div>
-                    <div>Ofsted rating: Good → 7.5/10 contribution.</div>
-                </div>
-                
-                <div class="example-step">
-                    <div class="example-step-number">3</div>
-                    <div>Attendance: 95.8% → 8.1/10 on the attendance scale.</div>
-                </div>
-                
-                <div class="example-step">
-                    <div class="example-step-number">4</div>
-                    <div>Calculation: (6.8 × 0.4) + (7.5 × 0.4) + (8.1 × 0.2) = 7.3 → rounded to 7/10.</div>
-                </div>
-                
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #bfdbfe;">
-                    <strong style="color: #1e40af;">Final Rating: 7/10 (Good)</strong>
-                </div>
-            </div>
-        </section>
-        
-        <section class="methodology-section">
-            <h2>Special Considerations</h2>
-            
-            <h3>Wales</h3>
-            <p>
-                We currently have enough attainment coverage to rate secondary schools only. Estyn does not publish Ofsted-style overall judgements, so Welsh ratings rely exclusively on academic performance (80%) and attendance (20%). Primary and all-through schools in Wales will show "Insufficient data" until the national datasets become more complete.
-            </p>
-
-            <h3>Scotland</h3>
-            <p>
-                Scottish schools use a two-component score: academic performance (English and Maths where available) weighted at 60% and attendance at 40%. Education Scotland inspection gradings are not yet incorporated because the data is not provided in a compatible national format.
-            </p>
-
-            <h3>Northern Ireland</h3>
-            <p>
-                The public data releases for Northern Ireland do not currently provide consistent attainment, inspection, or attendance metrics. As a result we do not publish an overall rating and instead surface any contextual information we have gathered for those schools.
-            </p>
-
-            <h3>Special Schools</h3>
-            <p>
-                Special Educational Needs settings often have bespoke curricula and limited published attainment data. We display attendance and inspection information when available, and clearly mark when a rating cannot be calculated.
-            </p>
-
-            <h3>New Schools</h3>
-            <p>
-                Schools less than 3 years old may have limited data. We flag these schools, update ratings as soon as new academic and attendance releases arrive, and avoid inferring scores from incomplete baselines.
-            </p>
-        </section>
-        
-        <section class="methodology-section">
-            <h2>Transparency Commitments</h2>
-            
-            <p>We believe in complete transparency about our ratings:</p>
-            
-            <ul style="margin-left: 1.5rem; color: #4b5563; line-height: 1.75;">
-                <li><strong>Data sources:</strong> All data sources are clearly identified on each school profile</li>
-                <li><strong>Component breakdown:</strong> Users can see how each factor contributes to the overall rating</li>
-                <li><strong>Data freshness:</strong> Last update dates are displayed for all metrics</li>
-                <li><strong>Completeness indicators:</strong> We show when ratings are based on partial data</li>
-                <li><strong>No hidden factors:</strong> Our entire methodology is public and open to scrutiny</li>
+                <li><strong>School detail page:</strong> Builds a rating box from the four components, hiding any missing slice and re-weighting what remains.</li>
+                <li><strong>Local Authority – Top Rated:</strong> Fetches all schools in the selected LA for the active school_type_group tab (Primary, Secondary, Sixth Form, Special) and orders by <code>overall_rating</code> descending, falling back to an Ofsted-only ranking if academic scores are unavailable.</li>
+                <li><strong>City – Top Rated:</strong> Mirrors the LA view and orders schools within each tab by <code>overall_rating</code>, now respecting the city flags correctly.</li>
+                <li><strong>Northern Ireland:</strong> We do not publish overall ratings; only attendance and contextual details are shown until comparable datasets are released.</li>
             </ul>
         </section>
-        
+
         <section class="methodology-section">
-            <h2>Limitations & Disclaimers</h2>
-            
+            <h2>Transparency & limitations</h2>
             <p>
-                While our ratings provide valuable insights, they have limitations:
+                We publish the full methodology so families know exactly how each rating is built. Data can lag behind real-world change, so we encourage parents to view ratings as a starting point, visit schools, and combine the numbers with their own judgement.
             </p>
-            
-            <ul style="margin-left: 1.5rem; color: #4b5563; line-height: 1.75;">
-                <li>Ratings cannot capture all aspects of school quality (e.g., culture, extracurriculars)</li>
-                <li>Data may be up to 12 months old depending on government release cycles</li>
-                <li>Context matters - a lower-rated school might still be the best fit for your child</li>
-                <li>Private schools may have limited publicly available data</li>
-                <li>Ratings should be one of many factors in school selection</li>
-            </ul>
-            
-            <div style="background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem; margin-top: 2rem;">
-                <p style="margin: 0; color: #1e40af;">
-                    <strong>Important:</strong> We strongly recommend visiting schools, speaking with staff, and considering your child's individual needs when making school choices. Our ratings are a starting point for research, not a definitive judgment.
-                </p>
-            </div>
         </section>
     </div>
     
