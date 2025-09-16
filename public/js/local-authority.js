@@ -9,6 +9,103 @@ let schoolsByPhase = {
 };
 let isScottishLA = false; // legacy name; true for any non-England LA
 
+function canonicalUrl() {
+  const trimmedPath = window.location.pathname.endsWith('/') && window.location.pathname !== '/'
+    ? window.location.pathname.slice(0, -1)
+    : window.location.pathname;
+  return `https://www.findschool.uk${trimmedPath || '/'}`;
+}
+
+function updateLAMeta(data, citySlug) {
+  const laName = data.laName || 'Local Authority';
+  const region = data.region ? data.region : '';
+  const city = data.city || (citySlug ? citySlug.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ') : '');
+  const pageTitle = `${laName} Schools Overview | FindSchool.uk`;
+  const url = canonicalUrl();
+  const descriptionParts = [
+    `Compare Ofsted ratings, performance data and student outcomes across the ${laName} local authority on FindSchool.uk.`
+  ];
+  if (region) descriptionParts.push(`Located in ${region}.`);
+  if (city) descriptionParts.push(`Including schools in ${city} and surrounding communities.`);
+  const description = descriptionParts.join(' ');
+
+  document.title = pageTitle;
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = pageTitle;
+
+  const metaDescription = document.getElementById('metaDescription');
+  if (metaDescription) metaDescription.setAttribute('content', description);
+
+  const canonicalLink = document.getElementById('canonicalLink');
+  if (canonicalLink) canonicalLink.setAttribute('href', url);
+
+  const alternateLink = document.getElementById('alternateLink');
+  if (alternateLink) alternateLink.setAttribute('href', url);
+
+  const ogTitle = document.getElementById('ogTitle');
+  if (ogTitle) ogTitle.setAttribute('content', pageTitle);
+
+  const ogDescription = document.getElementById('ogDescription');
+  if (ogDescription) ogDescription.setAttribute('content', description);
+
+  const ogUrl = document.getElementById('ogUrl');
+  if (ogUrl) ogUrl.setAttribute('content', url);
+
+  const twitterTitle = document.getElementById('twitterTitle');
+  if (twitterTitle) twitterTitle.setAttribute('content', pageTitle);
+
+  const twitterDescription = document.getElementById('twitterDescription');
+  if (twitterDescription) twitterDescription.setAttribute('content', description);
+
+  const structuredDataEl = document.getElementById('structuredData');
+  if (structuredDataEl) {
+    const breadcrumbElements = [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.findschool.uk/"
+      }
+    ];
+    if (city) {
+      breadcrumbElements.push({
+        "@type": "ListItem",
+        "position": breadcrumbElements.length + 1,
+        "name": city,
+        "item": `https://www.findschool.uk/${(citySlug || city.toLowerCase().replace(/\s+/g, '-'))}`
+      });
+    }
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      "position": breadcrumbElements.length + 1,
+      "name": laName,
+      "item": url
+    });
+
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "name": pageTitle,
+          "url": url,
+          "description": description,
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "FindSchool.uk",
+            "url": "https://www.findschool.uk/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": breadcrumbElements
+        }
+      ]
+    };
+    structuredDataEl.textContent = JSON.stringify(structuredData, null, 2);
+  }
+}
+
 // Robust NI/UK school classifier using multiple fields
 function classifySchoolNIAware(school) {
   const phase = (school.phase_of_education || '').toLowerCase();
@@ -395,8 +492,8 @@ function renderLASummary(data, citySlug) {
     laCrumb.href = `/local-authority/${laSlug}`;
   }
   
-  // Update title
-  document.getElementById('pageTitle').textContent = `${data.laName} Schools - Better School UK`;
+  // Update meta and title
+  updateLAMeta(data, citySlug);
   document.getElementById('laNameFooter').textContent = data.laName;
   
   // Update counts

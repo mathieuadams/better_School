@@ -15,6 +15,85 @@ let cityData = {
   country: 'England'
 };
 
+function canonicalUrl() {
+  const trimmedPath = window.location.pathname.endsWith('/') && window.location.pathname !== '/'
+    ? window.location.pathname.slice(0, -1)
+    : window.location.pathname;
+  return `https://www.findschool.uk${trimmedPath || '/'}`;
+}
+
+function updateCityMeta(cityName) {
+  const pageTitle = `${cityName} Schools Guide | FindSchool.uk`;
+  const description = `Explore top performing schools in ${cityName} with FindSchool.uk. Compare Ofsted ratings, academic results and parent reviews to choose confidently.`;
+  const url = canonicalUrl();
+
+  document.title = pageTitle;
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = pageTitle;
+
+  const metaDescription = document.getElementById('metaDescription');
+  if (metaDescription) metaDescription.setAttribute('content', description);
+
+  const canonicalLink = document.getElementById('canonicalLink');
+  if (canonicalLink) canonicalLink.setAttribute('href', url);
+
+  const alternateLink = document.getElementById('alternateLink');
+  if (alternateLink) alternateLink.setAttribute('href', url);
+
+  const ogTitle = document.getElementById('ogTitle');
+  if (ogTitle) ogTitle.setAttribute('content', pageTitle);
+
+  const ogDescription = document.getElementById('ogDescription');
+  if (ogDescription) ogDescription.setAttribute('content', description);
+
+  const ogUrl = document.getElementById('ogUrl');
+  if (ogUrl) ogUrl.setAttribute('content', url);
+
+  const twitterTitle = document.getElementById('twitterTitle');
+  if (twitterTitle) twitterTitle.setAttribute('content', pageTitle);
+
+  const twitterDescription = document.getElementById('twitterDescription');
+  if (twitterDescription) twitterDescription.setAttribute('content', description);
+
+  const structuredDataEl = document.getElementById('structuredData');
+  if (structuredDataEl) {
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "name": pageTitle,
+          "url": url,
+          "description": description,
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "FindSchool.uk",
+            "url": "https://www.findschool.uk/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.findschool.uk/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": cityName,
+              "item": url
+            }
+          ]
+        }
+      ]
+    };
+    structuredDataEl.textContent = JSON.stringify(structuredData, null, 2);
+  }
+}
+
 // Initialize page
 (async function init() {
   const citySlug = window.location.pathname.split('/').filter(Boolean)[0] || '';
@@ -27,7 +106,7 @@ let cityData = {
   document.getElementById('cityNameInLA').textContent = cityData.name;
   document.getElementById('cityNameInRating').textContent = cityData.name;
   document.getElementById('cityNameInSchools').textContent = cityData.name;
-  document.getElementById('pageTitle').textContent = `${cityData.name} Schools - Better School UK`;
+  updateCityMeta(cityData.name);
   
   // Wire city search button to localized search page
   const citySearchLink = document.getElementById('citySearchLink');

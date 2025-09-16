@@ -1,4 +1,4 @@
-// Main JavaScript for Better School UK
+// Main JavaScript for FindSchool.uk
 
 // API Base URL - automatically uses the same domain
 const API_BASE_URL = '/api';
@@ -496,8 +496,12 @@ function updateSchoolProfile(school) {
         ofstedElement.className = `ofsted-score ofsted-${ofstedLabel.toLowerCase().replace(/\s+/g, '-')}`;
     }
     
-    // Update page title
-    document.title = `${school.name} - Better School UK`;
+    // Update SEO meta if available
+    if (typeof updateSchoolMeta === 'function') {
+        updateSchoolMeta(school);
+    } else {
+        document.title = `${school.name} School Profile | FindSchool.uk`;
+    }
 }
 
 // Update performance data display

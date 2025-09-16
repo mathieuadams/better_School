@@ -3,8 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Search Schools - Better School UK">
-    <title>Search Schools - Better School UK</title>
+    <title>Search UK Schools | FindSchool.uk Results</title>
+    <meta id="metaDescription" name="description" content="Search UK schools on FindSchool.uk by name, area or postcode. Filter by phase, Ofsted rating and performance to find the best match." />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href="https://www.findschool.uk/search" id="canonicalLink" />
+    <link rel="alternate" href="https://www.findschool.uk/search" hreflang="en-gb" id="alternateLink" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta property="og:site_name" content="FindSchool.uk" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Search UK Schools | FindSchool.uk Results" id="ogTitle" />
+    <meta property="og:description" content="Find UK schools by area, Ofsted rating and more using FindSchool.uk search." id="ogDescription" />
+    <meta property="og:url" content="https://www.findschool.uk/search" id="ogUrl" />
+    <meta property="og:image" content="https://www.findschool.uk/images/findschool-social.png" />
+    <meta property="og:image:alt" content="FindSchool.uk social preview card" />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Search UK Schools | FindSchool.uk" id="twitterTitle" />
+    <meta name="twitter:description" content="Discover nearby schools with FindSchool.uk's powerful search." id="twitterDescription" />
+    <meta name="twitter:image" content="https://www.findschool.uk/images/findschool-social.png" />
+    <meta name="twitter:image:alt" content="FindSchool.uk social preview card" />
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -21,6 +39,9 @@
     
     <!-- Main CSS -->
     <link rel="stylesheet" href="/css/styles.css">
+    <script type="application/ld+json" id="structuredData">
+      {}
+    </script>
     
     <style>
         .search-header {
@@ -686,7 +707,87 @@
         let markers = L.markerClusterGroup();
         let currentView = 'list';
         let isMapInitialized = false;
-        
+
+        function buildFullUrl() {
+            const { pathname, search } = window.location;
+            return `https://www.findschool.uk${pathname}${search || ''}`;
+        }
+
+        const FILTER_TYPE_OPTIONS = new Set(['primary', 'secondary', 'sixth-form', 'special', 'independent', 'academy']);
+
+        function updateSearchMeta({ query, area, type, total }) {
+            const canonical = document.getElementById('canonicalLink');
+            const alternate = document.getElementById('alternateLink');
+            const ogUrl = document.getElementById('ogUrl');
+
+            const pageUrl = buildFullUrl();
+            const searchTerm = (query || area || '').trim();
+            const typeTitle = type ? getTypeTitle(type) : null;
+            let title = 'Search UK Schools | FindSchool.uk Results';
+            let description = 'Search UK schools on FindSchool.uk by name, area or postcode. Filter by phase, Ofsted rating and performance data to find the best match.';
+
+            if (searchTerm) {
+                const countText = total ? `${total} result${total === 1 ? '' : 's'}` : 'school results';
+                title = `${searchTerm} Schools Search | FindSchool.uk`;
+                description = `Browse ${countText} for ${searchTerm} on FindSchool.uk. Compare Ofsted judgements, performance scores and parent reviews in seconds.`;
+            } else if (typeTitle) {
+                const countText = total ? `${total} ${typeTitle.toLowerCase()}` : typeTitle.toLowerCase();
+                title = `${typeTitle} Search | FindSchool.uk`;
+                description = `Explore ${countText} across the UK. Filter results by Ofsted rating, academic outcomes and catchment insights.`;
+            }
+
+            document.title = title;
+
+            const metaDescription = document.getElementById('metaDescription');
+            if (metaDescription) metaDescription.setAttribute('content', description);
+
+            const ogTitle = document.getElementById('ogTitle');
+            if (ogTitle) ogTitle.setAttribute('content', title);
+
+            const ogDescription = document.getElementById('ogDescription');
+            if (ogDescription) ogDescription.setAttribute('content', description);
+
+            if (ogUrl) ogUrl.setAttribute('content', pageUrl);
+
+            const twitterTitle = document.getElementById('twitterTitle');
+            if (twitterTitle) twitterTitle.setAttribute('content', title);
+
+            const twitterDescription = document.getElementById('twitterDescription');
+            if (twitterDescription) twitterDescription.setAttribute('content', description);
+
+            if (canonical) canonical.setAttribute('href', 'https://www.findschool.uk/search');
+            if (alternate) alternate.setAttribute('href', 'https://www.findschool.uk/search');
+
+            const structuredDataEl = document.getElementById('structuredData');
+            if (structuredDataEl) {
+                const structuredData = {
+                    "@context": "https://schema.org",
+                    "@type": "SearchResultsPage",
+                    "name": title,
+                    "url": pageUrl,
+                    "description": description,
+                    "isPartOf": {
+                        "@type": "WebSite",
+                        "name": "FindSchool.uk",
+                        "url": "https://www.findschool.uk/"
+                    }
+                };
+                if (searchTerm) structuredData.searchTerm = searchTerm;
+                if (typeof total === 'number') structuredData.numberOfItems = total;
+                structuredDataEl.textContent = JSON.stringify(structuredData, null, 2);
+            }
+        }
+
+        function resolveMetaType(filters) {
+            if (filters && Array.isArray(filters.schoolTypes) && filters.schoolTypes.length === 1) {
+                return filters.schoolTypes[0];
+            }
+            if (FILTER_TYPE_OPTIONS.has(initialType)) {
+                return initialType;
+            }
+            return null;
+        }
+
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const initialQuery = urlParams.get('q');
@@ -707,7 +808,14 @@
             } else if (initialQuery) {
                 document.getElementById('searchInput').value = initialQuery;
             }
-            
+
+            updateSearchMeta({
+                query: initialQuery && !initialArea ? initialQuery : '',
+                area: initialArea || '',
+                type: FILTER_TYPE_OPTIONS.has(initialType) ? initialType : null,
+                total: 0
+            });
+
             // Load initial results
             searchSchools();
         }
@@ -804,7 +912,17 @@
                     displayResults();
                     updatePagination();
                     updateResultsCount();
-                    
+
+                    const metaQuery = searchQuery ? searchQuery.trim() : '';
+                    const metaArea = locationQuery ? locationQuery.trim() : (initialArea || '');
+                    const metaType = resolveMetaType(filters);
+                    updateSearchMeta({
+                        query: metaQuery,
+                        area: metaQuery ? '' : metaArea,
+                        type: metaType,
+                        total: totalResults
+                    });
+
                     if (currentView === 'map') {
                         updateMap();
                     }
@@ -843,12 +961,22 @@
                 if (data.success && data.schools) {
                     searchResults = data.schools;
                     totalResults = data.schools.length;
-                    
+
                     // Update both map and list
                     updateMap();
                     displayResults();
                     updateResultsCount();
-                    
+
+                    const filters = getActiveFilters();
+                    const metaQuery = document.getElementById('searchInput').value.trim();
+                    const metaArea = document.getElementById('locationInput').value.trim() || initialArea || '';
+                    updateSearchMeta({
+                        query: metaQuery,
+                        area: metaQuery ? '' : metaArea,
+                        type: resolveMetaType(filters),
+                        total: totalResults
+                    });
+
                     // Show notification
                     showNotification(`Found ${totalResults} schools in this area`);
                 }

@@ -78,7 +78,7 @@ app.get('/health', async (_req, res) => {
 // ---- API Welcome
 app.get('/api', (_req, res) => {
   res.json({
-    message: 'Welcome to Better School UK API',
+    message: 'Welcome to FindSchool.uk API',
     version: '1.0.0',
     endpoints: {
       health: '/health',

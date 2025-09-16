@@ -41,6 +41,151 @@ const safeParseJSON = (raw, fallback) => {
   try { return JSON.parse(raw); } catch { return fallback; }
 };
 
+const canonicalUrl = () => {
+  const trimmedPath = window.location.pathname.endsWith('/') && window.location.pathname !== '/'
+    ? window.location.pathname.slice(0, -1)
+    : window.location.pathname;
+  return `https://www.findschool.uk${trimmedPath || '/'}`;
+};
+
+function updateSchoolMeta(school) {
+  const schoolName = school.name || 'School';
+  const address = school.address || {};
+  const locationParts = [address.town, address.local_authority, school.country]
+    .filter(Boolean)
+    .map(part => part.trim())
+    .filter(Boolean);
+  const locationString = locationParts.join(', ');
+  const title = `${schoolName} School Profile | FindSchool.uk`;
+  const url = canonicalUrl();
+  const description = locationString
+    ? `Review ${schoolName} in ${locationString} with FindSchool.uk. Access Ofsted reports, attainment scores, demographics and parent insights.`
+    : `Review ${schoolName} with FindSchool.uk. Access Ofsted reports, attainment scores, demographics and parent insights.`;
+
+  document.title = title;
+  const pageTitle = document.getElementById('pageTitle');
+  if (pageTitle) pageTitle.textContent = title;
+
+  const metaDescription = document.getElementById('metaDescription');
+  if (metaDescription) metaDescription.setAttribute('content', description);
+
+  const canonicalLink = document.getElementById('canonicalLink');
+  if (canonicalLink) canonicalLink.setAttribute('href', url);
+
+  const alternateLink = document.getElementById('alternateLink');
+  if (alternateLink) alternateLink.setAttribute('href', url);
+
+  const ogTitle = document.getElementById('ogTitle');
+  if (ogTitle) ogTitle.setAttribute('content', title);
+
+  const ogDescription = document.getElementById('ogDescription');
+  if (ogDescription) ogDescription.setAttribute('content', description);
+
+  const ogUrl = document.getElementById('ogUrl');
+  if (ogUrl) ogUrl.setAttribute('content', url);
+
+  const twitterTitle = document.getElementById('twitterTitle');
+  if (twitterTitle) twitterTitle.setAttribute('content', title);
+
+  const twitterDescription = document.getElementById('twitterDescription');
+  if (twitterDescription) twitterDescription.setAttribute('content', description);
+
+  const structuredDataEl = document.getElementById('structuredData');
+  if (structuredDataEl) {
+    const breadcrumbElements = [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.findschool.uk/"
+      }
+    ];
+    if (address.town) {
+      breadcrumbElements.push({
+        "@type": "ListItem",
+        "position": breadcrumbElements.length + 1,
+        "name": address.town,
+        "item": `https://www.findschool.uk/${address.town.toLowerCase().replace(/\s+/g, '-')}`
+      });
+    }
+    if (address.local_authority) {
+      breadcrumbElements.push({
+        "@type": "ListItem",
+        "position": breadcrumbElements.length + 1,
+        "name": address.local_authority,
+        "item": `https://www.findschool.uk/local-authority/${address.local_authority.toLowerCase().replace(/\s+/g, '-')}`
+      });
+    }
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      "position": breadcrumbElements.length + 1,
+      "name": schoolName,
+      "item": url
+    });
+
+    const schoolNode = {
+      "@type": "School",
+      "name": schoolName,
+      "url": url,
+      "description": description
+    };
+
+    if (school.urn) {
+      schoolNode.identifier = {
+        "@type": "PropertyValue",
+        "propertyID": "URN",
+        "value": school.urn
+      };
+    }
+
+    if (address && (address.street || address.locality || address.town || address.postcode)) {
+      const postalAddress = {
+        "@type": "PostalAddress",
+        "addressCountry": school.country || 'UK'
+      };
+      if (address.street) postalAddress.streetAddress = address.street;
+      if (address.town || address.locality) postalAddress.addressLocality = address.town || address.locality;
+      if (address.local_authority) postalAddress.addressRegion = address.local_authority;
+      if (address.postcode) postalAddress.postalCode = address.postcode;
+      schoolNode.address = postalAddress;
+    }
+
+    if (school.telephone) {
+      schoolNode.telephone = school.telephone;
+    }
+
+    if (school.website) {
+      const urlValue = school.website.startsWith('http') ? school.website : `https://${school.website}`;
+      schoolNode.sameAs = [urlValue];
+    }
+
+    if (school.overall_rating) {
+      const ratingValue = Number(school.overall_rating);
+      if (!Number.isNaN(ratingValue)) {
+        schoolNode.aggregateRating = {
+          "@type": "AggregateRating",
+          "ratingValue": ratingValue.toFixed(1),
+          "bestRating": "10",
+          "worstRating": "1"
+        };
+      }
+    }
+
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@graph": [
+        schoolNode,
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": breadcrumbElements
+        }
+      ]
+    };
+
+    structuredDataEl.textContent = JSON.stringify(structuredData, null, 2);
+  }
+}
+
 // Extract URN from URL (supports /school/123456 or /something/123456-name)
 function extractURN() {
   const parts = (window.location.pathname || '').split('/').filter(Boolean);
@@ -140,8 +285,8 @@ function updateSchoolDisplay(school) {
     if (typeof window.updateRatingDisplay === 'function') {
       window.updateRatingDisplay(school);
     }
-    
-    document.title = `${school.name || 'School'} - Better School UK`;
+
+    updateSchoolMeta(school);
   } catch (e) {
     console.error('updateSchoolDisplay error:', e);
     // Continue rendering even if one part fails
