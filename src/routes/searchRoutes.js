@@ -143,6 +143,8 @@ router.get('/', async (req, res) => {
         s.type_of_establishment,
         s.establishment_group,
         s.has_sixth_form,
+        s.rating_components,
+        s.rating_data_completeness,
         s.street,
         s.religious_character,
         s.gender,

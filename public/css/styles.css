@@ -883,6 +883,7 @@ iframe {
 .rating-good { background: linear-gradient(135deg, var(--info-color), var(--primary-color)); }
 .rating-satisfactory { background: linear-gradient(135deg, var(--warning-color), #d97706); }
 .rating-poor { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+.rating-no-rating { background: var(--gray-100); color: var(--gray-500); border: 1px solid var(--gray-200); }
 
 .school-card-details {
     display: grid;

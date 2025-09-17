@@ -599,6 +599,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
           ...s,
           overall_rating: school.overall_rating,
           rating_data_completeness: school.rating_data_completeness,
+          rating_components: school.rating_components,
         };
       }
       return s;
@@ -608,49 +609,36 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
     console.warn('Failed to sync ratings for list', e);
   }
   
-  const html = topSchools.map((school, index) => {
-    let ratingText = '—';
-    let dataIndicator = '';
-    let ratingValue = null;
 
-    if (school.overall_rating != null) {
-      const r = Number(school.overall_rating);
-      
-      // Cap rating at 10
-      const cappedRating = Math.min(r, 10);
-      
-      // Check data completeness
-      if (school.rating_data_completeness && school.rating_data_completeness < 40) {
-        ratingText = '—';
+  const html = topSchools.map((school, index) => {
+    const ratingInfo = window.getDisplayRating ? window.getDisplayRating(school, { placeholder: 'No rating' }) : {
+      hasRating: !!school.overall_rating,
+      display: school.overall_rating,
+      value: Number(school.overall_rating) || null,
+      completeness: school.rating_data_completeness || 0,
+      reason: school.overall_rating ? null : 'no-score'
+    };
+    const ratingText = ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating';
+    let dataIndicator = '';
+    if (ratingInfo.hasRating) {
+      if (school.rating_data_completeness >= 100) {
+        dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
+      } else if (school.rating_data_completeness >= 40) {
+        dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">◐</span>';
+      } else if (school.rating_data_completeness && school.rating_data_completeness < 40) {
         dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
-      } else {
-        // Show clean display for 10, one decimal otherwise
-        ratingText = cappedRating === 10 ? '10' : cappedRating.toFixed(1);
-        
-        if (school.rating_data_completeness >= 100) {
-          dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
-        } else if (school.rating_data_completeness >= 40) {
-          dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">◐</span>';
-        }
       }
-      
-      ratingValue = cappedRating;
-    } else if (school.ofsted_rating != null && !cityData.isNonEngland) {
-      // Fallback to Ofsted-based rating
-      const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
-      if (fallback != null) {
-        ratingText = fallback.toFixed(1);
-        dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
-        ratingValue = fallback;
-      }
+    } else if (ratingInfo.reason === 'attendance-or-ofsted-only') {
+      dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Requires performance data">⚠</span>';
+    } else if (ratingInfo.reason === 'insufficient-data') {
+      dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
     }
-    
-    // Don't show Ofsted badge for non-England
+
     const ofstedBadge = (!cityData.isNonEngland && school.ofsted_rating) ? `
       <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
         ${getOfstedLabel(school.ofsted_rating)}
       </div>` : '';
-    
+
     return `
       <div class="school-item" onclick="window.location.href='${window.schoolPath ? window.schoolPath(school) : '/school/' + school.urn}'">
         <div class="school-rank">${index + 1}</div>
@@ -664,7 +652,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
         </div>
         <div class="school-metrics">
           <div class="metric">
-            <div class="metric-value">${ratingText}/10${dataIndicator}</div>
+            <div class="metric-value">${ratingText}${dataIndicator}</div>
             <div class="metric-label">Rating</div>
           </div>
           ${ofstedBadge}
@@ -672,7 +660,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
       </div>
     `;
   }).join('');
-  
+
   container.innerHTML = html;
 }
 

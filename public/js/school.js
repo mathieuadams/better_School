@@ -312,35 +312,6 @@ function updateSchoolDisplay(school) {
   }
 }
 
-// Fix for rating display - Cap at 10 and handle partial data
-function formatRatingDisplay(rating, dataCompleteness) {
-  if (rating === null || rating === undefined) {
-    return 'N/A';
-  }
-  
-  // Parse the rating value
-  let ratingValue = parseFloat(rating);
-  
-  // Cap at 10
-  if (ratingValue > 10) {
-    ratingValue = 10;
-  }
-  
-  // If data completeness is low, show indicator
-  if (dataCompleteness && dataCompleteness < 40) {
-    return 'Insufficient Data';
-  }
-  
-  // For display purposes, show clean integer for 10, one decimal otherwise
-  if (ratingValue === 10) {
-    return '10';
-  } else if (ratingValue >= 10) {
-    return '10'; // Cap display at 10
-  } else {
-    return ratingValue.toFixed(1);
-  }
-}
-
 function updateHeader(school) {
   setText('schoolName', school.name || 'School Name');
   setText('schoolType', school.type || '-');
@@ -350,7 +321,13 @@ function updateHeader(school) {
   setText('schoolAddress', fullAddress(school.address));
 
   const ratingEl = document.getElementById('overallRating');
-  if (ratingEl) ratingEl.textContent = school.overall_rating ? `${fmt1(school.overall_rating)}/10` : 'N/A';
+  if (ratingEl) {
+    const ratingInfo = window.getDisplayRating ? window.getDisplayRating(school, { placeholder: 'No rating' }) : {
+      hasRating: !!school.overall_rating,
+      display: school.overall_rating ? fmt1(school.overall_rating) : 'No rating'
+    };
+    ratingEl.textContent = ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating';
+  }
 
   if (!isScottishSchool && school.ofsted) {
     setText('ofstedRating', ofstedLabel(school.ofsted.overall_effectiveness));
@@ -617,45 +594,35 @@ function updateNearbySchools(schools) {
 // ---------------------- Rating component bridge -----------------------------
 window.updateRatingDisplay = function(schoolData) {
   if (!schoolData) return;
-  if (!schoolData) return;
-  
+
   const isScottish = schoolData.country === 'Scotland' || schoolData.is_scotland;
-  
-  // Cap rating at 10
-  let rating = schoolData.overall_rating ? parseFloat(schoolData.overall_rating) : null;
-  if (rating && rating > 10) {
-    rating = 10;
-  }
-  
-  // Check data completeness
-  const dataCompleteness = schoolData.rating_data_completeness || 0;
-  
+  const ratingInfo = window.getDisplayRating ? window.getDisplayRating(schoolData, { placeholder: 'N/A' }) : {
+    hasRating: !!schoolData.overall_rating,
+    display: schoolData.overall_rating ? Number(schoolData.overall_rating).toFixed(1) : 'N/A',
+    value: Number(schoolData.overall_rating) || null,
+    completeness: schoolData.rating_data_completeness || 0,
+    reason: schoolData.overall_rating ? null : 'no-score'
+  };
+
   const scoreEl = document.getElementById('mainRatingScore');
   if (scoreEl) {
-    if (!rating || dataCompleteness < 40) {
-      scoreEl.textContent = 'N/A';
-    } else {
-      // Show clean 10 or decimal for other values
-      scoreEl.textContent = rating === 10 ? '10' : rating.toFixed(1);
-    }
-  }
-  
-  const ratingEl = document.getElementById('overallRating');
-  if (ratingEl) {
-    if (!rating || dataCompleteness < 40) {
-      ratingEl.textContent = 'N/A';
-    } else {
-      const displayRating = rating === 10 ? '10' : rating.toFixed(1);
-      ratingEl.textContent = `${displayRating}/10`;
-    }
+    scoreEl.textContent = ratingInfo.hasRating ? (ratingInfo.value === 10 ? '10' : ratingInfo.display) : 'No rating';
   }
 
-  // Update performance text
+  const ratingEl = document.getElementById('overallRating');
+  if (ratingEl) {
+    ratingEl.textContent = ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating';
+  }
+
   const perfEl = document.getElementById('ratingPerformance');
   if (perfEl) {
-    if (!rating || dataCompleteness < 40) {
-      setText('performanceLevel', 'insufficient data available');
+    if (!ratingInfo.hasRating) {
+      const message = ratingInfo.reason === 'attendance-or-ofsted-only'
+        ? 'performance data unavailable for rating'
+        : 'insufficient data available';
+      setText('performanceLevel', message);
     } else {
+      const rating = ratingInfo.value;
       let level = 'at an average level';
       if (rating >= 8) level = 'above average';
       else if (rating >= 6) level = 'slightly above average';
@@ -665,15 +632,23 @@ window.updateRatingDisplay = function(schoolData) {
     setText('localAuthority', schoolData.address?.local_authority || schoolData.local_authority || 'the local authority');
   }
 
-    // Show data completeness warning if needed
   const dataNotice = document.getElementById('dataNotice');
   if (dataNotice) {
-    if (dataCompleteness < 40) {
+    let notice = '';
+    if (!ratingInfo.hasRating) {
+      if (ratingInfo.reason === 'attendance-or-ofsted-only') {
+        notice = 'Rating unavailable: requires academic performance data';
+      } else if (ratingInfo.reason === 'insufficient-data') {
+        notice = 'Insufficient data for full rating';
+      }
+    } else if (ratingInfo.completeness && ratingInfo.completeness < 100) {
+      notice = `Rating based on ${ratingInfo.completeness}% of available data`;
+    }
+
+    if (notice) {
       dataNotice.style.display = 'flex';
-      document.getElementById('dataNoticeText').textContent = 'Insufficient data for full rating';
-    } else if (dataCompleteness < 100) {
-      dataNotice.style.display = 'flex';
-      document.getElementById('dataNoticeText').textContent = `Rating based on ${dataCompleteness}% of available data`;
+      const noticeText = document.getElementById('dataNoticeText');
+      if (noticeText) noticeText.textContent = notice;
     } else {
       dataNotice.style.display = 'none';
     }

@@ -869,16 +869,9 @@ router.get('/:urn/nearby', async (req, res) => {
         s.town,
         o.overall_effectiveness AS ofsted_rating,
         COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll,
-        COALESCE(
-          s.overall_rating,
-          CASE
-            WHEN o.overall_effectiveness = 1 THEN 9
-            WHEN o.overall_effectiveness = 2 THEN 7
-            WHEN o.overall_effectiveness = 3 THEN 5
-            WHEN o.overall_effectiveness = 4 THEN 3
-            ELSE NULL
-          END
-        ) AS overall_rating
+        s.overall_rating,
+        s.rating_components,
+        s.rating_data_completeness
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn
