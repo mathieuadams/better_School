@@ -286,6 +286,9 @@
           if (res.ok) {
             const html = await res.text();
             document.getElementById(comp).innerHTML = html;
+            if (comp === 'header' && typeof window.initializeHeader === 'function') {
+              window.initializeHeader();
+            }
           }
         } catch (e) {
           console.error(`Error loading ${comp}:`, e);

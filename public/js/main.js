@@ -3,6 +3,129 @@
 // API Base URL - automatically uses the same domain
 const API_BASE_URL = '/api';
 
+let mobileMenuButton = null;
+let mobileMenuContainer = null;
+
+function normalizePath(path) {
+    if (!path) return '/';
+    const cleaned = path.split('?')[0].split('#')[0].replace(/\.html$/i, '');
+    if (cleaned === '' || cleaned === '/') {
+        return '/';
+    }
+    const trimmed = cleaned.replace(/\/$/, '');
+    if (trimmed === '') {
+        return '/';
+    }
+    return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+}
+
+function pathsMatch(linkPath, currentPath) {
+    const normalizedLink = normalizePath(linkPath);
+    const normalizedCurrent = normalizePath(currentPath);
+
+    if (normalizedLink === normalizedCurrent) return true;
+
+    if (normalizedLink === '/review' && (normalizedCurrent === '/write-review')) return true;
+    if (normalizedLink === '/' && (normalizedCurrent === '/index')) return true;
+
+    return false;
+}
+
+function highlightActiveNavLinks() {
+    const currentPath = window.location.pathname;
+    const allNavLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+    if (!allNavLinks.length) return;
+
+    allNavLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href) {
+            link.classList.remove('active');
+            link.removeAttribute('aria-current');
+            return;
+        }
+
+        const isActive = pathsMatch(href, currentPath);
+        link.classList.toggle('active', isActive);
+        if (isActive) {
+            link.setAttribute('aria-current', 'page');
+        } else {
+            link.removeAttribute('aria-current');
+        }
+    });
+}
+
+function setMobileMenuState(shouldOpen) {
+    if (!mobileMenuButton || !mobileMenuContainer) return;
+
+    mobileMenuButton.classList.toggle('active', shouldOpen);
+    mobileMenuButton.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+
+    mobileMenuContainer.classList.toggle('active', shouldOpen);
+    mobileMenuContainer.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+
+    document.body.classList.toggle('mobile-menu-open', shouldOpen);
+}
+
+function toggleMobileMenu(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const shouldOpen = !mobileMenuButton?.classList.contains('active');
+    setMobileMenuState(shouldOpen);
+}
+
+function closeMobileMenu() {
+    if (!mobileMenuButton?.classList.contains('active')) return;
+    setMobileMenuState(false);
+}
+
+function handleDocumentClick(event) {
+    if (!mobileMenuContainer || !mobileMenuButton) return;
+    if (mobileMenuContainer.contains(event.target) || mobileMenuButton.contains(event.target)) {
+        return;
+    }
+    closeMobileMenu();
+}
+
+function initializeHeader() {
+    const headerEl = document.querySelector('.navbar');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const menuPanel = document.getElementById('mobileMenu');
+
+    if (!headerEl || !menuBtn || !menuPanel) {
+        return;
+    }
+
+    mobileMenuButton = menuBtn;
+    mobileMenuContainer = menuPanel;
+
+    highlightActiveNavLinks();
+    setMobileMenuState(false);
+
+    if (menuBtn.dataset.bound !== 'true') {
+        menuBtn.addEventListener('click', toggleMobileMenu);
+        menuPanel.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+        menuBtn.dataset.bound = 'true';
+    }
+
+    if (document.body && !document.body.dataset.mobileMenuListener) {
+        document.addEventListener('click', handleDocumentClick);
+        document.body.dataset.mobileMenuListener = 'true';
+    }
+}
+
+window.initializeHeader = initializeHeader;
+
+document.addEventListener('componentsLoaded', initializeHeader);
+window.addEventListener('popstate', () => {
+    highlightActiveNavLinks();
+    closeMobileMenu();
+});
+
 // Ensure favicon is available on every page regardless of template differences
 function ensureFavicon() {
     const head = document.head;
@@ -99,6 +222,7 @@ async function loadComponents() {
             const headerElement = document.getElementById('header');
             if (headerElement) {
                 headerElement.innerHTML = headerHTML;
+                initializeHeader();
             }
         }
         

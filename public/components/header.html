@@ -18,79 +18,19 @@
             </div>
             
             <!-- Mobile Menu Button -->
-            <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
+            <button class="mobile-menu-btn" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
             </button>
         </div>
     </div>
 </nav>
 
 <!-- Mobile Menu -->
-<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
     <a href="/" class="mobile-nav-link">Home</a>
     <a href="/review" class="mobile-nav-link">Write a Review</a>
     <a href="/resources" class="mobile-nav-link">Resources</a>
     <a href="/about" class="mobile-nav-link">About</a>
 </div>
-
-<!-- Header JavaScript -->
-<script>
-    // Set active nav link based on current page
-    (function() {
-        const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('.nav-link');
-        
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
-        });
-        
-        // Special case for home
-        if (currentPath === '/' || currentPath === '/index.html') {
-            document.getElementById('nav-home')?.classList.add('active');
-        }
-        
-        // Special case for review pages
-        if (currentPath === '/review' || currentPath === '/write-review') {
-            document.getElementById('nav-review')?.classList.add('active');
-        }
-    })();
-    
-    // Toggle mobile menu
-    function toggleMobileMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuBtn = document.querySelector('.mobile-menu-btn');
-        
-        mobileMenu.classList.toggle('active');
-        menuBtn.classList.toggle('active');
-        
-        // Animate hamburger to X
-        if (menuBtn.classList.contains('active')) {
-            menuBtn.children[0].style.transform = 'rotate(45deg) translateY(6px)';
-            menuBtn.children[1].style.opacity = '0';
-            menuBtn.children[2].style.transform = 'rotate(-45deg) translateY(-6px)';
-        } else {
-            menuBtn.children[0].style.transform = '';
-            menuBtn.children[1].style.opacity = '';
-            menuBtn.children[2].style.transform = '';
-        }
-    }
-    
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuBtn = document.querySelector('.mobile-menu-btn');
-        
-        if (!mobileMenu.contains(event.target) && !menuBtn.contains(event.target)) {
-            mobileMenu.classList.remove('active');
-            menuBtn.classList.remove('active');
-            menuBtn.children[0].style.transform = '';
-            menuBtn.children[1].style.opacity = '';
-            menuBtn.children[2].style.transform = '';
-        }
-    });
-</script>

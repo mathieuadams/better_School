@@ -132,6 +132,10 @@
       // 1) Inject HTML
       target.innerHTML = html;
 
+      if (componentName === 'header' && typeof window.initializeHeader === 'function') {
+        window.initializeHeader();
+      }
+
       // 2) Execute any <script> tags from the injected fragment
       const scripts = Array.from(target.querySelectorAll('script'));
       for (const old of scripts) {
