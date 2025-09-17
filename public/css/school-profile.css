@@ -28,6 +28,8 @@
   color: #6b7280; 
   font-size: .875rem; 
   margin-bottom: 1rem; 
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
 }
 
 .school-address-info { 
@@ -42,7 +44,12 @@
 .rating-section { 
   display: flex; 
   gap: 1rem; 
-  align-items: center; 
+  align-items: stretch; 
+  flex-wrap: wrap;
+}
+
+.rating-section > * {
+  flex: 1 1 160px;
 }
 
 .main-rating { 
@@ -539,6 +546,17 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .profile-content {
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .section-card {
+    padding: 1.25rem;
+  }
+}
+
 @media (max-width: 900px) { 
   .neighborhood { 
     grid-template-columns: 1fr; 
@@ -552,6 +570,7 @@
   
   .profile-content { 
     grid-template-columns: 1fr; 
+    gap: 1.5rem;
   }
   
   .key-stats-grid { 
@@ -560,6 +579,50 @@
   
   .test-score-row {
     grid-template-columns: 100px 1fr 30px;
+  }
+
+  .rating-section {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-header {
+    padding: 1.5rem 0;
+  }
+
+  .school-title-section h1 {
+    font-size: 1.75rem;
+  }
+
+  .rating-section > * {
+    flex: 1 1 100%;
+  }
+
+  .main-rating, .ofsted-rating {
+    min-width: auto;
+  }
+
+  .section-card {
+    padding: 1rem;
+  }
+
+  .key-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .test-score-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .test-score-row .expand-btn {
+    justify-self: flex-start;
+  }
+
+  .score-display {
+    flex-wrap: wrap;
   }
 }
 

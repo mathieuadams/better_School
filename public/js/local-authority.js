@@ -111,24 +111,36 @@ function classifySchoolNIAware(school) {
   const phase = (school.phase_of_education || '').toLowerCase();
   const type = (school.type_of_establishment || '').toLowerCase();
   const group = (school.establishment_group || '').toLowerCase();
+  const combined = `${phase} ${type} ${group}`.trim();
 
-  const isSpecial = type.includes('special') || phase.includes('special') || group.includes('special');
-  if (isSpecial) return 'special';
+  if (!combined) return null;
 
-  // All-through
-  if (phase.includes('all-through') || phase.includes('through') || type.includes('all-through')) {
+  const contains = (term) => combined.includes(term);
+
+  if (contains('special') || contains('sen')) {
+    return 'special';
+  }
+
+  if (contains('all-through') || contains('all through') || contains('primary and secondary') || contains('through school')) {
     return 'all-through';
   }
 
-  const isPrimary = phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first') || type.includes('primary');
-  if (isPrimary) return 'primary';
+  if (contains('post-primary') || contains('post primary')) {
+    return 'secondary';
+  }
 
-  const isSecondary = phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper') ||
-    /post[-\s]?primary/.test(phase) || /post[-\s]?primary/.test(type) || type.includes('secondary') || type.includes('grammar') || type.includes('high school');
-  if (isSecondary) return 'secondary';
+  const primaryIndicators = ['primary', 'infant', 'junior', 'first school', 'first ', 'nursery', 'preparatory', 'prep', 'elementary', 'lower school'];
+  if (primaryIndicators.some(term => contains(term))) {
+    return 'primary';
+  }
 
-  // Sixth form detection (England/Northern Ireland)
-  if (phase.includes('sixth') || phase.includes('16') || phase.includes('post-16') || type.includes('sixth') || type.includes('post-16')) {
+  const secondaryIndicators = ['secondary', 'middle', 'high', 'upper', 'senior', 'academy', 'grammar', 'comprehensive', 'coláiste', 'college', 'post-16', 'post 16'];
+  if (secondaryIndicators.some(term => contains(term))) {
+    return 'secondary';
+  }
+
+  const sixthIndicators = ['sixth', 'six form', 'sixthform', 'further education'];
+  if (sixthIndicators.some(term => contains(term))) {
     return 'sixth';
   }
 
