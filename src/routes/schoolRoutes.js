@@ -490,6 +490,7 @@ router.get('/:urn', async (req, res) => {
     const a = aR.rows[0] || {};
 
     // 3) Calculate LA averages for comparison
+    
     const laAvgSql = `
       SELECT
         AVG(s2.english_score) AS avg_english,

@@ -350,6 +350,7 @@ router.get('/', async (req, res) => {
         LOWER(s.local_authority) LIKE LOWER($${countParamCount})
       )`;
       countParams.push(qExact, qExact, laPrefix);
+      
     } else {
       countParamCount += 4;
       countQuery += ` AND (
