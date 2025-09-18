@@ -19,12 +19,8 @@ router.get('/suggest', async (req, res) => {
   try {
     const schoolsSql = `
       SELECT s.urn, s.name, s.town, s.postcode,
-             COALESCE(s.overall_rating,
-                      CASE o.overall_effectiveness
-                        WHEN 1 THEN 9 WHEN 2 THEN 7 WHEN 3 THEN 5 WHEN 4 THEN 3 ELSE NULL END
-             ) AS overall_rating
+             s.overall_rating
       FROM uk_schools s
-      LEFT JOIN uk_ofsted_inspections o ON o.urn = s.urn
       WHERE s.name ILIKE $1 OR s.postcode ILIKE $1 OR s.town ILIKE $1
       ORDER BY s.overall_rating DESC NULLS LAST, s.name ASC
       LIMIT $2;`;
@@ -642,7 +638,7 @@ router.get('/city/:city', async (req, res) => {
         s.town,
         s.phase_of_education,
         s.type_of_establishment,
-        COALESCE(s.overall_rating, 5.0) as overall_rating,  -- Use stored rating or default to 5
+        s.overall_rating as overall_rating,
         s.rating_percentile,
         o.overall_effectiveness as ofsted_rating,
         COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll

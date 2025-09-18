@@ -220,6 +220,23 @@ function calculateRatingWithFallbacks(school, laAverages) {
     }
   }
   
+  // Require academic data to produce an overall rating
+  const componentNames = new Set(components.map(c => c.name));
+  const hasAcademic = componentNames.has('academic');
+  const hasAttendance = componentNames.has('attendance');
+  const hasOfsted = componentNames.has('ofsted');
+
+  if (!hasAcademic && (hasAttendance || hasOfsted)) {
+    return {
+      rating: null,
+      message: "Insufficient data for rating",
+      available_components: components,
+      data_completeness: totalWeight,
+      is_wales: isWales,
+      is_scotland: isScotland
+    };
+  }
+
   // Check minimum data threshold
   const minThreshold = isWales ? 20 : (isScotland ? 50 : 40);
   if (totalWeight < minThreshold) {
