@@ -111,36 +111,24 @@ function classifySchoolNIAware(school) {
   const phase = (school.phase_of_education || '').toLowerCase();
   const type = (school.type_of_establishment || '').toLowerCase();
   const group = (school.establishment_group || '').toLowerCase();
-  const combined = `${phase} ${type} ${group}`.trim();
 
-  if (!combined) return null;
+  const isSpecial = type.includes('special') || phase.includes('special') || group.includes('special');
+  if (isSpecial) return 'special';
 
-  const contains = (term) => combined.includes(term);
-
-  if (contains('special') || contains('sen')) {
-    return 'special';
-  }
-
-  if (contains('all-through') || contains('all through') || contains('primary and secondary') || contains('through school')) {
+  // All-through
+  if (phase.includes('all-through') || phase.includes('through') || type.includes('all-through')) {
     return 'all-through';
   }
 
-  if (contains('post-primary') || contains('post primary')) {
-    return 'secondary';
-  }
+  const isPrimary = phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first') || type.includes('primary');
+  if (isPrimary) return 'primary';
 
-  const primaryIndicators = ['primary', 'infant', 'junior', 'first school', 'first ', 'nursery', 'preparatory', 'prep', 'elementary', 'lower school'];
-  if (primaryIndicators.some(term => contains(term))) {
-    return 'primary';
-  }
+  const isSecondary = phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper') ||
+    /post[-\s]?primary/.test(phase) || /post[-\s]?primary/.test(type) || type.includes('secondary') || type.includes('grammar') || type.includes('high school');
+  if (isSecondary) return 'secondary';
 
-  const secondaryIndicators = ['secondary', 'middle', 'high', 'upper', 'senior', 'academy', 'grammar', 'comprehensive', 'coláiste', 'college', 'post-16', 'post 16'];
-  if (secondaryIndicators.some(term => contains(term))) {
-    return 'secondary';
-  }
-
-  const sixthIndicators = ['sixth', 'six form', 'sixthform', 'further education'];
-  if (sixthIndicators.some(term => contains(term))) {
+  // Sixth form detection (England/Northern Ireland)
+  if (phase.includes('sixth') || phase.includes('16') || phase.includes('post-16') || type.includes('sixth') || type.includes('post-16')) {
     return 'sixth';
   }
 
@@ -672,7 +660,6 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
           ...s,
           overall_rating: school.overall_rating,
           rating_data_completeness: school.rating_data_completeness,
-          rating_components: school.rating_components,
         };
       }
       return s;
@@ -681,36 +668,49 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
     console.warn('Failed to sync ratings for LA list', e);
   }
   
-
   const html = topSchools.map((school, index) => {
-    const ratingInfo = window.getDisplayRating ? window.getDisplayRating(school, { placeholder: 'No rating' }) : {
-      hasRating: !!school.overall_rating,
-      display: school.overall_rating,
-      value: Number(school.overall_rating) || null,
-      completeness: school.rating_data_completeness || 0,
-      reason: school.overall_rating ? null : 'no-score'
-    };
-    const ratingText = ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating';
+    let ratingText = '—';
     let dataIndicator = '';
-    if (ratingInfo.hasRating) {
-      if (school.rating_data_completeness >= 100) {
-        dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
-      } else if (school.rating_data_completeness >= 40) {
-        dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">◐</span>';
-      } else if (school.rating_data_completeness && school.rating_data_completeness < 40) {
-        dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
-      }
-    } else if (ratingInfo.reason === 'attendance-or-ofsted-only') {
-      dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Requires performance data">⚠</span>';
-    } else if (ratingInfo.reason === 'insufficient-data') {
-      dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
-    }
+    let ratingValue = null;
 
+    if (school.overall_rating != null) {
+      const r = Number(school.overall_rating);
+      
+      // Cap rating at 10
+      const cappedRating = Math.min(r, 10);
+      
+      // Check data completeness
+      if (school.rating_data_completeness && school.rating_data_completeness < 40) {
+        ratingText = '—';
+        dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
+      } else {
+        // Show clean display for 10, one decimal otherwise
+        ratingText = cappedRating === 10 ? '10' : cappedRating.toFixed(1);
+        
+        if (school.rating_data_completeness >= 100) {
+          dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
+        } else if (school.rating_data_completeness >= 40) {
+          dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">◐</span>';
+        }
+      }
+      
+      ratingValue = cappedRating;
+    } else if (school.ofsted_rating != null && !isScottishLA) {
+      // Fallback to Ofsted-based rating
+      const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
+      if (fallback != null) {
+        ratingText = fallback.toFixed(1);
+        dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
+        ratingValue = fallback;
+      }
+    }
+    
+    // Don't show Ofsted badge for Scottish schools
     const ofstedBadge = (!isScottishLA && school.ofsted_rating) ? `
       <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
         ${getOfstedLabel(school.ofsted_rating)}
       </div>` : '';
-
+    
     return `
       <div class="school-item" onclick="window.location.href='${window.schoolPath ? window.schoolPath(school) : '/school/' + school.urn}'">
         <div class="school-rank">${index + 1}</div>
@@ -724,7 +724,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
         </div>
         <div class="school-metrics">
           <div class="metric">
-            <div class="metric-value">${ratingText}${dataIndicator}</div>
+            <div class="metric-value">${ratingText}/10${dataIndicator}</div>
             <div class="metric-label">Rating</div>
           </div>
           ${ofstedBadge}
@@ -732,7 +732,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
       </div>
     `;
   }).join('');
-
+  
   container.innerHTML = html;
 }
 

@@ -220,23 +220,6 @@ function calculateRatingWithFallbacks(school, laAverages) {
     }
   }
   
-  // Require academic data to produce an overall rating
-  const componentNames = new Set(components.map(c => c.name));
-  const hasAcademic = componentNames.has('academic');
-  const hasAttendance = componentNames.has('attendance');
-  const hasOfsted = componentNames.has('ofsted');
-
-  if (!hasAcademic && (hasAttendance || hasOfsted)) {
-    return {
-      rating: null,
-      message: "Insufficient data for rating",
-      available_components: components,
-      data_completeness: totalWeight,
-      is_wales: isWales,
-      is_scotland: isScotland
-    };
-  }
-
   // Check minimum data threshold
   const minThreshold = isWales ? 20 : (isScotland ? 50 : 40);
   if (totalWeight < minThreshold) {
@@ -490,7 +473,6 @@ router.get('/:urn', async (req, res) => {
     const a = aR.rows[0] || {};
 
     // 3) Calculate LA averages for comparison
-    
     const laAvgSql = `
       SELECT
         AVG(s2.english_score) AS avg_english,
@@ -887,9 +869,16 @@ router.get('/:urn/nearby', async (req, res) => {
         s.town,
         o.overall_effectiveness AS ofsted_rating,
         COALESCE(c.number_on_roll, s.total_pupils) AS number_on_roll,
-        s.overall_rating,
-        s.rating_components,
-        s.rating_data_completeness
+        COALESCE(
+          s.overall_rating,
+          CASE
+            WHEN o.overall_effectiveness = 1 THEN 9
+            WHEN o.overall_effectiveness = 2 THEN 7
+            WHEN o.overall_effectiveness = 3 THEN 5
+            WHEN o.overall_effectiveness = 4 THEN 3
+            ELSE NULL
+          END
+        ) AS overall_rating
       FROM uk_schools s
       LEFT JOIN uk_ofsted_inspections o ON s.urn = o.urn
       LEFT JOIN uk_census_data c ON s.urn = c.urn

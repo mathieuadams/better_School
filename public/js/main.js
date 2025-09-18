@@ -288,78 +288,6 @@ async function getNearbySchools(urn, limit = 5) {
     }
 }
 
-const RATING_MIN_COMPLETENESS = 40;
-
-function normalizeRatingComponents(raw) {
-    if (!raw) return [];
-    if (Array.isArray(raw)) return raw.filter(Boolean);
-    if (typeof raw === 'string') {
-        try {
-            const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-        } catch (error) {
-            return [];
-        }
-    }
-    if (typeof raw === 'object') {
-        if (Array.isArray(raw.components)) {
-            return raw.components.filter(Boolean);
-        }
-        return [raw];
-    }
-    return [];
-}
-
-function hasComponentScore(component) {
-    if (!component || typeof component !== 'object') return false;
-    const value = Number(component.score);
-    return Number.isFinite(value);
-}
-
-function getDisplayRating(school, options = {}) {
-    const placeholder = options.placeholder || 'No rating';
-    const minCompleteness = options.minCompleteness || RATING_MIN_COMPLETENESS;
-
-    if (!school) {
-        return { hasRating: false, value: null, display: placeholder, reason: 'no-data', completeness: 0 };
-    }
-
-    const ratingValue = Number(school.overall_rating);
-    const hasNumericRating = Number.isFinite(ratingValue) && ratingValue > 0;
-    const completeness = Number(school.rating_data_completeness) || 0;
-
-    if (!hasNumericRating) {
-        return { hasRating: false, value: null, display: placeholder, reason: 'no-score', completeness };
-    }
-
-    if (completeness && completeness < minCompleteness) {
-        return { hasRating: false, value: null, display: placeholder, reason: 'insufficient-data', completeness };
-    }
-
-    const components = normalizeRatingComponents(school.rating_components);
-    if (components.length) {
-        const hasAcademic = components.some(c => (c?.name || '').toLowerCase() === 'academic' && hasComponentScore(c));
-        const hasAttendance = components.some(c => (c?.name || '').toLowerCase() === 'attendance' && hasComponentScore(c));
-        const hasOfsted = components.some(c => (c?.name || '').toLowerCase() === 'ofsted' && hasComponentScore(c));
-        const hasOther = components.some(c => {
-            const name = (c?.name || '').toLowerCase();
-            return name && !['academic', 'attendance', 'ofsted'].includes(name) && hasComponentScore(c);
-        });
-
-        const onlyAttendanceOrOfsted = !hasOther && !hasAcademic && (hasAttendance || hasOfsted);
-        if (onlyAttendanceOrOfsted) {
-            return { hasRating: false, value: null, display: placeholder, reason: 'attendance-or-ofsted-only', completeness };
-        }
-    }
-
-    const bounded = Math.max(0, Math.min(ratingValue, 10));
-    const displayValue = bounded === 10 ? '10' : bounded.toFixed(1);
-
-    return { hasRating: true, value: bounded, display: displayValue, reason: null, completeness };
-}
-
-window.getDisplayRating = getDisplayRating;
-
 // Display search results
 function displaySearchResults(schools) {
     const container = document.getElementById('searchResults');
@@ -370,39 +298,21 @@ function displaySearchResults(schools) {
         return;
     }
     
-    const html = schools.map(school => {
-        const ratingInfo = getDisplayRating(school, { placeholder: 'No rating' });
-        const ratingClass = ratingInfo.hasRating ? getRatingClass(ratingInfo.value) : 'no-rating';
-        const ratingLabel = ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating';
-        let ratingTitle = '';
-        if (!ratingInfo.hasRating) {
-            if (ratingInfo.reason === 'attendance-or-ofsted-only') {
-                ratingTitle = 'Rating unavailable: requires performance data';
-            } else if (ratingInfo.reason === 'insufficient-data') {
-                ratingTitle = 'Rating unavailable: insufficient data';
-            } else if (ratingInfo.reason === 'no-score') {
-                ratingTitle = 'Rating unavailable';
-            }
-        } else if (ratingInfo.completeness && ratingInfo.completeness < 100) {
-            ratingTitle = `Rating based on ${ratingInfo.completeness}% of available data`;
-        }
-        const titleAttr = ratingTitle ? ` title="${ratingTitle}"` : '';
-
-        return `
+    const html = schools.map(school => `
         <div class="school-card" onclick="window.location.href='${schoolPathFromData(school)}'">
             <div class="school-card-header">
                 <div>
                     <div class="school-card-name">${school.name}</div>
-                    <div class="school-card-type">${school.type_of_establishment || 'School'} • ${school.phase_of_education || ''}</div>
+                    <div class="school-card-type">${school.type_of_establishment} • ${school.phase_of_education}</div>
                 </div>
-                <div class="school-card-rating rating-${ratingClass}"${titleAttr}>
-                    ${ratingLabel}
+                <div class="school-card-rating rating-${getRatingClass(school.overall_rating)}">
+                    ${school.overall_rating}/10
                 </div>
             </div>
             <div class="school-card-details">
                 <div class="detail-item">
                     <span>📍</span>
-                    <span>${school.postcode || 'N/A'}</span>
+                    <span>${school.postcode}</span>
                 </div>
                 <div class="detail-item">
                     <span>🎓</span>
@@ -413,19 +323,18 @@ function displaySearchResults(schools) {
                     <span>${formatNumber(school.number_on_roll)} students</span>
                 </div>
             </div>
-        </div>`;
-    }).join('');
+        </div>
+    `).join('');
     
     container.innerHTML = html;
 }
 
 // Get rating class for styling
 function getRatingClass(rating) {
-    const value = Number(rating);
-    if (!Number.isFinite(value) || value <= 0) return 'no-rating';
-    if (value >= 8) return 'excellent';
-    if (value >= 6) return 'good';
-    if (value >= 4) return 'satisfactory';
+    if (!rating) return 'average';
+    if (rating >= 8) return 'excellent';
+    if (rating >= 6) return 'good';
+    if (rating >= 4) return 'satisfactory';
     return 'poor';
 }
 
@@ -732,13 +641,12 @@ async function loadSchoolData(urn) {
 // Update school profile with data
 function updateSchoolProfile(school) {
     // Update all the elements with school data
-    const ratingInfo = getDisplayRating(school, { placeholder: 'No rating' });
     const elements = {
         'schoolName': school.name,
         'schoolType': school.type,
         'schoolPhase': school.phase,
         'schoolAddress': `${school.address.street}, ${school.address.town}, ${school.address.postcode}`,
-        'overallRating': ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating',
+        'overallRating': school.overall_rating + '/10',
         'statStudents': formatNumber(school.demographics.total_students),
         'statFSM': school.demographics.fsm_percentage + '%',
         'infoURN': school.urn,
@@ -783,30 +691,15 @@ function updateNearbySchools(schools) {
     const container = document.getElementById('nearbySchools');
     if (!container) return;
     
-    const html = schools.slice(0, 5).map(school => {
-        const ratingInfo = getDisplayRating(school, { placeholder: 'No rating' });
-        const label = ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating';
-        let title = '';
-        if (!ratingInfo.hasRating) {
-            if (ratingInfo.reason === 'attendance-or-ofsted-only') {
-                title = 'Rating unavailable: requires performance data';
-            } else if (ratingInfo.reason === 'insufficient-data') {
-                title = 'Rating unavailable: insufficient data';
-            }
-        } else if (ratingInfo.completeness && ratingInfo.completeness < 100) {
-            title = `Rating based on ${ratingInfo.completeness}% of available data`;
-        }
-        const titleAttr = title ? ` title="${title}"` : '';
-
-        return `
+    const html = schools.slice(0, 5).map(school => `
         <div class="nearby-school" onclick="window.location.href='${schoolPathFromData(school)}'">
             <div>
                 <div class="nearby-school-name">${school.name}</div>
-                <div class="nearby-school-distance">${school.type_of_establishment || ''}</div>
+                <div class="nearby-school-distance">${school.type_of_establishment}</div>
             </div>
-            <div class="nearby-school-rating"${titleAttr}>${label}</div>
-        </div>`;
-    }).join('');
+            <div class="nearby-school-rating">${school.overall_rating}/10</div>
+        </div>
+    `).join('');
     
     container.innerHTML = html;
 }

@@ -214,92 +214,35 @@ function processSchoolsData() {
     inadequate: 0,
     notInspected: 0
   };
-  const sixthFormUrns = new Set();
-
+  
   // Clear arrays
   cityData.schoolsByPhase.primary = [];
   cityData.schoolsByPhase.secondary = [];
   cityData.schoolsByPhase.sixthForm = [];
   cityData.localAuthorities = {};
   
-  const normalizeLAName = (raw) => {
-    if (!raw) return null;
-    const name = String(raw).trim();
-    if (!name) return null;
-    const lower = name.toLowerCase();
-    if (['unknown', 'n/a', 'na', 'not applicable'].includes(lower)) return null;
-    return name;
-  };
-
-  const resolveLocalAuthority = (school) => {
-    const candidates = [
-      normalizeLAName(school.local_authority),
-      normalizeLAName(school.parliamentary_constituency),
-      normalizeLAName(school.county),
-      normalizeLAName(school.region)
-    ];
-
-    for (const candidate of candidates) {
-      if (candidate) return candidate;
-    }
-
-    if (cityData.isNonEngland) {
-      const town = normalizeLAName(school.town);
-      if (town) return town;
-    }
-
-    return 'Unknown';
-  };
-
   // Helper to robustly classify school phases across UK (NI included)
   const classify = (school) => {
     const phase = (school.phase_of_education || '').toLowerCase();
     const type = (school.type_of_establishment || '').toLowerCase();
     const group = (school.establishment_group || '').toLowerCase();
-    const combined = `${phase} ${type} ${group}`.trim();
-
-    if (!combined) return null;
-
-    const contains = (term) => combined.includes(term);
-
-    if (contains('special') || contains('sen')) {
-      return 'special';
-    }
-
-    if (contains('all-through') || contains('all through') || contains('primary and secondary') || contains('through school')) {
-      return 'all-through';
-    }
-
-    if (contains('post-primary') || contains('post primary')) {
-      return 'secondary';
-    }
-
-    const primaryIndicators = ['primary', 'infant', 'junior', 'first school', 'first ', 'nursery', 'preparatory', 'prep', 'elementary', 'lower school'];
-    if (primaryIndicators.some(term => contains(term))) {
-      return 'primary';
-    }
-
-    const secondaryIndicators = ['secondary', 'middle', 'high', 'upper', 'senior', 'academy', 'grammar', 'comprehensive', 'coláiste', 'college', 'post-16', 'post 16'];
-    if (secondaryIndicators.some(term => contains(term))) {
-      return 'secondary';
-    }
-
-    const sixthIndicators = ['sixth', 'six form', 'sixthform', 'further education'];
-    if (sixthIndicators.some(term => contains(term))) {
-      return 'sixth';
-    }
-
+    if (type.includes('special') || phase.includes('special') || group.includes('special')) return 'special';
+    if (phase.includes('all-through') || phase.includes('through') || type.includes('all-through')) return 'all-through';
+    if (phase.includes('primary') || phase.includes('infant') || phase.includes('junior') || phase.includes('first') || type.includes('primary')) return 'primary';
+    if (phase.includes('secondary') || phase.includes('middle') || phase.includes('high') || phase.includes('upper') || /post[-\s]?primary/.test(phase) || /post[-\s]?primary/.test(type) || type.includes('secondary') || type.includes('grammar') || type.includes('high school')) return 'secondary';
+    if (phase.includes('sixth') || phase.includes('16') || phase.includes('post-16') || type.includes('sixth') || type.includes('post-16')) return 'sixth';
     return null;
   };
 
   cityData.schools.forEach(school => {
-    const laName = resolveLocalAuthority(school);
-    const laKey = laName.toLowerCase();
-
+    const phase = (school.phase_of_education || '').toLowerCase();
+    const type = (school.type_of_establishment || '').toLowerCase();
+    const la = school.local_authority || 'Unknown';
+    
     // Group by local authority
-    if (!cityData.localAuthorities[laKey]) {
-      cityData.localAuthorities[laKey] = {
-        name: laName,
+    if (!cityData.localAuthorities[la]) {
+      cityData.localAuthorities[la] = {
+        name: la,
         schools: [],
         primary: 0,
         secondary: 0,
@@ -309,46 +252,35 @@ function processSchoolsData() {
         students: 0
       };
     }
-    const laRecord = cityData.localAuthorities[laKey];
-    laRecord.schools.push(school);
-
+    cityData.localAuthorities[la].schools.push(school);
+    
     // Count by phase
     const cls = classify(school);
-    const meta = `${(school.phase_of_education || '').toLowerCase()} ${(school.type_of_establishment || '').toLowerCase()} ${(school.establishment_group || '').toLowerCase()}`;
-    const hasSixth = Boolean(school.has_sixth_form) || /sixth|post-16|post 16|upper sixth|six form|further education/.test(meta);
-
     if (cls === 'special') {
       specialCount++;
-      laRecord.special++;
-    }
-
-    if (cls === 'primary' || cls === 'all-through') {
+      cityData.localAuthorities[la].special++;
+    } else if (cls === 'primary' || cls === 'all-through') {
       primaryCount++;
       cityData.schoolsByPhase.primary.push(school);
-      laRecord.primary++;
-    }
-
-    if (cls === 'secondary' || cls === 'all-through') {
+      cityData.localAuthorities[la].primary++;
+    } else if (cls === 'secondary' || cls === 'all-through') {
       secondaryCount++;
       cityData.schoolsByPhase.secondary.push(school);
-      laRecord.secondary++;
-    }
-
-    if (!cityData.isScottish && (cls === 'sixth' || hasSixth)) {
-      const urnKey = school.urn || school.id || `${school.name}-${laKey}`;
-      if (!sixthFormUrns.has(urnKey)) {
-        sixthFormUrns.add(urnKey);
+      cityData.localAuthorities[la].secondary++;
+      
+      // Don't count sixth form for Scottish schools
+      if (!cityData.isScottish) {
         sixthFormCount++;
         cityData.schoolsByPhase.sixthForm.push(school);
       }
     }
-
+    
     // Count students (fallback to total_pupils for NI)
     const pupils = school.number_on_roll ?? school.total_pupils;
     if (pupils) {
       const students = parseInt(pupils) || 0;
       totalStudents += students;
-      laRecord.students += students;
+      cityData.localAuthorities[la].students += students;
     }
     
     // Count Ofsted ratings (England only)
@@ -356,11 +288,11 @@ function processSchoolsData() {
       switch(school.ofsted_rating) {
         case 1: 
           ofstedCounts.outstanding++;
-          laRecord.outstanding++;
+          cityData.localAuthorities[la].outstanding++;
           break;
         case 2: 
           ofstedCounts.good++;
-          laRecord.good++;
+          cityData.localAuthorities[la].good++;
           break;
         case 3: 
           ofstedCounts.requiresImprovement++;
@@ -378,10 +310,8 @@ function processSchoolsData() {
   // Update stats
   document.getElementById('totalSchools').textContent = cityData.schools.length;
   document.getElementById('totalStudents').textContent = formatNumber(totalStudents);
-  const laValues = Object.values(cityData.localAuthorities);
-  const knownLaCount = laValues.filter(la => la.name !== 'Unknown').length;
-  document.getElementById('totalLAs').textContent = knownLaCount || laValues.length;
-
+  document.getElementById('totalLAs').textContent = Object.keys(cityData.localAuthorities).length;
+  
   document.getElementById('primaryCount').textContent = primaryCount;
   document.getElementById('secondaryCount').textContent = secondaryCount;
   
@@ -402,13 +332,9 @@ function renderLocalAuthorities() {
   if (!laGrid) return;
   
   const laArray = Object.values(cityData.localAuthorities);
-
+  
   // Sort by number of schools (largest first)
-  laArray.sort((a, b) => {
-    if (a.name === 'Unknown') return 1;
-    if (b.name === 'Unknown') return -1;
-    return b.schools.length - a.schools.length;
-  });
+  laArray.sort((a, b) => b.schools.length - a.schools.length);
   
   const html = laArray.map(la => {
     // Create URL-friendly slug for the LA
@@ -599,7 +525,6 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
           ...s,
           overall_rating: school.overall_rating,
           rating_data_completeness: school.rating_data_completeness,
-          rating_components: school.rating_components,
         };
       }
       return s;
@@ -609,36 +534,49 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
     console.warn('Failed to sync ratings for list', e);
   }
   
-
   const html = topSchools.map((school, index) => {
-    const ratingInfo = window.getDisplayRating ? window.getDisplayRating(school, { placeholder: 'No rating' }) : {
-      hasRating: !!school.overall_rating,
-      display: school.overall_rating,
-      value: Number(school.overall_rating) || null,
-      completeness: school.rating_data_completeness || 0,
-      reason: school.overall_rating ? null : 'no-score'
-    };
-    const ratingText = ratingInfo.hasRating ? `${ratingInfo.display}/10` : 'No rating';
+    let ratingText = '—';
     let dataIndicator = '';
-    if (ratingInfo.hasRating) {
-      if (school.rating_data_completeness >= 100) {
-        dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
-      } else if (school.rating_data_completeness >= 40) {
-        dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">◐</span>';
-      } else if (school.rating_data_completeness && school.rating_data_completeness < 40) {
-        dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
-      }
-    } else if (ratingInfo.reason === 'attendance-or-ofsted-only') {
-      dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Requires performance data">⚠</span>';
-    } else if (ratingInfo.reason === 'insufficient-data') {
-      dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
-    }
+    let ratingValue = null;
 
+    if (school.overall_rating != null) {
+      const r = Number(school.overall_rating);
+      
+      // Cap rating at 10
+      const cappedRating = Math.min(r, 10);
+      
+      // Check data completeness
+      if (school.rating_data_completeness && school.rating_data_completeness < 40) {
+        ratingText = '—';
+        dataIndicator = ' <span style="color:#dc2626;font-size:0.7rem;" title="Insufficient data">⚠</span>';
+      } else {
+        // Show clean display for 10, one decimal otherwise
+        ratingText = cappedRating === 10 ? '10' : cappedRating.toFixed(1);
+        
+        if (school.rating_data_completeness >= 100) {
+          dataIndicator = ' <span style="color:#10b981;font-size:0.7rem;" title="Complete data">✓</span>';
+        } else if (school.rating_data_completeness >= 40) {
+          dataIndicator = ' <span style="color:#f59e0b;font-size:0.7rem;" title="Partial data">◐</span>';
+        }
+      }
+      
+      ratingValue = cappedRating;
+    } else if (school.ofsted_rating != null && !cityData.isNonEngland) {
+      // Fallback to Ofsted-based rating
+      const fallback = ({1:9, 2:7, 3:5, 4:3})[school.ofsted_rating];
+      if (fallback != null) {
+        ratingText = fallback.toFixed(1);
+        dataIndicator = ' <span style="color:#6b7280;font-size:0.7rem;" title="Ofsted only">※</span>';
+        ratingValue = fallback;
+      }
+    }
+    
+    // Don't show Ofsted badge for non-England
     const ofstedBadge = (!cityData.isNonEngland && school.ofsted_rating) ? `
       <div class="ofsted-badge ${getOfstedClass(school.ofsted_rating)}">
         ${getOfstedLabel(school.ofsted_rating)}
       </div>` : '';
-
+    
     return `
       <div class="school-item" onclick="window.location.href='${window.schoolPath ? window.schoolPath(school) : '/school/' + school.urn}'">
         <div class="school-rank">${index + 1}</div>
@@ -652,7 +590,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
         </div>
         <div class="school-metrics">
           <div class="metric">
-            <div class="metric-value">${ratingText}${dataIndicator}</div>
+            <div class="metric-value">${ratingText}/10${dataIndicator}</div>
             <div class="metric-label">Rating</div>
           </div>
           ${ofstedBadge}
@@ -660,7 +598,7 @@ async function renderSchoolList(containerId, schools, showMax = 5) {
       </div>
     `;
   }).join('');
-
+  
   container.innerHTML = html;
 }
 
