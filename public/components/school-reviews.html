@@ -488,6 +488,11 @@
     document.getElementById('avgRating').textContent = avgRating.toFixed(1);
     document.getElementById('reviewsCount').textContent = `${stats.total_reviews || 0} Reviews`;
 
+    window.schoolReviewStats = stats;
+    if (typeof window.refreshStructuredData === 'function') {
+      window.refreshStructuredData();
+    }
+
     // Update star display
     const starsContainer = document.getElementById('avgStars');
     starsContainer.innerHTML = '';

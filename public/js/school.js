@@ -6,6 +6,7 @@
 // ----------------------------- Globals -------------------------------------
 let currentSchoolData = null;
 let isScottishSchool = false;
+window.schoolReviewStats = window.schoolReviewStats || null;
 
 // ----------------------------- Helpers -------------------------------------
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -178,12 +179,27 @@ function updateSchoolMeta(school) {
       schoolNode.sameAs = [urlValue];
     }
 
-    if (school.overall_rating) {
+    const reviewStats = window.schoolReviewStats;
+    if (reviewStats && Number(reviewStats.total_reviews) > 0) {
+      const avgReviewRating = Number(reviewStats.avg_overall_rating);
+      if (!Number.isNaN(avgReviewRating)) {
+        schoolNode.aggregateRating = {
+          "@type": "AggregateRating",
+          "ratingValue": avgReviewRating.toFixed(1),
+          "ratingCount": Number(reviewStats.total_reviews),
+          "reviewCount": Number(reviewStats.total_reviews),
+          "bestRating": "5",
+          "worstRating": "1"
+        };
+      }
+    } else if (school.overall_rating) {
       const ratingValue = Number(school.overall_rating);
       if (!Number.isNaN(ratingValue)) {
+        // Use the platform score when reviews are not yet available so rich snippets stay valid
         schoolNode.aggregateRating = {
           "@type": "AggregateRating",
           "ratingValue": ratingValue.toFixed(1),
+          "ratingCount": 1,
           "bestRating": "10",
           "worstRating": "1"
         };
@@ -784,6 +800,12 @@ window.showSubjectInfo = function (subject) {
 window.renderSchoolUIFromCache = function () {
   if (window.currentSchoolData) {
     updateSchoolDisplay(window.currentSchoolData);
+  }
+};
+
+window.refreshStructuredData = function () {
+  if (window.currentSchoolData) {
+    updateSchoolMeta(window.currentSchoolData);
   }
 };
 
