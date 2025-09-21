@@ -644,6 +644,7 @@ router.get('/city/:city', async (req, res) => {
       WHERE LOWER(s.town) = LOWER($1) OR LOWER(s.local_authority) = LOWER($1)
     `;
 
+    
     const params = [city];
     
     if (phase) {

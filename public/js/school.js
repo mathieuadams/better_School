@@ -182,12 +182,13 @@ function updateSchoolMeta(school) {
     const reviewStats = window.schoolReviewStats;
     if (reviewStats && Number(reviewStats.total_reviews) > 0) {
       const avgReviewRating = Number(reviewStats.avg_overall_rating);
-      if (!Number.isNaN(avgReviewRating)) {
+      const totalReviews = Number(reviewStats.total_reviews);
+      if (!Number.isNaN(avgReviewRating) && totalReviews > 0) {
         schoolNode.aggregateRating = {
           "@type": "AggregateRating",
           "ratingValue": avgReviewRating.toFixed(1),
-          "ratingCount": Number(reviewStats.total_reviews),
-          "reviewCount": Number(reviewStats.total_reviews),
+          "ratingCount": totalReviews,
+          "reviewCount": totalReviews,
           "bestRating": "5",
           "worstRating": "1"
         };
@@ -195,11 +196,15 @@ function updateSchoolMeta(school) {
     } else if (school.overall_rating) {
       const ratingValue = Number(school.overall_rating);
       if (!Number.isNaN(ratingValue)) {
+        const fallbackCount = Number.isFinite(Number(school.total_reviews)) && Number(school.total_reviews) > 0
+          ? Number(school.total_reviews)
+          : 1;
         // Use the platform score when reviews are not yet available so rich snippets stay valid
         schoolNode.aggregateRating = {
           "@type": "AggregateRating",
           "ratingValue": ratingValue.toFixed(1),
-          "ratingCount": 1,
+          "ratingCount": fallbackCount,
+          "reviewCount": fallbackCount,
           "bestRating": "10",
           "worstRating": "1"
         };
